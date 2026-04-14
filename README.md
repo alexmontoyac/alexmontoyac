@@ -1,6 +1,6 @@
 - 👋 Hi, I’m @alexmontoyac
-- 👀 I’m interested in learn programming
-- 🌱 I’m currently learning javascript
+- 👀 I’m interested in AI stuff for HR
+- 🌱 I’m currently learning AI agents
 - 📫 How to reach me montoya.alejandro@gmail.com
 
 <!---
