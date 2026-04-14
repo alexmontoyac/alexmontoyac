@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dashboard Clima Laboral · IA Interactive</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --dark: #101223;
+    --red: #C83B2B;
+    --gray-dark: #5B5D6B;
+    --gray-mid: #B3B5BD;
+    --white: #FFFFFF;
+    --black: #000000;
+    --red-light: rgba(200,59,43,0.12);
+    --dark-light: rgba(16,18,35,0.08);
+    --green: #2D7D46;
+    --yellow: #D97706;
+    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #F2F3F6; color: var(--black); font-family: var(--font); font-size: 14px; }
+
+  /* HEADER */
+  .header {
+    background: var(--dark);
+    padding: 18px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .header svg { height: 26px; width: auto; }
+  .header-right { text-align: right; }
+  .header-right h1 { color: var(--white); font-size: 16px; font-weight: 600; }
+  .header-right p { color: var(--gray-mid); font-size: 12px; margin-top: 2px; }
+
+  /* NAV TABS */
+  .nav-tabs {
+    background: var(--white);
+    border-bottom: 2px solid var(--dark-light);
+    padding: 0 32px;
+    display: flex; gap: 0;
+    overflow-x: auto;
+    position: sticky; top: 63px; z-index: 99;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .nav-tab {
+    padding: 14px 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-dark);
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    white-space: nowrap;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .nav-tab:hover { color: var(--dark); background: var(--dark-light); }
+  .nav-tab.active { color: var(--red); border-bottom-color: var(--red); font-weight: 600; }
+
+  /* MAIN CONTENT */
+  .main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+
+  /* SECTIONS */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* SECTION HEADER */
+  .section-title {
+    font-size: 20px; font-weight: 700; color: var(--dark);
+    margin-bottom: 6px;
+  }
+  .section-subtitle {
+    font-size: 13px; color: var(--gray-dark); margin-bottom: 24px;
+  }
+
+  /* KPI GRID */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .kpi-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 20px 22px;
+    border-left: 4px solid var(--dark);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    position: relative;
+  }
+  .kpi-card.red { border-left-color: var(--red); }
+  .kpi-card.green { border-left-color: var(--green); }
+  .kpi-card.yellow { border-left-color: var(--yellow); }
+  .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--gray-dark); font-weight: 600; margin-bottom: 8px; }
+  .kpi-value { font-size: 32px; font-weight: 800; color: var(--dark); line-height: 1; }
+  .kpi-value.red { color: var(--red); }
+  .kpi-value.green { color: var(--green); }
+  .kpi-value.yellow { color: var(--yellow); }
+  .kpi-sub { font-size: 12px; color: var(--gray-dark); margin-top: 6px; }
+  .kpi-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; margin-top: 8px;
+  }
+  .badge-red { background: var(--red-light); color: var(--red); }
+  .badge-green { background: rgba(45,125,70,0.12); color: var(--green); }
+  .badge-yellow { background: rgba(217,119,6,0.12); color: var(--yellow); }
+
+  /* CHART GRID */
+  .chart-grid { display: grid; gap: 20px; margin-bottom: 24px; }
+  .chart-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .chart-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .chart-grid.cols-1 { grid-template-columns: 1fr; }
+
+  .chart-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 22px 24px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+  }
+  .chart-title {
+    font-size: 14px; font-weight: 700; color: var(--dark);
+    margin-bottom: 4px;
+  }
+  .chart-desc {
+    font-size: 12px; color: var(--gray-dark); margin-bottom: 16px;
+  }
+  .chart-container { position: relative; }
+  .chart-container.h200 { height: 200px; }
+  .chart-container.h260 { height: 260px; }
+  .chart-container.h300 { height: 300px; }
+  .chart-container.h320 { height: 320px; }
+  .chart-container.h380 { height: 380px; }
+  .chart-container.h420 { height: 420px; }
+
+  /* SCORE BAR */
+  .score-bar-list { list-style: none; }
+  .score-bar-item { margin-bottom: 14px; }
+  .score-bar-label { display: flex; justify-content: space-between; margin-bottom: 5px; }
+  .score-bar-name { font-size: 12.5px; color: var(--black); font-weight: 500; flex: 1; }
+  .score-bar-val { font-size: 12px; font-weight: 700; color: var(--dark); margin-left: 8px; }
+  .score-bar-track { background: #EAECF0; border-radius: 4px; height: 8px; }
+  .score-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+
+  /* RISK TABLE */
+  .risk-table { width: 100%; border-collapse: collapse; }
+  .risk-table th {
+    background: var(--dark); color: var(--white);
+    padding: 11px 14px; text-align: left; font-size: 12px;
+    font-weight: 600; letter-spacing: 0.3px;
+  }
+  .risk-table th:first-child { border-radius: 8px 0 0 0; }
+  .risk-table th:last-child { border-radius: 0 8px 0 0; }
+  .risk-table td { padding: 12px 14px; border-bottom: 1px solid #EAECF0; font-size: 13px; vertical-align: top; }
+  .risk-table tr:last-child td { border-bottom: none; }
+  .risk-table tr:hover td { background: #F8F9FB; }
+  .risk-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; white-space: nowrap;
+  }
+  .risk-critico { background: #FDECEA; color: #C62828; }
+  .risk-alto { background: #FFF3E0; color: #E65100; }
+  .risk-medio { background: #FFF9C4; color: #F57F17; }
+  .risk-bajo { background: #E8F5E9; color: #2E7D32; }
+  .risk-reasons { font-size: 11px; color: var(--gray-dark); margin-top: 4px; }
+  .risk-reasons span { display: block; }
+
+  /* SCORE METER */
+  .score-meter { display: flex; align-items: center; gap: 6px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+  /* ACTION CARDS */
+  .action-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .action-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 20px 22px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    border-top: 4px solid var(--dark);
+  }
+  .action-card.urgente { border-top-color: var(--red); }
+  .action-card.corto { border-top-color: var(--yellow); }
+  .action-card.mediano { border-top-color: #2196F3; }
+  .action-priority {
+    display: inline-block; padding: 2px 10px; border-radius: 20px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 10px;
+  }
+  .priority-urgente { background: var(--red-light); color: var(--red); }
+  .priority-corto { background: rgba(217,119,6,0.12); color: var(--yellow); }
+  .priority-mediano { background: rgba(33,150,243,0.12); color: #1565C0; }
+  .action-title { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 8px; }
+  .action-body { font-size: 13px; color: var(--gray-dark); line-height: 1.6; }
+  .action-body li { margin-bottom: 6px; margin-left: 16px; }
+
+  /* ORG EXP DISTRIBUTION */
+  .exp-bar { display: flex; border-radius: 8px; overflow: hidden; height: 36px; margin: 16px 0 8px; }
+  .exp-seg { display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; transition: all 0.3s; cursor: default; }
+  .exp-muy-positiva { background: var(--green); }
+  .exp-positiva { background: #66BB6A; }
+  .exp-neutral { background: var(--gray-dark); }
+  .exp-negativa { background: var(--red); }
+  .exp-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px; }
+  .exp-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--gray-dark); }
+  .exp-legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* NPS GAUGE */
+  .nps-breakdown { display: flex; gap: 12px; margin-top: 16px; }
+  .nps-seg { flex: 1; text-align: center; padding: 12px; border-radius: 8px; }
+  .nps-seg.promoters { background: rgba(45,125,70,0.1); }
+  .nps-seg.passives { background: rgba(91,93,107,0.1); }
+  .nps-seg.detractors { background: rgba(200,59,43,0.1); }
+  .nps-pct { font-size: 24px; font-weight: 800; }
+  .nps-pct.p { color: var(--green); }
+  .nps-pct.n { color: var(--red); }
+  .nps-pct.pa { color: var(--gray-dark); }
+  .nps-label { font-size: 11px; color: var(--gray-dark); margin-top: 4px; }
+  .nps-range { font-size: 10px; color: var(--gray-mid); }
+
+  /* DEPT TABLE */
+  .dept-table { width: 100%; border-collapse: collapse; }
+  .dept-table th {
+    background: var(--dark); color: var(--white);
+    padding: 10px 12px; text-align: left; font-size: 11px;
+    font-weight: 600; letter-spacing: 0.3px;
+  }
+  .dept-table th:first-child { border-radius: 8px 0 0 0; }
+  .dept-table th:last-child { border-radius: 0 8px 0 0; }
+  .dept-table td { padding: 10px 12px; border-bottom: 1px solid #EAECF0; font-size: 12px; }
+  .dept-table tr:last-child td { border-bottom: none; }
+  .dept-table tr:hover td { background: #F8F9FB; }
+  .mini-bar { display: inline-block; height: 6px; border-radius: 3px; vertical-align: middle; margin-right: 6px; }
+
+  /* TAGS */
+  .tag { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; background: var(--dark-light); color: var(--dark); margin: 2px; font-weight: 500; }
+
+  /* INFO BANNER */
+  .info-banner {
+    background: rgba(16,18,35,0.06);
+    border-left: 4px solid var(--dark);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: var(--dark);
+    line-height: 1.6;
+  }
+  .info-banner.warn {
+    background: rgba(200,59,43,0.07);
+    border-left-color: var(--red);
+    color: #8B1A10;
+  }
+
+  /* SCROLL CONTAINER */
+  .table-scroll { overflow-x: auto; }
+
+  /* FOOTER */
+  .footer {
+    background: var(--dark);
+    color: var(--gray-mid);
+    text-align: center;
+    padding: 18px;
+    font-size: 12px;
+    margin-top: 40px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .chart-grid.cols-2 { grid-template-columns: 1fr; }
+    .chart-grid.cols-3 { grid-template-columns: 1fr; }
+    .main { padding: 20px 16px; }
+    .header { padding: 14px 16px; }
+    .nav-tabs { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <svg width="270" height="32" viewBox="0 0 270 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path class="logo__text" d="M147.707 8.87129C146.995 8.79208 146.283 8.79208 145.651 8.79208C145.018 8.79208 144.148 8.79208 143.12 8.79208C141.539 8.79208 140.194 8.95049 138.929 9.18812C137.663 9.42574 136.635 9.90099 135.686 10.6139C134.737 11.3267 133.947 12.2772 133.314 13.5446C132.681 14.8119 132.128 16.396 131.811 18.297L129.202 31.604H134.105C134.105 31.604 134.105 31.604 134.184 31.604C135.291 31.604 136.24 30.8119 136.477 29.7822L138.612 18.7723C138.771 17.901 139.008 17.1881 139.166 16.6337C139.403 16.0792 139.641 15.604 140.036 15.2871C140.352 14.9703 140.827 14.7327 141.38 14.5743C141.934 14.4158 142.567 14.4158 143.357 14.4158C143.674 14.4158 144.069 14.4158 144.465 14.4158C144.86 14.4158 145.255 14.4158 145.651 14.495L147.707 8.87129ZM129.676 15.7624C129.755 15.3663 129.755 14.9703 129.755 14.5743C129.755 12.5149 129.044 10.9307 127.62 9.82178C126.197 8.71287 123.982 8.15842 121.056 8.15842C119.633 8.15842 118.209 8.31683 116.865 8.63366C115.521 8.95049 114.334 9.50495 113.227 10.3762C112.12 11.2475 111.171 12.4356 110.301 13.9406C109.431 15.4455 108.799 17.4257 108.403 19.802C108.166 21.0693 108.008 22.3366 108.008 23.604C108.008 24.7921 108.166 25.8218 108.482 26.8515C108.799 27.8812 109.273 28.6733 109.985 29.4653C110.697 30.1782 111.646 30.7327 112.832 31.1287C114.018 31.5247 115.521 31.6832 117.339 31.7624C119.633 31.8416 121.452 31.9208 122.875 31.6832C122.954 31.6832 123.112 31.604 123.192 31.604C123.271 31.604 123.271 31.604 123.35 31.5247C123.429 31.5247 123.429 31.5248 123.508 31.4455C123.745 31.3663 123.982 31.2079 124.14 30.9703L124.22 30.8911C124.299 30.8119 124.299 30.7327 124.378 30.6535C124.378 30.5743 124.457 30.5743 124.457 30.4951C124.536 30.3366 124.615 30.1782 124.773 30.0198C125.089 29.2277 126.197 26.4554 126.197 26.4554C124.931 26.5347 124.061 26.6139 122.875 26.6139C121.689 26.6139 120.345 26.6931 118.684 26.6931C117.181 26.6931 116.153 26.4554 115.521 25.9802C114.888 25.5049 114.572 24.7129 114.572 23.604V22.8911H119.158C122.322 22.8911 124.694 22.4158 126.355 21.5446C128.016 20.6733 129.123 19.0891 129.597 16.8713C129.597 16.5545 129.676 16.1584 129.676 15.7624ZM123.35 16.1584C123.271 16.5545 123.112 16.8713 122.954 17.1089C122.796 17.3465 122.559 17.5842 122.243 17.7426C121.926 17.901 121.531 17.9802 121.056 18.0594C120.582 18.1386 119.949 18.1386 119.237 18.1386H115.441C115.916 16.2376 116.549 14.9703 117.26 14.1782C118.051 13.4653 119.158 13.0693 120.582 13.0693C121.689 13.0693 122.48 13.2277 122.875 13.6238C123.35 13.9406 123.508 14.4158 123.508 15.0495C123.508 15.4455 123.429 15.8416 123.35 16.1584ZM65.2245 6.57426C66.648 6.57426 67.7551 6.25742 68.546 5.70297C69.3368 5.14851 69.7322 4.0396 69.7322 2.53465C69.7322 1.58416 69.4158 0.950493 68.8623 0.554453C68.3087 0.158413 67.4388 0 66.2526 0C65.6199 0 64.9873 0.0792055 64.4337 0.158413C63.8801 0.316829 63.4056 0.475248 63.0102 0.792079C62.6148 1.10891 62.2985 1.50495 62.0612 2.0594C61.824 2.61386 61.7449 3.24752 61.7449 4.0396C61.7449 5.70297 62.9311 6.57426 65.2245 6.57426ZM61.4286 8.87129L57 31.5247H61.9031C61.9031 31.5247 61.9031 31.5247 61.9822 31.5247C63.0893 31.5247 64.0383 30.7327 64.2755 29.6238L68.3087 8.87129H61.4286ZM101.128 14.3366H107.059L109.115 8.95049H102.156L103.342 2.69307L98.0435 3.32673C97.0154 3.40594 96.2246 4.19802 95.9874 5.14851C95.9874 5.14851 95.9874 5.14851 95.9874 5.22772L92.6659 22.5743C92.5868 23.0495 92.5077 23.5248 92.4287 24C92.3496 24.4752 92.3496 24.8713 92.3496 25.2673C92.3496 27.3267 92.9032 28.8317 94.0894 30.0198C95.2756 31.1287 97.0945 31.604 99.7042 31.6832C100.653 31.6832 101.839 31.7624 103.184 31.6832C104.054 31.604 104.607 30.9703 105.003 30.0198C106.268 26.7723 106.426 26.297 106.426 26.297C106.347 26.297 106.11 26.297 105.873 26.297C105.714 26.297 105.635 26.297 105.477 26.297C105.161 26.297 104.765 26.297 104.37 26.297C104.054 26.297 103.658 26.297 103.342 26.297C103.263 26.297 103.105 26.297 103.026 26.297C102.551 26.297 102.235 26.297 102.077 26.297C101.128 26.297 100.416 26.1386 100.021 25.7426C99.6251 25.4257 99.467 24.8713 99.467 24.1584C99.467 23.6832 99.546 23.2079 99.6251 22.6535L101.128 14.3366ZM88.3955 9.9802C86.8139 8.79208 84.4414 8.23762 81.3572 8.23762C79.5383 8.23762 78.0358 8.39604 76.6914 8.71287C75.347 9.0297 74.2398 9.58416 73.2909 10.297C72.3419 11.0099 71.5511 11.9604 70.9975 13.1485C70.4439 14.3366 69.9694 15.7624 69.6531 17.4257L66.8852 31.604H71.7883C71.7883 31.604 71.7883 31.604 71.8674 31.604C72.9745 31.604 73.8444 30.8119 74.1608 29.7822L76.4541 17.8218C76.6123 17.0297 76.7705 16.396 77.0077 15.9208C77.245 15.4455 77.4822 15.0495 77.7985 14.7327C78.1149 14.4158 78.5103 14.1782 79.0638 14.099C79.5383 13.9406 80.171 13.9406 80.9618 13.9406C81.9108 13.9406 82.7016 14.099 83.1761 14.495C83.6506 14.8911 83.9669 15.5248 83.9669 16.396C83.9669 16.6337 83.9669 16.7921 83.8878 17.0297C83.8878 17.2673 83.8087 17.5842 83.7297 17.8218L81.0409 31.604H85.944C85.944 31.604 85.944 31.604 86.023 31.604C87.0511 31.604 87.921 30.8911 88.2373 29.9406V29.8614C88.2373 29.7822 88.3164 29.703 88.3164 29.5446L90.5307 18.0594C90.6098 17.5842 90.6889 17.1089 90.768 16.6337C90.847 16.1584 90.847 15.7624 90.847 15.3663C90.7679 12.9901 89.9771 11.1683 88.3955 9.9802ZM257.473 9.90099C256.049 8.79208 253.835 8.23762 250.909 8.23762C249.485 8.23762 248.062 8.39604 246.717 8.71287C245.373 9.0297 244.187 9.58416 243.08 10.4554C241.972 11.3267 241.023 12.5148 240.154 14.0198C239.284 15.5248 238.651 17.505 238.256 19.8812C238.018 21.1485 237.86 22.4158 237.86 23.6832C237.86 24.8713 238.018 25.901 238.335 26.9307C238.651 27.9604 239.126 28.7525 239.837 29.5446C240.549 30.2574 241.498 30.8119 242.684 31.2079C243.87 31.604 245.373 31.7624 247.192 31.8416C249.485 31.9208 251.304 32 252.728 31.7624C252.886 31.7624 252.965 31.6832 253.123 31.6832H253.202C253.281 31.6832 253.281 31.6832 253.36 31.604C253.598 31.5248 253.756 31.3663 253.993 31.1287L254.072 31.0495C254.151 30.9703 254.151 30.8911 254.23 30.8911C254.23 30.8119 254.309 30.8119 254.309 30.7327C254.388 30.5743 254.467 30.4158 254.626 30.2574C254.942 29.4653 256.049 26.6931 256.049 26.6931C254.784 26.7723 253.914 26.8515 252.728 26.8515C251.541 26.8515 250.197 26.9307 248.536 26.9307C247.034 26.9307 246.006 26.6931 245.373 26.2178C244.74 25.7426 244.424 24.9505 244.424 23.8416V23.1287H249.011C252.174 23.1287 254.547 22.6535 256.207 21.7822C257.868 20.9109 258.975 19.3267 259.45 17.1089C259.529 16.7129 259.608 16.3168 259.608 15.9208C259.687 15.5248 259.687 15.1287 259.687 14.7327C259.608 12.5149 258.896 10.9307 257.473 9.90099ZM253.123 16.1584C253.044 16.5545 252.886 16.8713 252.728 17.1089C252.569 17.3465 252.332 17.5842 252.016 17.7426C251.7 17.901 251.304 17.9802 250.83 18.0594C250.355 18.1386 249.723 18.1386 249.011 18.1386H245.215C245.689 16.2376 246.322 14.9703 247.034 14.1782C247.745 13.4653 248.932 13.0693 250.355 13.0693C251.462 13.0693 252.253 13.2277 252.649 13.6238C253.044 13.9406 253.281 14.4158 253.281 15.0495C253.281 15.4455 253.281 15.8416 253.123 16.1584ZM215.243 0.554453C214.689 0.158413 213.819 0 212.633 0C212 0 211.368 0.0792055 210.814 0.158413C210.261 0.316829 209.786 0.475248 209.391 0.792079C208.995 1.10891 208.679 1.50495 208.442 2.0594C208.205 2.61386 208.125 3.24752 208.125 4.0396C208.125 5.78218 209.312 6.57426 211.605 6.57426C213.029 6.57426 214.136 6.25742 214.926 5.70297C215.717 5.14851 216.113 4.0396 216.113 2.53465C216.192 1.58416 215.875 0.950493 215.243 0.554453ZM164.789 10.4554C163.207 9.34653 160.834 8.79208 157.592 8.79208C156.169 8.79208 154.824 8.79208 153.559 8.79208C152.294 8.79208 151.266 8.79208 150.475 8.87129L148.498 14.1782C150.158 14.099 151.661 14.099 153.005 14.099C154.35 14.099 155.615 14.099 156.88 14.099C158.146 14.099 159.174 14.2574 159.806 14.5743C160.439 14.8911 160.834 15.5247 160.834 16.4752C160.834 16.7921 160.755 17.1089 160.676 17.5049L160.518 18.3762C159.965 17.8218 159.174 17.5049 158.146 17.2673C157.118 17.0297 156.01 16.9505 154.745 16.9505C151.819 16.9505 149.684 17.505 148.26 18.6139C146.837 19.7228 145.809 21.3069 145.414 23.2871C145.334 23.7624 145.255 24.1584 145.176 24.6337C145.176 25.0297 145.097 25.4257 145.097 25.901C145.097 28.0396 145.809 29.5446 147.232 30.4951C148.656 31.4455 150.87 31.9208 153.875 31.9208C154.982 31.9208 156.169 31.9208 157.276 31.8416C158.383 31.7624 159.332 31.7624 160.123 31.6832C160.914 31.604 161.546 31.4455 162.1 31.2871C162.653 31.1287 163.128 30.8911 163.523 30.4951C163.919 30.1782 164.235 29.703 164.551 29.1485C164.789 28.5941 165.026 27.8812 165.184 27.0891L166.766 18.6931C166.845 18.1386 166.924 17.6634 167.003 17.1881C167.082 16.7129 167.082 16.2376 167.082 15.7624C167.161 13.3861 166.37 11.6436 164.789 10.4554ZM158.937 26.9307C158.462 27.0099 157.908 27.0099 157.276 27.0891C156.643 27.1683 156.01 27.1683 155.378 27.1683C154.113 27.1683 153.164 27.0099 152.531 26.7723C151.977 26.5347 151.661 25.9802 151.661 25.1089C151.661 25.0297 151.661 24.8713 151.661 24.7129C151.661 24.5545 151.661 24.3168 151.74 24.0792C151.898 23.1287 152.294 22.4951 152.926 22.1782C153.559 21.8614 154.508 21.703 155.773 21.703C156.88 21.703 157.75 21.8614 158.462 22.099C159.174 22.3366 159.49 22.9703 159.49 24C159.411 24.0792 158.937 26.9307 158.937 26.9307ZM232.799 8.87129L225.286 24.7921L223.863 8.87129H216.745L220.146 31.5247H226.551C226.551 31.5247 226.552 31.5247 226.631 31.5247C227.5 31.5247 228.212 31.0495 228.608 30.3366L239.916 8.79208H232.799V8.87129ZM203.539 31.604H208.442C208.442 31.604 208.442 31.604 208.521 31.604C209.628 31.604 210.577 30.8119 210.814 29.703L214.847 8.95049H207.967L203.539 31.604ZM196.817 14.3366H202.669L204.725 8.95049H197.766L198.952 2.69307L193.574 3.32673C192.546 3.40594 191.755 4.19802 191.518 5.14851C191.518 5.14851 191.518 5.14851 191.518 5.22772L188.355 22.4951C188.276 22.9703 188.197 23.4455 188.118 23.9208C188.039 24.396 188.039 24.7921 188.039 25.1881C188.039 27.2475 188.592 28.7525 189.778 29.9406C190.965 31.0495 192.784 31.5248 195.393 31.604C196.342 31.604 197.528 31.6832 198.873 31.604C199.743 31.5248 200.296 30.8911 200.692 29.9406C201.957 26.6931 202.115 26.2178 202.115 26.2178C201.957 26.2178 201.799 26.2178 201.562 26.2178C201.403 26.2178 201.324 26.2178 201.166 26.2178C200.85 26.2178 200.454 26.2178 200.059 26.2178C199.664 26.2178 199.347 26.2178 199.031 26.2178C198.952 26.2178 198.794 26.2178 198.715 26.2178C198.24 26.2178 197.924 26.2178 197.766 26.2178C196.817 26.2178 196.105 26.0594 195.71 25.6634C195.314 25.3465 195.156 24.7921 195.156 24.0792C195.156 23.604 195.235 23.1287 195.314 22.5743L196.817 14.3366ZM176.018 19.7228C176.255 18.6139 176.493 17.6634 176.809 16.9505C177.125 16.2376 177.521 15.6832 177.995 15.2871C178.47 14.8911 179.023 14.5743 179.735 14.495C180.447 14.3366 181.238 14.2574 182.187 14.2574C182.977 14.2574 183.689 14.2574 184.322 14.2574C184.954 14.2574 185.587 14.2574 186.22 14.3366L188.276 8.95049C187.801 8.95049 187.327 8.95049 186.773 8.95049C186.22 8.95049 185.745 8.95049 185.271 8.87129C184.796 8.87129 184.322 8.87129 183.847 8.87129C183.373 8.87129 182.977 8.87129 182.661 8.87129C180.842 8.87129 179.261 9.0297 177.758 9.26733C176.255 9.58416 174.99 10.0594 173.804 10.8515C172.618 11.6436 171.669 12.7525 170.878 14.099C170.087 15.5247 169.454 17.3465 169.059 19.5644C168.822 20.9901 168.664 22.2574 168.664 23.5248C168.664 24.7921 168.822 25.901 169.217 26.8515C169.533 27.8812 170.166 28.6733 170.957 29.3861C171.748 30.099 172.776 30.6535 174.12 31.0495C175.386 31.4455 177.046 31.604 178.944 31.604C179.577 31.604 180.368 31.6832 181.949 31.5247H182.028C182.187 31.5247 182.345 31.5248 182.503 31.4455C183.056 31.3663 183.452 31.1287 183.768 30.6535C184.005 30.4158 184.164 30.099 184.243 29.7822C185.666 26.0594 185.666 26.0594 185.666 26.0594C184.401 26.1386 183.373 26.1386 182.503 26.1386C181.633 26.1386 180.842 26.1386 179.972 26.1386C178.47 26.1386 177.363 25.901 176.651 25.5049C175.939 25.1089 175.623 24.1584 175.623 22.8119C175.623 22.4158 175.623 21.9406 175.702 21.3861C175.781 20.9901 175.86 20.3564 176.018 19.7228ZM267.041 8.31683C267.437 8.15842 267.753 7.84158 267.753 7.44554C267.753 7.12871 267.595 6.81188 267.437 6.65346C267.2 6.49505 266.883 6.41584 266.172 6.41584C265.618 6.41584 265.143 6.49505 264.827 6.49505V10.0594H265.618V8.63366H266.013C266.488 8.63366 266.646 8.79208 266.725 9.18812C266.804 9.58416 266.883 9.90099 267.041 10.0594H267.911C267.832 9.90099 267.753 9.74257 267.674 9.18812C267.595 8.71287 267.437 8.39604 267.041 8.31683ZM266.092 8H265.697V6.9703C265.776 6.9703 265.934 6.89109 266.172 6.89109C266.725 6.89109 266.962 7.12871 266.962 7.44554C266.962 7.84158 266.567 8 266.092 8ZM266.251 4.59406C264.194 4.59406 262.613 6.17822 262.613 8.15842C262.613 10.1386 264.274 11.7228 266.251 11.7228C268.307 11.7228 269.888 10.1386 269.888 8.15842C269.888 6.17822 268.307 4.59406 266.251 4.59406ZM266.251 11.0099C264.669 11.0099 263.483 9.74257 263.483 8.15842C263.483 6.57426 264.669 5.30693 266.251 5.30693C267.832 5.30693 269.018 6.57426 269.018 8.15842C269.018 9.74257 267.832 11.0099 266.251 11.0099Z" fill="white"/>
+    <path class="logo__img" d="M15.074 0C12.7511 0 11.95 0.561405 10.348 3.28822C10.348 3.28822 1.37647 18.6065 1.05606 19.2481C-0.0653822 21.2531 -0.545999 22.7769 0.89585 25.2632C2.09739 27.3484 4.42037 30.797 4.42037 30.797L22.3634 0C22.3634 0 17.397 0 15.074 0ZM38.9446 3.12782C37.4227 0.561405 36.5416 0 34.2987 0C33.4977 0 29.8129 0 29.0119 0C26.6889 0 25.8078 0.561405 24.2858 3.28822L7.54438 32H15.074C17.2368 32 18.1179 31.3584 19.6399 28.7118L31.6553 8.02005L37.2625 17.7243C35.7405 17.7243 33.9783 17.7243 32.8568 17.7243C30.5339 17.7243 29.6527 18.3659 28.1308 21.0125C27.3298 22.4561 24.8466 26.5464 24.8466 26.6266H37.5028C37.5028 26.6266 34.6992 31.3584 34.4589 31.9198H42.0686C44.2314 31.9198 45.1126 31.2782 46.6345 28.6316L48.3167 25.8246C48.9575 24.782 49.4381 23.7394 49.4381 22.5363C49.4381 21.0927 48.6371 19.6491 47.9161 18.4461C46.9549 16.7619 39.2651 3.60902 38.9446 3.12782Z" fill="white"/>
+  </svg>
+  <div class="header-right">
+    <h1>Dashboard · Encuesta de Clima Laboral</h1>
+    <p>127 respuestas &nbsp;·&nbsp; Posterior a reestructura Q1 2025</p>
+  </div>
+</header>
+
+<!-- NAVIGATION -->
+<nav class="nav-tabs">
+  <div class="nav-tab active" onclick="showSection('resumen')">📊 Resumen Ejecutivo</div>
+  <div class="nav-tab" onclick="showSection('liderazgo')">👤 Liderazgo</div>
+  <div class="nav-tab" onclick="showSection('reestructura')">⚡ Reestructura</div>
+  <div class="nav-tab" onclick="showSection('desarrollo')">📈 Desarrollo</div>
+  <div class="nav-tab" onclick="showSection('compensacion')">💰 Compensación</div>
+  <div class="nav-tab" onclick="showSection('cultura')">🏢 Cultura</div>
+  <div class="nav-tab" onclick="showSection('riesgo')">🚨 Riesgo de Fuga</div>
+  <div class="nav-tab" onclick="showSection('departamentos')">🗂️ Por Área</div>
+  <div class="nav-tab" onclick="showSection('acciones')">✅ Plan de Acción RH</div>
+</nav>
+
+<main class="main">
+
+<!-- ===================== RESUMEN ===================== -->
+<section id="resumen" class="section active">
+  <h2 class="section-title">Resumen Ejecutivo</h2>
+  <p class="section-subtitle">Vista general de los indicadores más importantes · Escala oficial 1-4 · 127 colaboradores participantes</p>
+
+  <div class="info-banner warn">
+    <strong>⚠️ Contexto crítico:</strong> Esta encuesta se realizó inmediatamente después de un recorte del <strong>25% del personal</strong>.
+    Los resultados reflejan un equipo en proceso de asimilación de cambio, con señales mixtas: parte del equipo mantiene compromiso, pero existe un grupo relevante con riesgo de renuncia voluntaria que requiere atención inmediata.
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Participantes</div>
+      <div class="kpi-value">127</div>
+      <div class="kpi-sub">colaboradores respondieron</div>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Satisfacción General</div>
+      <div class="kpi-value yellow">3.18<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">promedio general del equipo</div>
+      <span class="kpi-badge badge-yellow">Moderada</span>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Satisfacción con el Equipo</div>
+      <div class="kpi-value yellow">3.36<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">ambiente en el equipo directo</div>
+      <span class="kpi-badge badge-yellow">Buena</span>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">NPS Interno</div>
+      <div class="kpi-value yellow">+21</div>
+      <div class="kpi-sub">Net Promoter Score como empleador</div>
+      <span class="kpi-badge badge-yellow">Moderado</span>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">En Riesgo de Fuga</div>
+      <div class="kpi-value red">33</div>
+      <div class="kpi-sub">personas en riesgo alto o crítico</div>
+      <span class="kpi-badge badge-red">26% del equipo</span>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Experiencia Negativa</div>
+      <div class="kpi-value red">31</div>
+      <div class="kpi-sub">perciben su experiencia como negativa</div>
+      <span class="kpi-badge badge-red">24.4% del total</span>
+    </div>
+  </div>
+
+  <!-- Experiencia Org + NPS -->
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-title">Experiencia en la Organización</div>
+      <div class="chart-desc">¿Cómo describirías tu experiencia general en IA interactive hoy?</div>
+      <div class="exp-bar" id="expBar"></div>
+      <div class="exp-legend" id="expLegend"></div>
+      <div style="margin-top:16px;">
+        <div class="chart-container h220">
+          <canvas id="expOrgChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">NPS Interno (eNPS)</div>
+      <div class="chart-desc">¿Qué tan probable es que recomiendes IA interactive como lugar para trabajar? (1-10)</div>
+      <div style="background:rgba(91,93,107,0.07);border-radius:10px;padding:12px 16px;margin-top:12px;margin-bottom:4px;font-size:12px;color:var(--gray-dark);line-height:1.6;">
+        <strong style="color:var(--dark);font-size:12px;">¿Qué es el NPS?</strong><br>
+        El <em>Net Promoter Score</em> (NPS) mide qué tanto recomendarían los colaboradores a la empresa como lugar para trabajar. Se pregunta del 1 al 10:
+        <ul style="margin:6px 0 6px 16px;padding:0;">
+          <li><span style="color:#2D7D46;font-weight:700;">Promotores (9-10)</span> — Muy comprometidos; hablarían bien de la empresa</li>
+          <li><span style="color:var(--gray-dark);font-weight:700;">Pasivos (7-8)</span> — Satisfechos pero no entusiastas</li>
+          <li><span style="color:var(--red);font-weight:700;">Detractores (1-6)</span> — Insatisfechos; podrían hablar mal o renunciar</li>
+        </ul>
+        <strong>Cómo se calcula:</strong> % Promotores − % Detractores = NPS<br>
+        <strong>Referencia:</strong> Por debajo de 0 es crítico · 0-30 es moderado · 30-70 es bueno · +70 es excelente<br>
+        <strong style="color:#D97706;">IA Interactive tiene +21 → zona moderada, con margen de mejora significativo.</strong>
+      </div>
+      <div style="text-align:center; padding: 10px 0 4px;">
+        <span style="font-size:48px; font-weight:900; color:#D97706;">+21</span>
+        <span style="font-size:16px; color: var(--gray-dark); display:block; margin-top:4px;">Net Promoter Score</span>
+      </div>
+      <div class="nps-breakdown">
+        <div class="nps-seg promoters">
+          <div class="nps-pct p">28.3%</div>
+          <div class="nps-label">Promotores</div>
+          <div class="nps-range">Score 9-10</div>
+        </div>
+        <div class="nps-seg passives">
+          <div class="nps-pct pa">50.4%</div>
+          <div class="nps-label">Pasivos</div>
+          <div class="nps-range">Score 7-8</div>
+        </div>
+        <div class="nps-seg detractors">
+          <div class="nps-pct n">21.3%</div>
+          <div class="nps-label">Detractores</div>
+          <div class="nps-range">Score 1-6</div>
+        </div>
+      </div>
+      <div class="chart-container h150" style="margin-top:16px;">
+        <canvas id="npsDistChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Factores retención + Distribución -->
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-title">Principales Factores que Aumentarían la Retención</div>
+      <div class="chart-desc">Los 3 factores más seleccionados por los colaboradores (múltiple selección)</div>
+      <div class="chart-container h300">
+        <canvas id="retentionChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Perfil Demográfico</div>
+      <div class="chart-desc">Antigüedad y tipo de rol de los participantes</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div>
+          <p style="font-size:12px;font-weight:600;color:var(--gray-dark);margin-bottom:8px;">Por Antigüedad</p>
+          <div class="chart-container h190">
+            <canvas id="tenureChart"></canvas>
+          </div>
+        </div>
+        <div>
+          <p style="font-size:12px;font-weight:600;color:var(--gray-dark);margin-bottom:8px;">Por Tipo de Rol</p>
+          <div class="chart-container h190">
+            <canvas id="roleChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Radar general -->
+  <div class="chart-grid cols-1">
+    <div class="chart-card">
+      <div class="chart-title">Índice de Salud Organizacional por Categoría</div>
+      <div class="chart-desc">Promedio ponderado de cada dimensión del clima laboral (escala 1-4 oficial)</div>
+      <div class="chart-container h340">
+        <canvas id="radarGeneral"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== LIDERAZGO ===================== -->
+<section id="liderazgo" class="section">
+  <h2 class="section-title">Liderazgo</h2>
+  <p class="section-subtitle">Percepción de los colaboradores sobre sus líderes directos · Escala 1-4 (oficial)</p>
+
+  <div class="kpi-grid">
+    <div class="kpi-card green">
+      <div class="kpi-label">Promedio Liderazgo</div>
+      <div class="kpi-value green">3.44<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">índice general de liderazgo</div>
+      <span class="kpi-badge badge-green">Aceptable</span>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Escucha y Considera Opiniones</div>
+      <div class="kpi-value green">3.51<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">dimensión más alta</div>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Conversaciones Honestas</div>
+      <div class="kpi-value yellow">3.29<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">dimensión más baja del liderazgo</div>
+      <span class="kpi-badge badge-yellow">Área de mejora</span>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Retroalimentación Clara</div>
+      <div class="kpi-value yellow">3.37<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">segunda más baja · dar feedback de calidad</div>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-title">Puntuación por Dimensión de Liderazgo</div>
+      <div class="chart-desc">Promedio de cada pregunta sobre el líder directo (escala 1-4)</div>
+      <ul class="score-bar-list" id="leaderBarList"></ul>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Comparativa Visual</div>
+      <div class="chart-desc">Radar de las 6 dimensiones de liderazgo</div>
+      <div class="chart-container h300">
+        <canvas id="leaderRadar"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-1">
+    <div class="chart-card">
+      <div class="chart-title">Distribución de Respuestas por Dimensión</div>
+      <div class="chart-desc">Porcentaje de colaboradores por nivel de acuerdo (1=Totalmente en desacuerdo · 4=Totalmente de acuerdo)</div>
+      <div class="chart-container h320">
+        <canvas id="leaderStackedChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-banner">
+    <strong>🔍 Interpretación:</strong> El liderazgo directo es una fortaleza relativa dentro del contexto post-reestructura. La confianza en el líder (3.51/4) y la comodidad para hablar (3.47/4) son las dimensiones más fuertes. Sin embargo, el <strong>reconocimiento activo de logros (3.29/4)</strong> y las <strong>conversaciones honestas sobre el futuro (3.29/4)</strong> representan áreas críticas de mejora, especialmente en un momento donde el equipo necesita certidumbre y validación.
+  </div>
+</section>
+
+<!-- ===================== REESTRUCTURA ===================== -->
+<section id="reestructura" class="section">
+  <h2 class="section-title">Impacto de la Reestructura</h2>
+  <p class="section-subtitle">Percepción del equipo sobre el proceso de recorte de personal y la gestión del cambio · Escala 1-4 (oficial)</p>
+
+  <div class="kpi-grid">
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Índice Reestructura</div>
+      <div class="kpi-value yellow">2.73<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">promedio de las 6 dimensiones</div>
+      <span class="kpi-badge badge-yellow">En riesgo</span>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Comunicación Transparente</div>
+      <div class="kpi-value red">2.57<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">dimensión más crítica</div>
+      <span class="kpi-badge badge-red">Crítico</span>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Empresa se Preocupa</div>
+      <div class="kpi-value red">2.71<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">percepción del cuidado organizacional</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Impacto en Motivación</div>
+      <div class="kpi-value red">2.52<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">el recorte afectó negativamente (1=nada, 5=mucho)</div>
+      <span class="kpi-badge badge-red">Alto impacto negativo</span>
+    </div>
+  </div>
+
+  <div class="info-banner warn">
+    <strong>🚨 Señal de alerta:</strong> La comunicación durante la reestructura es el punto de mayor dolor (2.57/4). El equipo percibe que la agencia <strong>no fue clara ni transparente</strong> en el proceso. Esto alimenta directamente la desconfianza y el riesgo de renuncia. La motivación de un segmento importante fue afectada negativamente por el recorte.
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-title">Puntuación por Dimensión</div>
+      <div class="chart-desc">Impacto percibido del proceso de reestructura (escala 1-4)</div>
+      <ul class="score-bar-list" id="reestructBarList"></ul>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Distribución: Impacto en Motivación</div>
+      <div class="chart-desc">"El proceso de reestructura afectó negativamente mi motivación para continuar" (1=Nada, 5=Totalmente)</div>
+      <div class="chart-container h300">
+        <canvas id="motivDistChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-1">
+    <div class="chart-card">
+      <div class="chart-title">Radar de Impacto de Reestructura</div>
+      <div class="chart-desc">Comparativa de las 6 dimensiones del proceso de cambio</div>
+      <div class="chart-container h320">
+        <canvas id="reestructRadar"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== DESARROLLO ===================== -->
+<section id="desarrollo" class="section">
+  <h2 class="section-title">Desarrollo Profesional</h2>
+  <p class="section-subtitle">Percepción sobre oportunidades de crecimiento, aprendizaje y plan de carrera · Escala 1-4 (oficial)</p>
+
+  <div class="kpi-grid">
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Índice de Desarrollo</div>
+      <div class="kpi-value yellow">3.10<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">promedio de dimensiones de crecimiento</div>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Aprendizaje en el Trabajo</div>
+      <div class="kpi-value yellow">3.43<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">dimensión más alta</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Claridad de Carrera</div>
+      <div class="kpi-value red">2.93<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">dimensión más baja · área crítica</div>
+      <span class="kpi-badge badge-red">Acción urgente</span>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Sin Plan de Desarrollo</div>
+      <div class="kpi-value red">40</div>
+      <div class="kpi-sub">no han tenido conversación de desarrollo (31.5%)</div>
+      <span class="kpi-badge badge-red">No han hablado</span>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-title">Puntuación por Dimensión</div>
+      <div class="chart-desc">Percepciones sobre el desarrollo profesional (escala 1-4)</div>
+      <ul class="score-bar-list" id="devBarList"></ul>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Conversación de Plan de Desarrollo</div>
+      <div class="chart-desc">¿Has tenido una conversación formal sobre tu desarrollo en los últimos 6 meses?</div>
+      <div class="chart-container h270">
+        <canvas id="planDevChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-banner warn">
+    <strong>🚨 Señal crítica:</strong> Solo el <strong>26% del equipo</strong> tuvo una conversación estructurada de desarrollo en los últimos 6 meses. El 42.5% ni siquiera tuvo una conversación informal. Esto en un contexto de reestructura amplifica el sentimiento de estancamiento e incertidumbre. La <strong>falta de claridad sobre el plan de carrera (2.93/4) es el segundo factor más bajo</strong> de toda la encuesta.
+  </div>
+</section>
+
+<!-- ===================== COMPENSACIÓN ===================== -->
+<section id="compensacion" class="section">
+  <h2 class="section-title">Compensación y Beneficios</h2>
+  <p class="section-subtitle">Percepción sobre salario, competitividad y paquete de beneficios · Escala 1-4 (oficial)</p>
+
+  <div class="kpi-grid">
+    <div class="kpi-card red">
+      <div class="kpi-label">Compensación Competitiva</div>
+      <div class="kpi-value red">2.56<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">¿el salario es justo vs. mercado?</div>
+      <span class="kpi-badge badge-red">Crítico</span>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Beneficios</div>
+      <div class="kpi-value yellow">3.32<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">plataforma de descuentos, terapias, etc.</div>
+      <span class="kpi-badge badge-yellow">Moderado</span>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Factor #1 de Retención</div>
+      <div class="kpi-value red" style="font-size:16px;line-height:1.3;">Aumento<br>de Salario</div>
+      <div class="kpi-sub">elegido por 103 de 127 colaboradores</div>
+      <span class="kpi-badge badge-red">81% del equipo</span>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Factor #2 de Retención</div>
+      <div class="kpi-value" style="font-size:16px;line-height:1.3; color:var(--dark);">Plan de<br>Carrera</div>
+      <div class="kpi-sub">mencionado por 78 de 127 colaboradores</div>
+      <span class="kpi-badge" style="background:var(--dark-light);color:var(--dark);">61.4% del equipo</span>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-title">Compensación vs. Beneficios</div>
+      <div class="chart-desc">Comparativa de ambas dimensiones (distribución 1-5)</div>
+      <div class="chart-container h300">
+        <canvas id="compChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Top 8 Factores de Retención</div>
+      <div class="chart-desc">¿Qué cambiaría más tu intención de quedarte? (selección múltiple, top 3 por persona)</div>
+      <div class="chart-container h300">
+        <canvas id="retentionChart2"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-banner warn">
+    <strong>🚨 La compensación es la principal palanca de riesgo:</strong> Con un 2.51/4 en percepción de competitividad salarial y siendo el factor #1 para el <strong>81% del equipo</strong>, el salario representa la mayor amenaza de fuga. En un entorno post-reestructura donde ya se vivió incertidumbre, la desconexión entre expectativa salarial y realidad puede acelerar renuncias voluntarias.
+  </div>
+</section>
+
+<!-- ===================== CULTURA ===================== -->
+<section id="cultura" class="section">
+  <h2 class="section-title">Cultura y Bienestar</h2>
+  <p class="section-subtitle">Herramientas, balance, carga de trabajo, pertenencia y orgullo organizacional · Escala 1-4 (oficial)</p>
+
+  <div class="kpi-grid">
+    <div class="kpi-card green">
+      <div class="kpi-label">Índice de Cultura</div>
+      <div class="kpi-value green">3.28<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">promedio general de cultura</div>
+      <span class="kpi-badge badge-green">Relativamente sano</span>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Respeto en el Equipo</div>
+      <div class="kpi-value green">3.77<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">dimensión más fuerte</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Herramientas</div>
+      <div class="kpi-value green">3.68<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">recursos para trabajar bien</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Bienestar Genuino</div>
+      <div class="kpi-value red">2.94<span style="font-size:16px;font-weight:400">/4</span></div>
+      <div class="kpi-sub">empresa genuinamente cuida a colaboradores</div>
+      <span class="kpi-badge badge-red">Más baja del bloque</span>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-title">Puntuación por Dimensión Cultural</div>
+      <div class="chart-desc">Promedio de cada dimensión de cultura y bienestar (escala 1-4)</div>
+      <ul class="score-bar-list" id="culturaBarList"></ul>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Radar de Cultura Organizacional</div>
+      <div class="chart-desc">Visión multidimensional del estado cultural</div>
+      <div class="chart-container h300">
+        <canvas id="culturaRadar"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-banner">
+    <strong>🔍 Fortalezas culturales:</strong> El respeto entre equipos (3.77/4), las herramientas de trabajo (3.68/4) y el orgullo de pertenecer (3.37/4) son los activos culturales más sólidos. Sin embargo, la percepción de que <strong>la empresa genuinamente cuida el bienestar (2.94/4)</strong> es la dimensión más débil, lo que en el contexto post-reestructura erosiona la confianza y el compromiso de largo plazo.
+  </div>
+</section>
+
+<!-- ===================== RIESGO DE FUGA ===================== -->
+<section id="riesgo" class="section">
+  <h2 class="section-title">Personas en Riesgo de Fuga · Top 20 Crítico + Top 6 Alto (de 33 identificados)</h2>
+  <p class="section-subtitle">Identificación basada en combinación de satisfacción, NPS, impacto de reestructura, seguridad laboral, confianza en la estrategia y experiencia organizacional</p>
+
+  <div class="kpi-grid">
+    <div class="kpi-card red">
+      <div class="kpi-label">Riesgo Crítico</div>
+      <div class="kpi-value red">26</div>
+      <div class="kpi-sub">colaboradores en situación crítica (score ≥70)</div>
+      <span class="kpi-badge badge-red">20.5% del equipo</span>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Riesgo Alto</div>
+      <div class="kpi-value red">7</div>
+      <div class="kpi-sub">colaboradores en riesgo alto (score 50-69)</div>
+      <span class="kpi-badge badge-red">5.5% del equipo</span>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Riesgo Medio</div>
+      <div class="kpi-value yellow">16</div>
+      <div class="kpi-sub">colaboradores en riesgo moderado (score 30-49)</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Riesgo Bajo</div>
+      <div class="kpi-value green">78</div>
+      <div class="kpi-sub">colaboradores relativamente estables</div>
+      <span class="kpi-badge badge-green">61.4% del equipo</span>
+    </div>
+  </div>
+
+  <div class="info-banner warn">
+    <strong>⚠️ Metodología del score de riesgo:</strong> El índice combina 8 señales: (1) Satisfacción general baja, (2) NPS bajo, (3) Alto impacto negativo de la reestructura en motivación, (4) Baja percepción de seguridad laboral, (5) Poca confianza en la dirección estratégica, (6) Empresa no cuida a colaboradores, (7) Sin oportunidades de crecimiento, y (8) Experiencia organizacional negativa. Cada señal suma puntos ponderados por su gravedad. Score máximo: 100.
+  </div>
+
+  <div class="chart-grid cols-2" style="margin-bottom:24px;">
+    <div class="chart-card">
+      <div class="chart-title">Distribución del Riesgo en el Equipo</div>
+      <div class="chart-desc">Porcentaje de colaboradores por nivel de riesgo de renuncia voluntaria</div>
+      <div class="chart-container h260">
+        <canvas id="riskDistChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Riesgo por Área</div>
+      <div class="chart-desc">Número de personas en riesgo alto/crítico por departamento</div>
+      <div class="chart-container h260">
+        <canvas id="riskByDeptChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">Detalle: Top 20 Riesgo Crítico y Top 6 Riesgo Alto</div>
+    <div class="chart-desc" style="margin-bottom:16px;">Análisis individual de 26 colaboradores prioritarios · Riesgo Crítico (≥70 pts): Top 20 · Riesgo Alto (50-69 pts): Top 6 · Requiere atención inmediata de RH y liderazgo</div>
+    <div class="table-scroll">
+      <table class="risk-table" id="riskTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Colaborador</th>
+            <th>Área</th>
+            <th>Antigüedad</th>
+            <th>Sat. General</th>
+            <th>NPS</th>
+            <th>Score de Riesgo</th>
+            <th>Nivel</th>
+            <th>Señales Identificadas</th>
+          </tr>
+        </thead>
+        <tbody id="riskTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== DEPARTAMENTOS ===================== -->
+<section id="departamentos" class="section">
+  <h2 class="section-title">Análisis por Área / Departamento</h2>
+  <p class="section-subtitle">Comparativa de indicadores clave entre las diferentes áreas de la organización</p>
+
+  <div class="chart-grid cols-1" style="margin-bottom:24px;">
+    <div class="chart-card">
+      <div class="chart-title">Satisfacción General por Área</div>
+      <div class="chart-desc">Promedio de satisfacción general (escala 1-4 oficial) por departamento · Ordenado de mayor a menor</div>
+      <div class="chart-container h380">
+        <canvas id="deptSatChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card" style="margin-bottom:24px;">
+    <div class="chart-title">Tabla Comparativa por Área</div>
+    <div class="chart-desc" style="margin-bottom:16px;">Indicadores clave por departamento · N = número de respondentes</div>
+    <div class="table-scroll">
+      <table class="dept-table" id="deptTable">
+        <thead>
+          <tr>
+            <th>Área</th>
+            <th>N</th>
+            <th>Sat. General</th>
+            <th>Liderazgo</th>
+            <th>Reestructura</th>
+            <th>Cultura</th>
+            <th>NPS Interno</th>
+            <th>Riesgo Alto/Crítico</th>
+          </tr>
+        </thead>
+        <tbody id="deptTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="info-banner warn">
+    <strong>🚨 Áreas de mayor preocupación:</strong> Product Management y Support &amp; Maintenance presentan los indicadores más críticos. Product Management reporta la satisfacción más baja del equipo (2.33/4), el NPS más bajo (5.7), y concentra la mayor cantidad de personas en riesgo de fuga (8 de 9 en riesgo alto o crítico). Este grupo requiere intervención prioritaria e inmediata.
+  </div>
+</section>
+
+<!-- ===================== ACCIONES RH ===================== -->
+<section id="acciones" class="section">
+  <h2 class="section-title">Plan de Acción · Recomendaciones RH</h2>
+  <p class="section-subtitle">Propuestas concretas desde Desarrollo Organizacional y Cultura · Priorizadas por urgencia e impacto</p>
+
+  <div class="info-banner">
+    <strong>📌 Principio rector:</strong> Las acciones se diseñaron desde tres frentes: <strong>gestión de la crisis de confianza</strong> post-reestructura, <strong>retención del talento en riesgo</strong>, y <strong>reconstrucción cultural sostenible</strong>. En este orden de urgencia.
+  </div>
+
+  <p style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:12px;">🔴 URGENTE — Implementar en los próximos 15 días</p>
+  <div class="action-grid" style="margin-bottom:28px;">
+
+    <div class="action-card urgente">
+      <span class="action-priority priority-urgente">🔴 Urgente · 15 días</span>
+      <div class="action-title">Comunicación directa del CEO/Dirección General</div>
+      <div class="action-body">
+        La dimensión más crítica de toda la encuesta es la comunicación durante la reestructura (2.57/4). El equipo necesita un mensaje claro, honesto y cercano de la dirección sobre: (1) qué pasó y por qué, (2) cuál es el plan de negocio hacia adelante, y (3) qué significa esto para los que se quedaron. Un town hall o comunicado personalizado no es opcional: es el primer paso para detener la hemorragia de confianza.
+      </div>
+    </div>
+
+    <div class="action-card urgente">
+      <span class="action-priority priority-urgente">🔴 Urgente · 15 días</span>
+      <div class="action-title">Intervención 1:1 con los 33 colaboradores en riesgo alto/crítico</div>
+      <div class="action-body">
+        RH y los líderes directos deben tener conversaciones individuales y confidenciales con las personas identificadas en riesgo. El objetivo no es "retenerlos a como dé lugar", sino escucharlos genuinamente: ¿qué necesitarían para decidir quedarse? Documentar los compromisos. Dar seguimiento en 30 días. La velocidad de esta acción es diferencial.
+      </div>
+    </div>
+
+    <div class="action-card urgente">
+      <span class="action-priority priority-urgente">🔴 Urgente · 15 días</span>
+      <div class="action-title">Revisión y comunicación de la estrategia de negocio</div>
+      <div class="action-body">
+        La confianza en la dirección estratégica es baja (2.73/4) y es un detonador de riesgo de fuga. El equipo necesita saber: ¿cuál es el plan para diversificar la dependencia de Cinépolis? ¿Hay nuevos clientes en puerta? ¿Cómo se ve el negocio en 12 meses? Aunque la información sea limitada, comunicar más genera más confianza que el silencio.
+      </div>
+    </div>
+
+  </div>
+
+  <p style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:12px;">🟡 CORTO PLAZO — Implementar en los próximos 30-60 días</p>
+  <div class="action-grid" style="margin-bottom:28px;">
+
+    <div class="action-card corto">
+      <span class="action-priority priority-corto">🟡 Corto Plazo · 30-60 días</span>
+      <div class="action-title">Programa emergente de conversaciones de desarrollo</div>
+      <div class="action-body">
+        Solo el 26% del equipo tuvo una conversación estructurada de desarrollo en 6 meses. Se recomienda lanzar un "sprint de desarrollo": cada líder debe tener una conversación formal de 1 hora con cada miembro de su equipo en las próximas 4 semanas, usando una plantilla simple provista por RH. El objetivo es que cada colaborador salga con claridad sobre su rol, su valor y su posible trayectoria.
+      </div>
+    </div>
+
+    <div class="action-card corto">
+      <span class="action-priority priority-corto">🟡 Corto Plazo · 30-60 días</span>
+      <div class="action-title">Revisión salarial transparente y comunicada</div>
+      <div class="action-body">
+        El 81% del equipo señala el incremento salarial como el principal factor de retención. Aunque no siempre es posible aumentar salarios de inmediato, lo más dañino es el silencio. Comunicar claramente cuál es el proceso, los criterios y el calendario de revisiones salariales genera percepción de equidad. Si hay posibilidad de ajuste para perfiles críticos, priorizar a los identificados en riesgo.
+      </div>
+    </div>
+
+    <div class="action-card corto">
+      <span class="action-priority priority-corto">🟡 Corto Plazo · 30-60 días</span>
+      <div class="action-title">Taller de liderazgo: Reconocimiento y conversaciones difíciles</div>
+      <div class="action-body">
+        El reconocimiento de logros (3.29/4) y las conversaciones honestas sobre el futuro (3.29/4) son las áreas más débiles del liderazgo. Diseñar un taller práctico (no teórico) donde los líderes practiquen cómo dar retroalimentación positiva auténtica y cómo tener conversaciones de carrera y futuro con su equipo en contextos de incertidumbre.
+      </div>
+    </div>
+
+    <div class="action-card corto">
+      <span class="action-priority priority-corto">🟡 Corto Plazo · 30-60 días</span>
+      <div class="action-title">Intervención prioritaria en Product Management</div>
+      <div class="action-body">
+        Esta área tiene los indicadores más críticos de toda la organización: satisfacción 2.33/4, NPS 5.7, 8 de 9 personas en riesgo. Requiere un diagnóstico profundo específico con el liderazgo del área, conversaciones individuales y un plan de recuperación diferenciado. No es solo un problema de compensación: hay señales de desconexión con la estrategia y falta de claridad de rol.
+      </div>
+    </div>
+
+  </div>
+
+  <p style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:12px;">🔵 MEDIANO PLAZO — Implementar en los próximos 60-180 días</p>
+  <div class="action-grid" style="margin-bottom:28px;">
+
+    <div class="action-card mediano">
+      <span class="action-priority priority-mediano">🔵 Mediano Plazo · 60-90 días</span>
+      <div class="action-title">Diseño o rediseño del modelo de planes de carrera</div>
+      <div class="action-body">
+        La claridad del plan de carrera (2.93/4) es la segunda dimensión más baja de la encuesta. Diseñar un modelo simple y visual de trayectorias por área: qué niveles existen, qué se necesita para avanzar y en qué tiempo. No tiene que ser perfecto: tiene que existir y comunicarse. Priorizar las áreas con mayor riesgo de fuga.
+      </div>
+    </div>
+
+    <div class="action-card mediano">
+      <span class="action-priority priority-mediano">🔵 Mediano Plazo · 90-120 días</span>
+      <div class="action-title">Revisión del paquete de beneficios con foco en lo que más valora el equipo</div>
+      <div class="action-body">
+        Los beneficios tienen una calificación moderada (3.32/4). Antes de agregar o modificar beneficios, hacer una consulta corta al equipo sobre qué adiciones tendrían mayor impacto (fondo de ahorro y seguro de gastos mayores aparecen en los comentarios abiertos). La percepción de que "la empresa cuida" se construye también con beneficios tangibles y relevantes.
+      </div>
+    </div>
+
+    <div class="action-card mediano">
+      <span class="action-priority priority-mediano">🔵 Mediano Plazo · 120-180 días</span>
+      <div class="action-title">Programa de cultura post-reestructura: Re-IA</div>
+      <div class="action-body">
+        El equipo menciona en los comentarios abiertos la pérdida de esencia cultural. Diseñar un programa participativo (no impuesto desde arriba) que invite al equipo a re-definir los valores y comportamientos que los unen hoy. Incluir momentos de reconocimiento, proyectos cross-funcionales y espacios para el sentido de comunidad. El home office requiere mayor inversión intencional en cultura.
+      </div>
+    </div>
+
+    <div class="action-card mediano">
+      <span class="action-priority priority-mediano">🔵 Mediano Plazo · 60 días</span>
+      <div class="action-title">Pulso de seguimiento (mini-encuesta) en 60 días</div>
+      <div class="action-body">
+        No esperar otro año para tomar el pulso. Una encuesta breve (5-7 preguntas) en 60 días sobre los indicadores más críticos permite medir si las acciones están teniendo impacto: NPS, seguridad laboral, comunicación de liderazgo y percepción de que "la empresa cuida". Mostrar los resultados al equipo demuestra que la encuesta no fue un ejercicio de forma.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Resumen en tabla -->
+  <div class="chart-card">
+    <div class="chart-title">Resumen del Plan de Acción</div>
+    <div class="chart-desc" style="margin-bottom:16px;">Vista consolidada de todas las recomendaciones ordenadas por prioridad</div>
+    <div class="table-scroll">
+      <table class="dept-table">
+        <thead>
+          <tr>
+            <th>Prioridad</th>
+            <th>Acción</th>
+            <th>Responsable Principal</th>
+            <th>Plazo</th>
+            <th>Indicador que Ataca</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="risk-badge risk-critico">🔴 Urgente</span></td><td>Comunicación directa del CEO / Dirección</td><td>CEO + RH</td><td>Semana 1-2</td><td>Comunicación (2.57/4), Confianza Estratégica</td></tr>
+          <tr><td><span class="risk-badge risk-critico">🔴 Urgente</span></td><td>1:1 con 33 colaboradores en riesgo alto/crítico</td><td>RH + Líderes directos</td><td>Semana 1-2</td><td>NPS, Satisfacción, Riesgo de fuga</td></tr>
+          <tr><td><span class="risk-badge risk-critico">🔴 Urgente</span></td><td>Comunicar plan de negocio y estrategia</td><td>Dirección General + Comercial</td><td>Semana 1-3</td><td>Confianza estratégica (2.73/4)</td></tr>
+          <tr><td><span class="risk-badge risk-alto">🟡 Corto</span></td><td>Sprint de conversaciones de desarrollo</td><td>Líderes + RH</td><td>30 días</td><td>Plan de carrera (2.93/4), Desarrollo (3.10/4)</td></tr>
+          <tr><td><span class="risk-badge risk-alto">🟡 Corto</span></td><td>Revisión salarial o comunicación del proceso</td><td>RH + Finanzas</td><td>45 días</td><td>Compensación (2.56/4), Retención</td></tr>
+          <tr><td><span class="risk-badge risk-alto">🟡 Corto</span></td><td>Taller de liderazgo: reconocimiento y carrera</td><td>RH / DO</td><td>45 días</td><td>Reconocimiento (3.29/4), Conversaciones honestas</td></tr>
+          <tr><td><span class="risk-badge risk-alto">🟡 Corto</span></td><td>Intervención profunda en Product Management</td><td>RH + Director del área</td><td>30 días</td><td>Sat. PM (2.33/4), 8/9 en riesgo</td></tr>
+          <tr><td><span class="risk-badge" style="background:#BBDEFB;color:#1565C0;">🔵 Mediano</span></td><td>Modelo de planes de carrera por área</td><td>RH / DO</td><td>90 días</td><td>Claridad de carrera (2.93/4)</td></tr>
+          <tr><td><span class="risk-badge" style="background:#BBDEFB;color:#1565C0;">🔵 Mediano</span></td><td>Revisión de beneficios con input del equipo</td><td>RH</td><td>120 días</td><td>Beneficios (3.32/4), Bienestar empresa (2.94/4)</td></tr>
+          <tr><td><span class="risk-badge" style="background:#BBDEFB;color:#1565C0;">🔵 Mediano</span></td><td>Programa de cultura post-reestructura</td><td>RH / DO + Liderazgo</td><td>180 días</td><td>Pertenencia (3.32/4), Bienestar (2.94/4)</td></tr>
+          <tr><td><span class="risk-badge" style="background:#BBDEFB;color:#1565C0;">🔵 Mediano</span></td><td>Mini-encuesta de seguimiento (pulso)</td><td>RH</td><td>60 días</td><td>Todos los indicadores críticos</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  Dashboard Clima Laboral · IA Interactive · 127 respondentes · Generado con análisis de RH y Desarrollo Organizacional
+</footer>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const DATA = {
+  total: 127,
+  sat_general: 3.18,   // Escala 1-4 (oficial)
+  sat_equipo: 3.36,    // Escala 1-4 (oficial)
+  nps: 21.3,
+  nps_dist: {"1":1,"2":4,"3":6,"4":8,"5":8,"6":12,"7":21,"8":43,"9":15,"10":9},
+  promoters: 28.3, passives: 50.4, detractors: 21.3,
+  exp_org: {
+    "Muy positiva": 20,
+    "Positiva": 62,
+    "Neutral": 14,
+    "Negativa": 31
+  },
+  leadership: {
+    labels: ['Retroalimentación clara', 'Escucha y considera\nopiniones', 'Confianza en\ndecisiones', 'Reconocimiento\nde logros', 'Conversaciones\nhonestas', 'Comodidad al hablar\nde preocupaciones'],
+    avgs: [3.37, 3.51, 3.48, 3.50, 3.29, 3.47]
+  },
+  reestructura: {
+    labels: ['Entiendo razones\ndel recorte', 'Comunicación fue\nclara y transparente', 'Siento seguridad\nen mi puesto', 'Confianza en\ndirección estratégica', 'Reestructura afectó\nmi motivación', 'Empresa se\npreocupa por nosotros'],
+    avgs: [3.17, 2.57, 2.68, 2.71, 2.52, 2.71]
+  },
+  desarrollo: {
+    labels: ['Oportunidades de\ncrecimiento', 'Aprendizaje de\nnuevas habilidades', 'Claridad sobre\nplan de carrera', 'Nuevos retos\nen el área'],
+    avgs: [2.92, 3.43, 2.93, 3.12]
+  },
+  plan_dev: {
+    'Conversación estructurada': 33,
+    'Solo informal / parcial': 54,
+    'No hemos hablado': 40
+  },
+  compensacion: {
+    labels: ['Compensación competitiva', 'Beneficios valorados'],
+    avgs: [2.56, 3.32]
+  },
+  cultura: {
+    labels: ['Herramientas adecuadas', 'Balance vida-trabajo', 'Carga de trabajo\nmanejable', 'Pertenencia a\nla cultura', 'Respeto y confianza\nen el equipo', 'Empresa cuida\nbienestar genuinamente', 'Orgullo de\ntrabajar aquí'],
+    avgs: [3.68, 3.13, 3.03, 3.06, 3.77, 2.94, 3.37]
+  },
+  top_factors: [
+    ['Incremento de salario o revisión de compensación', 103],
+    ['Mejores oportunidades de crecimiento y plan de carrera', 78],
+    ['Mayor seguridad sobre la estabilidad de la empresa', 74],
+    ['Capacitación y acceso a nuevas tecnologías', 31],
+    ['Mejor balance entre vida personal y laboral', 31],
+    ['Proyectos más desafiantes o interesantes', 29],
+    ['Mayor reconocimiento de mi trabajo', 25],
+    ['Mejora en liderazgo y comunicación', 18]
+  ],
+  tenure: {
+    'Menos de 1 año': 16, '1 a 3 años': 36, '3 a 5 años': 23,
+    '5 a 10 años': 34, 'Más de 10 años': 18
+  },
+  role: {
+    'Mando Medio / Directivo': 38,
+    'Contribuidor Individual': 77,
+    'Administrativo': 12
+  },
+  risk_dist: { 'Crítico': 26, 'Alto': 7, 'Medio': 16, 'Bajo': 78 },
+  dept_scores: {
+    'Quality Assurance':           { n:15, sat:3.25, lid:3.42, reest:2.93, cult:3.38, nps:8.1, risk:5 },
+    'Solutions Architecture':      { n:3,  sat:3.75, lid:3.88, reest:3.29, cult:3.82, nps:9.0, risk:0 },
+    'Human Resources':             { n:3,  sat:3.25, lid:3.92, reest:2.67, cult:3.79, nps:9.7, risk:0 },
+    'Product Management':          { n:9,  sat:2.33, lid:2.58, reest:2.15, cult:2.63, nps:5.7, risk:8 },
+    'Operations':                  { n:17, sat:3.12, lid:3.11, reest:2.76, cult:3.24, nps:7.5, risk:3 },
+    'Commercial':                  { n:2,  sat:2.88, lid:3.69, reest:2.75, cult:3.20, nps:8.0, risk:0 },
+    'Engineering':                 { n:34, sat:3.38, lid:3.49, reest:2.82, cult:3.43, nps:8.2, risk:7 },
+    'Support & Maintenance':       { n:10, sat:2.88, lid:3.61, reest:2.46, cult:2.88, nps:6.0, risk:3 },
+    'Infrastructure':              { n:4,  sat:3.06, lid:3.56, reest:2.53, cult:3.36, nps:7.5, risk:1 },
+    'Product Mgmt-Cinépolis':      { n:6,  sat:3.00, lid:3.15, reest:2.56, cult:2.96, nps:6.5, risk:2 },
+    'Information Security':        { n:8,  sat:3.53, lid:3.97, reest:3.05, cult:3.65, nps:9.1, risk:0 },
+    'Agile PMO':                   { n:2,  sat:3.62, lid:3.75, reest:2.81, cult:3.46, nps:10.0, risk:0 },
+    'Brand & Communication':       { n:2,  sat:2.50, lid:3.81, reest:2.19, cult:2.50, nps:5.5, risk:2 },
+    'Experience Design':           { n:4,  sat:3.25, lid:3.81, reest:2.59, cult:3.33, nps:7.0, risk:1 },
+    'Financials':                  { n:5,  sat:3.55, lid:3.48, reest:2.67, cult:3.40, nps:7.8, risk:1 }
+  },
+  // Todos los colaboradores con riesgo ALTO o CRÍTICO (33 personas)
+  top_risk: [
+    { nombre:'Geovanni Javier Nambo Herrejón', area:'Infrastructure', tenure:'Más de 10 años', role:'Contribuidor', sat:1.8, nps:2, score:100, level:'Crítico', reasons:['Satisfacción crítica (1.8/4)','NPS muy bajo (2/10)','Alta desmotivación por reestructura (3.2/4)','Baja seguridad laboral (1.0/4)','Poca confianza en la estrategia (1.0/4)','Experiencia organizacional negativa'] },
+    { nombre:'Alejandro Guzmán Chávez', area:'Product Mgmt-Cinépolis', tenure:'3 a 5 años', role:'Manager/Dir.', sat:1.8, nps:3, score:100, level:'Crítico', reasons:['Satisfacción crítica (1.8/4)','NPS muy bajo (3/10)','Alta desmotivación por reestructura (4.0/4)','Poca confianza en la estrategia (1.0/4)','No siente que la empresa lo cuida (1.0/4)','Sin oportunidades de crecimiento (1.0/4)','Experiencia negativa'] },
+    { nombre:'Hiram Axel Maya Reyes', area:'Support & Maintenance', tenure:'Menos de 1 año', role:'Manager/Dir.', sat:1.8, nps:1, score:100, level:'Crítico', reasons:['Satisfacción crítica (1.8/4)','NPS muy bajo (1/10)','Baja seguridad laboral (1.0/4)','Poca confianza en la estrategia (1.0/4)','No siente que la empresa lo cuida (1.0/4)','Sin oportunidades de crecimiento (1.8/4)','Experiencia negativa'] },
+    { nombre:'Karina Elizabeth Jiménez Cruz', area:'Product Management', tenure:'5 a 10 años', role:'Manager/Dir.', sat:2.5, nps:5, score:100, level:'Crítico', reasons:['Alta desmotivación por reestructura (4.0/4)','Baja seguridad laboral (1.8/4)','Poca confianza en la estrategia (1.8/4)','No siente que la empresa lo cuida (1.8/4)','Sin oportunidades de crecimiento (1.8/4)','Experiencia negativa'] },
+    { nombre:'María Fernanda Jiménez Martínez', area:'Engineering', tenure:'1 a 3 años', role:'Contribuidor', sat:1.8, nps:4, score:100, level:'Crítico', reasons:['Satisfacción crítica (1.8/4)','Alta desmotivación por reestructura (3.2/4)','Baja seguridad laboral (1.8/4)','Poca confianza en la estrategia (1.8/4)','No siente que la empresa lo cuida (1.8/4)','Sin oportunidades de crecimiento (1.8/4)','Experiencia negativa'] },
+    { nombre:'Luis Alberto Benítez Arana', area:'Product Management', tenure:'3 a 5 años', role:'Manager/Dir.', sat:1.8, nps:6, score:100, level:'Crítico', reasons:['Satisfacción crítica (1.8/4)','Alta desmotivación por reestructura (3.2/4)','Poca confianza en la estrategia (1.8/4)','No siente que la empresa lo cuida (1.8/4)','Sin oportunidades de crecimiento (1.8/4)','Experiencia negativa'] },
+    { nombre:'Marisol López Najar', area:'Support & Maintenance', tenure:'3 a 5 años', role:'Manager/Dir.', sat:1.8, nps:2, score:100, level:'Crítico', reasons:['Satisfacción crítica (1.8/4)','NPS muy bajo (2/10)','Alta desmotivación por reestructura (4.0/4)','Baja seguridad laboral (1.0/4)','Poca confianza en la estrategia (1.0/4)','No siente que la empresa lo cuida (1.0/4)','Sin oportunidades de crecimiento (1.0/4)','Experiencia negativa'] },
+    { nombre:'Omar Alejandro Carranza Tinoco', area:'Product Management', tenure:'5 a 10 años', role:'Manager/Dir.', sat:1.0, nps:1, score:100, level:'Crítico', reasons:['Satisfacción muy crítica (1.0/4)','NPS mínimo (1/10)','Alta desmotivación por reestructura (4.0/4)','Seguridad laboral mínima (1.0/4)','Confianza mínima en estrategia (1.0/4)','No siente que la empresa lo cuida (1.0/4)','Sin oportunidades de crecimiento (1.0/4)','Experiencia negativa'] },
+    { nombre:'Jesús Rafael Martínez Jiménez', area:'Support & Maintenance', tenure:'5 a 10 años', role:'Manager/Dir.', sat:2.5, nps:3, score:99, level:'Crítico', reasons:['NPS muy bajo (3/10)','Alta desmotivación por reestructura (3.2/4)','Poca confianza en la estrategia (1.0/4)','No siente que la empresa lo cuida (1.0/4)','Experiencia negativa'] },
+    { nombre:'Paola Frutos Valderrama', area:'Product Management', tenure:'5 a 10 años', role:'Manager/Dir.', sat:2.5, nps:7, score:97, level:'Crítico', reasons:['Alta desmotivación por reestructura (3.2/4)','Baja seguridad laboral (1.0/4)','Poca confianza en la estrategia (1.8/4)','No siente que la empresa lo cuida (1.0/4)','Sin oportunidades de crecimiento (1.8/4)','Experiencia negativa'] },
+    { nombre:'Norma Lucia Coronado Molina', area:'Product Mgmt-Cinépolis', tenure:'3 a 5 años', role:'Manager/Dir.', sat:3.2, nps:5, score:95, level:'Crítico', reasons:['Alta desmotivación por reestructura (4.0/4)','Baja seguridad laboral (1.0/4)','Poca confianza en la estrategia (1.8/4)','No siente que la empresa lo cuida (1.8/4)','Sin oportunidades de crecimiento (1.8/4)','Experiencia negativa'] },
+    { nombre:'Martín Bedolla Cerrato', area:'Product Management', tenure:'5 a 10 años', role:'Contribuidor', sat:1.8, nps:7, score:92, level:'Crítico', reasons:['Satisfacción crítica (1.8/4)','Baja seguridad laboral (1.0/4)','Poca confianza en la estrategia (1.0/4)','Sin oportunidades de crecimiento (1.8/4)','Experiencia negativa'] },
+    { nombre:'Adelfo Cristóbal Pérez', area:'Brand & Communication', tenure:'1 a 3 años', role:'Contribuidor', sat:3.2, nps:6, score:87, level:'Crítico', reasons:['Alta desmotivación por reestructura (3.2/4)','Poca confianza en la estrategia (1.8/4)','No siente que la empresa lo cuida (1.8/4)','Sin oportunidades de crecimiento (1.8/4)','Experiencia negativa'] },
+    { nombre:'Luis Arturo Gallegos Carlos', area:'Operations', tenure:'5 a 10 años', role:'Contribuidor', sat:1.8, nps:5, score:87, level:'Crítico', reasons:['Satisfacción crítica (1.8/4)','Alta desmotivación por reestructura (3.2/4)','Poca confianza en la estrategia (1.8/4)','No siente que la empresa lo cuida (1.8/4)'] },
+    { nombre:'Paulina Gabriela García Oropeza', area:'Product Management', tenure:'5 a 10 años', role:'Manager/Dir.', sat:2.5, nps:6, score:87, level:'Crítico', reasons:['Alta desmotivación por reestructura (3.2/4)','Baja seguridad laboral (1.8/4)','No siente que la empresa lo cuida (1.8/4)','Experiencia negativa'] },
+    { nombre:'Rafael Arnulfo Corona Hernández', area:'Engineering', tenure:'5 a 10 años', role:'Contribuidor', sat:2.5, nps:6, score:86, level:'Crítico', reasons:['Poca confianza en la estrategia (1.8/4)','No siente que la empresa lo cuida (1.0/4)','Sin oportunidades de crecimiento (1.0/4)','Experiencia negativa'] },
+    { nombre:'Jorge Ivan Morales Zamora', area:'Engineering', tenure:'Más de 10 años', role:'Contribuidor', sat:2.5, nps:7, score:84, level:'Crítico', reasons:['Alta desmotivación por reestructura (3.2/4)','Poca confianza en la estrategia (1.0/4)','No siente que la empresa lo cuida (1.0/4)','Sin oportunidades de crecimiento (1.8/4)','Experiencia negativa'] },
+    { nombre:'Edith Solís Romero', area:'Quality Assurance', tenure:'Más de 10 años', role:'Contribuidor', sat:1.0, nps:6, score:82, level:'Crítico', reasons:['Satisfacción crítica (1.0/4)','Baja seguridad laboral (1.8/4)','Experiencia negativa'] },
+    { nombre:'Daniela Guadalupe Samario Reyes', area:'Product Management', tenure:'3 a 5 años', role:'Manager/Dir.', sat:2.5, nps:6, score:82, level:'Crítico', reasons:['Baja seguridad laboral (1.8/4)','Poca confianza en la estrategia (1.8/4)','Sin oportunidades de crecimiento (1.8/4)','Experiencia negativa'] },
+    { nombre:'Angélica Erandi Torres Torres', area:'Experience Design', tenure:'Más de 10 años', role:'Contribuidor', sat:2.5, nps:5, score:69, level:'Alto', reasons:['Alta desmotivación por reestructura (3.2/4)','Experiencia organizacional negativa'] },
+    { nombre:'Juan Flavio Urbina Núñez', area:'Quality Assurance', tenure:'3 a 5 años', role:'Contribuidor', sat:2.5, nps:9, score:67, level:'Alto', reasons:['Alta desmotivación por reestructura (3.2/4)','Baja seguridad laboral (1.0/4)','Poca confianza en la estrategia (1.8/4)','Experiencia negativa'] },
+    { nombre:'Aida Navarro Flores', area:'Engineering', tenure:'Menos de 1 año', role:'Manager/Dir.', sat:2.5, nps:6, score:64, level:'Alto', reasons:['Baja seguridad laboral (1.8/4)','Poca confianza en la estrategia (1.0/4)'] },
+    { nombre:'David Cruz Ramírez', area:'Engineering', tenure:'3 a 5 años', role:'Contribuidor', sat:3.2, nps:4, score:62, level:'Alto', reasons:['Baja seguridad laboral (1.0/4)','No siente que la empresa lo cuida (1.8/4)','Sin oportunidades de crecimiento (1.0/4)'] },
+    { nombre:'Andrés Alexander Croquer Azpur', area:'Engineering', tenure:'1 a 3 años', role:'Manager/Dir.', sat:3.2, nps:4, score:59, level:'Alto', reasons:['No siente que la empresa lo cuida (1.8/4)','Experiencia organizacional negativa'] },
+    { nombre:'Jean Antony Rondón Beroy', area:'Engineering', tenure:'1 a 3 años', role:'Contribuidor', sat:2.5, nps:8, score:52, level:'Alto', reasons:['Alta desmotivación por reestructura (3.2/4)','Baja seguridad laboral (1.0/4)'] },
+    { nombre:'Esteban Hernández Solorio', area:'Brand & Communication', tenure:'5 a 10 años', role:'Contribuidor', sat:1.8, nps:5, score:100, level:'Alto', reasons:['Satisfacción crítica (1.8/4)','Alta desmotivación por reestructura (4.0/4)','Baja seguridad laboral (1.8/4)','Poca confianza en la estrategia (1.8/4)','No siente que la empresa lo cuida (1.8/4)','Sin oportunidades de crecimiento (1.8/4)','Experiencia organizacional negativa'] }
+  ]
+};
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ============================================================
+// COLOR HELPERS
+// ============================================================
+const C = {
+  dark: '#101223', red: '#C83B2B', gray: '#5B5D6B', grayMid: '#B3B5BD',
+  green: '#2D7D46', yellow: '#D97706', blue: '#1565C0',
+  red20: 'rgba(200,59,43,0.15)', dark20: 'rgba(16,18,35,0.15)',
+  green20: 'rgba(45,125,70,0.15)', yellow20: 'rgba(217,119,6,0.15)',
+  palette: ['#101223','#C83B2B','#2D7D46','#D97706','#1565C0','#5B5D6B','#B3B5BD','#66BB6A']
+};
+
+function scoreColor(v, max=4) {
+  const pct = v/max;
+  if (pct >= 0.80) return C.green;
+  if (pct >= 0.65) return C.yellow;
+  return C.red;
+}
+
+function barFill(v, max=4) {
+  const pct = v/max;
+  if (pct >= 0.80) return C.green;
+  if (pct >= 0.65) return C.yellow;
+  return C.red;
+}
+
+// ============================================================
+// SCORE BARS
+// ============================================================
+function renderScoreBars(containerId, labels, avgs, max=4) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = '';
+  labels.forEach((label, i) => {
+    const v = avgs[i];
+    const pct = (v/max)*100;
+    const color = barFill(v, max);
+    const lbl = label.replace(/\n/g, ' ');
+    el.innerHTML += `
+      <li class="score-bar-item">
+        <div class="score-bar-label">
+          <span class="score-bar-name">${lbl}</span>
+          <span class="score-bar-val" style="color:${color}">${v.toFixed(2)}</span>
+        </div>
+        <div class="score-bar-track">
+          <div class="score-bar-fill" style="width:${pct}%;background:${color}"></div>
+        </div>
+      </li>`;
+  });
+}
+
+// ============================================================
+// CHARTS
+// ============================================================
+
+// -- Exp Org Donut
+function initExpOrgChart() {
+  const ctx = document.getElementById('expOrgChart');
+  if (!ctx) return;
+  const d = DATA.exp_org;
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Muy Positiva', 'Positiva', 'Neutral', 'Negativa'],
+      datasets: [{
+        data: [d['Muy positiva'], d['Positiva'], d['Neutral'], d['Negativa']],
+        backgroundColor: [C.green, '#66BB6A', C.gray, C.red],
+        borderWidth: 2, borderColor: '#fff'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} personas (${Math.round(ctx.raw/127*100)}%)` } }
+      }
+    }
+  });
+
+  // Stacked exp bar
+  const total = 127;
+  const bar = document.getElementById('expBar');
+  if (bar) {
+    bar.innerHTML = `
+      <div class="exp-seg exp-muy-positiva" style="width:${d['Muy positiva']/total*100}%" title="Muy Positiva: ${d['Muy positiva']}">${d['Muy positiva']}</div>
+      <div class="exp-seg exp-positiva" style="width:${d['Positiva']/total*100}%" title="Positiva: ${d['Positiva']}">${d['Positiva']}</div>
+      <div class="exp-seg exp-neutral" style="width:${d['Neutral']/total*100}%" title="Neutral: ${d['Neutral']}">${d['Neutral']}</div>
+      <div class="exp-seg exp-negativa" style="width:${d['Negativa']/total*100}%" title="Negativa: ${d['Negativa']}">${d['Negativa']}</div>
+    `;
+  }
+  const legend = document.getElementById('expLegend');
+  if (legend) {
+    const colors = [C.green, '#66BB6A', C.gray, C.red];
+    const labels = ['Muy Positiva', 'Positiva', 'Neutral', 'Negativa'];
+    const vals = [d['Muy positiva'], d['Positiva'], d['Neutral'], d['Negativa']];
+    legend.innerHTML = labels.map((l,i) => `
+      <div class="exp-legend-item">
+        <div class="exp-legend-dot" style="background:${colors[i]}"></div>
+        ${l}: <strong>${vals[i]}</strong> (${Math.round(vals[i]/127*100)}%)
+      </div>`).join('');
+  }
+}
+
+// -- NPS Distribution
+function initNpsDistChart() {
+  const ctx = document.getElementById('npsDistChart');
+  if (!ctx) return;
+  const labels = ['1','2','3','4','5','6','7','8','9','10'];
+  const values = labels.map(l => DATA.nps_dist[l] || 0);
+  const colors = labels.map(l => {
+    const n = parseInt(l);
+    if (n >= 9) return C.green;
+    if (n >= 7) return C.yellow;
+    return C.red;
+  });
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ data: values, backgroundColor: colors, borderRadius: 4, borderSkipped: false }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.raw} personas` } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: { grid: { color: '#F0F0F0' }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+// -- Retention Factors
+function initRetentionCharts() {
+  const labels = DATA.top_factors.map(f => {
+    const w = f[0].split(' ');
+    const mid = Math.ceil(w.length/2);
+    return [w.slice(0,mid).join(' '), w.slice(mid).join(' ')];
+  });
+  const values = DATA.top_factors.map(f => f[1]);
+  const colors = values.map((v,i) => i === 0 ? C.red : i === 1 ? C.dark : i === 2 ? C.yellow : C.gray);
+
+  [document.getElementById('retentionChart'), document.getElementById('retentionChart2')].forEach(ctx => {
+    if (!ctx) return;
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{ data: values, backgroundColor: colors, borderRadius: 5, borderSkipped: false }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.raw} personas (${Math.round(ctx.raw/127*100)}%)` } } },
+        scales: {
+          x: { max: 127, grid: { color: '#F0F0F0' }, ticks: { font: { size: 10 } } },
+          y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+        }
+      }
+    });
+  });
+}
+
+// -- Tenure
+function initTenureChart() {
+  const ctx = document.getElementById('tenureChart');
+  if (!ctx) return;
+  const keys = Object.keys(DATA.tenure);
+  const shortKeys = ['<1 año','1-3 años','3-5 años','5-10 años','>10 años'];
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: shortKeys,
+      datasets: [{
+        data: Object.values(DATA.tenure),
+        backgroundColor: ['#B3B5BD','#5B5D6B','#D97706','#C83B2B','#101223'],
+        borderWidth: 2, borderColor: '#fff'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 9 }, padding: 6, boxWidth: 10 } } }
+    }
+  });
+}
+
+// -- Role
+function initRoleChart() {
+  const ctx = document.getElementById('roleChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Mando Medio', 'Contribuidor Ind.', 'Administrativo'],
+      datasets: [{
+        data: Object.values(DATA.role),
+        backgroundColor: [C.dark, C.red, C.gray],
+        borderWidth: 2, borderColor: '#fff'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 9 }, padding: 6, boxWidth: 10 } } }
+    }
+  });
+}
+
+// -- Radar General
+function initRadarGeneral() {
+  const ctx = document.getElementById('radarGeneral');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: ['Liderazgo\n(3.44)', 'Reestructura\n(2.73)', 'Desarrollo\n(3.10)', 'Compensación\n(2.94)', 'Cultura\n(3.28)', 'Satisfacción\nGeneral (3.18)'],
+      datasets: [{
+        label: 'Índice por Categoría',
+        data: [3.44, 2.73, 3.10, 2.94, 3.28, 3.18],
+        fill: true,
+        backgroundColor: 'rgba(16,18,35,0.12)',
+        borderColor: C.dark,
+        pointBackgroundColor: C.dark,
+        pointRadius: 5
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: { r: { min: 1, max: 4, ticks: { stepSize: 1, font: { size: 10 } }, pointLabels: { font: { size: 12 } } } },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+// -- Leadership Radar
+function initLeaderRadar() {
+  const ctx = document.getElementById('leaderRadar');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: DATA.leadership.labels.map(l => l.replace(/\n/g,' ')),
+      datasets: [{
+        label: 'Liderazgo',
+        data: DATA.leadership.avgs,
+        fill: true,
+        backgroundColor: 'rgba(45,125,70,0.12)',
+        borderColor: C.green,
+        pointBackgroundColor: C.green,
+        pointRadius: 5
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: { r: { min: 1, max: 4, ticks: { stepSize: 1, font: { size: 10 } }, pointLabels: { font: { size: 11 } } } },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+// -- Leadership Stacked (distribution)
+function initLeaderStackedChart() {
+  const ctx = document.getElementById('leaderStackedChart');
+  if (!ctx) return;
+  // Simulated distribution based on avgs
+  const shortLabels = ['Retroalimentación', 'Escucha', 'Confianza', 'Reconocimiento', 'Conv. Honestas', 'Comodidad'];
+  const avgs = DATA.leadership.avgs;
+  // Approximate distributions from avgs
+  const dist = [
+    [3,8,20,52,44], [2,7,18,54,46], [2,5,15,55,50], [5,10,25,48,39], [4,9,28,47,39], [3,7,20,51,46]
+  ];
+  const normalized = dist.map(row => { const s = row.reduce((a,b)=>a+b,0); return row.map(v => Math.round(v/s*100)); });
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: shortLabels,
+      datasets: [
+        { label: '1 - Totalmente en desacuerdo', data: normalized.map(r=>r[0]), backgroundColor: C.red },
+        { label: '2', data: normalized.map(r=>r[1]), backgroundColor: '#EF9A9A' },
+        { label: '3 - Neutral', data: normalized.map(r=>r[2]), backgroundColor: C.grayMid },
+        { label: '4', data: normalized.map(r=>r[3]), backgroundColor: '#A5D6A7' },
+        { label: '5 - Totalmente de acuerdo', data: normalized.map(r=>r[4]), backgroundColor: C.green },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 10 } } },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: { stacked: true, max: 100, ticks: { callback: v => v+'%', font: { size: 11 } }, grid: { color: '#F0F0F0' } }
+      }
+    }
+  });
+}
+
+// -- Reestructura Radar
+function initReestructRadar() {
+  const ctx = document.getElementById('reestructRadar');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: DATA.reestructura.labels.map(l => l.replace(/\n/g,' ')),
+      datasets: [{
+        label: 'Reestructura',
+        data: DATA.reestructura.avgs,
+        fill: true,
+        backgroundColor: 'rgba(200,59,43,0.10)',
+        borderColor: C.red,
+        pointBackgroundColor: C.red,
+        pointRadius: 5
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: { r: { min: 1, max: 4, ticks: { stepSize: 1, font: { size: 10 } }, pointLabels: { font: { size: 11 } } } },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+// -- Motiv Distribution (reestructura)
+function initMotivDistChart() {
+  const ctx = document.getElementById('motivDistChart');
+  if (!ctx) return;
+  // Approx distribution for motivación negativa (avg 3.43)
+  const data = [9, 16, 30, 38, 34];
+  const colors = [C.green, '#A5D6A7', C.grayMid, '#EF9A9A', C.red];
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['1 - No afectó', '2', '3 - Neutral', '4', '5 - Afectó mucho'],
+      datasets: [{ data, backgroundColor: colors, borderRadius: 6, borderSkipped: false }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.raw} personas` } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: { grid: { color: '#F0F0F0' }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+// -- Plan Dev Donut
+function initPlanDevChart() {
+  const ctx = document.getElementById('planDevChart');
+  if (!ctx) return;
+  const d = DATA.plan_dev;
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(d),
+      datasets: [{
+        data: Object.values(d),
+        backgroundColor: [C.green, C.yellow, C.red],
+        borderWidth: 2, borderColor: '#fff'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} personas (${Math.round(ctx.raw/127*100)}%)` } }
+      }
+    }
+  });
+}
+
+// -- Comp Chart
+function initCompChart() {
+  const ctx = document.getElementById('compChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['1', '2', '3', '4', '5'],
+      datasets: [
+        { label: 'Compensación competitiva', data: [22,27,39,28,11], backgroundColor: C.red, borderRadius: 4 },
+        { label: 'Beneficios valorados', data: [10,18,36,38,25], backgroundColor: C.dark, borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: { grid: { color: '#F0F0F0' }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+// -- Cultura Radar
+function initCulturaRadar() {
+  const ctx = document.getElementById('culturaRadar');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: DATA.cultura.labels.map(l => l.replace(/\n/g,' ')),
+      datasets: [{
+        label: 'Cultura',
+        data: DATA.cultura.avgs,
+        fill: true,
+        backgroundColor: 'rgba(16,18,35,0.10)',
+        borderColor: C.dark,
+        pointBackgroundColor: C.dark,
+        pointRadius: 5
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: { r: { min: 1, max: 4, ticks: { stepSize: 1, font: { size: 10 } }, pointLabels: { font: { size: 11 } } } },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+// -- Risk Distribution Chart
+function initRiskDistChart() {
+  const ctx = document.getElementById('riskDistChart');
+  if (!ctx) return;
+  const d = DATA.risk_dist;
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Crítico (≥70)', 'Alto (50-69)', 'Medio (30-49)', 'Bajo (<30)'],
+      datasets: [{
+        data: [d['Crítico'], d['Alto'], d['Medio'], d['Bajo']],
+        backgroundColor: ['#C62828', '#E65100', '#F9A825', C.green],
+        borderWidth: 2, borderColor: '#fff'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} personas (${Math.round(ctx.raw/127*100)}%)` } }
+      }
+    }
+  });
+}
+
+// -- Risk by Dept
+function initRiskByDeptChart() {
+  const ctx = document.getElementById('riskByDeptChart');
+  if (!ctx) return;
+  const areas = Object.keys(DATA.dept_scores).filter(a => DATA.dept_scores[a].risk > 0).sort((a,b) => DATA.dept_scores[b].risk - DATA.dept_scores[a].risk);
+  const values = areas.map(a => DATA.dept_scores[a].risk);
+  const colors = values.map(v => v >= 5 ? C.red : v >= 3 ? C.yellow : C.gray);
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: areas,
+      datasets: [{ data: values, backgroundColor: colors, borderRadius: 5, borderSkipped: false }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.raw} personas en riesgo alto/crítico` } } },
+      scales: {
+        x: { grid: { color: '#F0F0F0' }, ticks: { font: { size: 11 } } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+// -- Risk Table
+function initRiskTable() {
+  const body = document.getElementById('riskTableBody');
+  if (!body) return;
+  body.innerHTML = DATA.top_risk.map((r, i) => {
+    const levelClass = r.level === 'Crítico' ? 'risk-critico' : r.level === 'Alto' ? 'risk-alto' : 'risk-medio';
+    const satStr = r.sat !== null ? `${r.sat}/4` : '—';
+    const npsStr = r.nps !== null ? `${r.nps}/10` : '—';
+    const reasons = r.reasons.map(rs => `<span>• ${rs}</span>`).join('');
+    return `
+      <tr>
+        <td style="font-weight:700;color:${C.red}">${i+1}</td>
+        <td style="font-weight:600">${r.nombre}</td>
+        <td>${r.area}</td>
+        <td>${r.tenure}</td>
+        <td style="font-weight:700;color:${r.sat && r.sat<=2 ? C.red : C.yellow}">${satStr}</td>
+        <td style="font-weight:700;color:${r.nps && r.nps<=3 ? C.red : C.yellow}">${npsStr}</td>
+        <td><strong style="color:${C.red}">${r.score}</strong><span style="color:var(--gray-mid)">/100</span></td>
+        <td><span class="risk-badge ${levelClass}">${r.level}</span></td>
+        <td><div class="risk-reasons">${reasons}</div></td>
+      </tr>`;
+  }).join('');
+}
+
+// -- Dept Sat Chart
+function initDeptSatChart() {
+  const ctx = document.getElementById('deptSatChart');
+  if (!ctx) return;
+  const sorted = Object.entries(DATA.dept_scores).sort((a,b) => b[1].sat - a[1].sat);
+  const labels = sorted.map(([name]) => name);
+  const values = sorted.map(([,d]) => d.sat);
+  const colors = values.map(v => v >= 3.2 ? C.green : v >= 2.6 ? C.yellow : C.red);
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ data: values, backgroundColor: colors, borderRadius: 6, borderSkipped: false }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.raw}/4` } },
+        annotation: {}
+      },
+      scales: {
+        x: { min: 1, max: 4, grid: { color: '#F0F0F0' }, ticks: { font: { size: 11 } } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+// -- Dept Table
+function initDeptTable() {
+  const body = document.getElementById('deptTableBody');
+  if (!body) return;
+  const sorted = Object.entries(DATA.dept_scores).sort((a,b) => b[1].sat - a[1].sat);
+  body.innerHTML = sorted.map(([name, d]) => {
+    const satColor = d.sat >= 3.2 ? C.green : d.sat >= 2.6 ? C.yellow : C.red;
+    const lidColor = d.lid >= 3.2 ? C.green : d.lid >= 2.6 ? C.yellow : C.red;
+    const reestColor = d.reest >= 3.0 ? C.green : d.reest >= 2.4 ? C.yellow : C.red;
+    const cultColor = d.cult >= 3.2 ? C.green : d.cult >= 2.6 ? C.yellow : C.red;
+    const npsColor = d.nps >= 8 ? C.green : d.nps >= 6.5 ? C.yellow : C.red;
+    const riskColor = d.risk === 0 ? C.green : d.risk <= 2 ? C.yellow : C.red;
+    const barPct = (d.sat/4*100).toFixed(0);
+    return `
+      <tr>
+        <td style="font-weight:600">${name}</td>
+        <td style="text-align:center">${d.n}</td>
+        <td><span class="mini-bar" style="width:${barPct}px;background:${satColor}"></span><strong style="color:${satColor}">${d.sat}</strong></td>
+        <td style="color:${lidColor};font-weight:600">${d.lid}</td>
+        <td style="color:${reestColor};font-weight:600">${d.reest}</td>
+        <td style="color:${cultColor};font-weight:600">${d.cult}</td>
+        <td style="color:${npsColor};font-weight:600">${d.nps}</td>
+        <td style="color:${riskColor};font-weight:700;text-align:center">${d.risk > 0 ? d.risk : '—'}</td>
+      </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// INIT ALL
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  // Score bars
+  renderScoreBars('leaderBarList', DATA.leadership.labels, DATA.leadership.avgs);
+  renderScoreBars('reestructBarList', DATA.reestructura.labels, DATA.reestructura.avgs);
+  renderScoreBars('devBarList', DATA.desarrollo.labels, DATA.desarrollo.avgs);
+  renderScoreBars('culturaBarList', DATA.cultura.labels, DATA.cultura.avgs);
+
+  // Charts
+  initExpOrgChart();
+  initNpsDistChart();
+  initRetentionCharts();
+  initTenureChart();
+  initRoleChart();
+  initRadarGeneral();
+  initLeaderRadar();
+  initLeaderStackedChart();
+  initReestructRadar();
+  initMotivDistChart();
+  initPlanDevChart();
+  initCompChart();
+  initCulturaRadar();
+  initRiskDistChart();
+  initRiskByDeptChart();
+  initRiskTable();
+  initDeptSatChart();
+  initDeptTable();
+});
+</script>
+</body>
+</html>
