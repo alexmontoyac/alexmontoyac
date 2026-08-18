@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evaluación Reddin · Sergio A. Pérez Rolón — IA Interactive</title>
+<style>
+:root{
+  color-scheme: light;
+  --brand-red:#DA291C; --brand-navy:#1F2A44; --brand-sky:#77C5D5;
+  --s1:#38539a;   /* serie 1 — Efectividad Gerencial */
+  --s2:#0091a6;   /* serie 2 — Efectividad en Ventas */
+  --st-good:#1a7a52; --st-warn:#96600a; --st-crit:#b8231a;
+  --st-good-bg:#e7f4ee; --st-warn-bg:#fbf1de; --st-crit-bg:#fceceb;
+  --st-good-b:#bfe0d0; --st-warn-b:#eddab0; --st-crit-b:#f0c3bf;
+  --surface:#ffffff; --surface-2:#f6f7f9; --surface-3:#eef0f4;
+  --ink:#14192b; --ink-2:#4a5163; --ink-3:#767d90;
+  --line:#dfe3ea; --line-2:#c9cfda;
+  --r:10px;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--sans);background:var(--surface-2);color:var(--ink);
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;line-height:1.25;letter-spacing:-.01em}
+p{margin:0 0 .7em} p:last-child{margin-bottom:0}
+
+/* ── header ─────────────────────────────────────────── */
+header{background:var(--brand-navy);color:#fff;padding:24px 30px 0}
+.hdr-top{display:flex;align-items:flex-start;gap:30px;flex-wrap:wrap;max-width:1240px;margin:0 auto}
+.logo{flex-shrink:0;padding-top:3px}
+.logo svg{height:24px;width:auto;display:block}
+.hdr-main{flex:1;min-width:300px}
+.hdr-main h1{font-size:22px;font-weight:700}
+.hdr-main .sub{color:#b9c2d4;font-size:13.5px;margin-top:5px}
+.hdr-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}
+.hdr-meta span{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);
+  border-radius:100px;padding:3px 12px;font-size:11.5px;color:#dfe5f0}
+.conf{margin-left:auto;text-align:right;font-size:11px;color:#8d99b1;line-height:1.5;padding-top:5px}
+
+/* ── tabs ───────────────────────────────────────────── */
+nav{background:var(--brand-navy);position:sticky;top:0;z-index:40;border-bottom:1px solid rgba(255,255,255,.10)}
+.tabs{max-width:1240px;margin:0 auto;padding:0 30px;display:flex;gap:2px;overflow-x:auto}
+.tab{appearance:none;border:0;background:none;color:#a8b3c8;font-family:inherit;
+  font-size:13px;font-weight:600;padding:13px 15px 12px;cursor:pointer;white-space:nowrap;
+  border-bottom:3px solid transparent;transition:.14s}
+.tab:hover{color:#fff}
+.tab[aria-selected="true"]{color:#fff;border-bottom-color:var(--brand-red)}
+.tab i{font-style:normal;display:inline-block;width:18px;height:18px;line-height:18px;
+  text-align:center;background:rgba(255,255,255,.14);border-radius:5px;font-size:10.5px;
+  margin-right:7px;font-weight:700;vertical-align:1px}
+.tab[aria-selected="true"] i{background:var(--brand-red)}
+
+/* ── layout ─────────────────────────────────────────── */
+main{max-width:1240px;margin:0 auto;padding:26px 30px 70px}
+.panel[hidden]{display:none}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px 24px;margin-bottom:16px}
+.card > h3{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);font-weight:700;margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+.mb0{margin-bottom:0}
+
+/* ── verdict banner ─────────────────────────────────── */
+.verdict{border-radius:var(--r);padding:20px 24px;margin-bottom:16px;border:1px solid;display:flex;gap:18px;align-items:flex-start}
+.verdict .vico{font-size:20px;line-height:1;flex-shrink:0;width:38px;height:38px;border-radius:9px;display:grid;place-items:center;font-weight:800;color:#fff}
+.verdict h2{font-size:19px;margin-bottom:5px}
+.verdict p{font-size:14.5px;line-height:1.55}
+.v-no{background:var(--st-crit-bg);border-color:var(--st-crit-b)}
+.v-no .vico{background:var(--st-crit)} .v-no h2{color:var(--st-crit)}
+.v-cond{background:var(--st-warn-bg);border-color:var(--st-warn-b)}
+.v-cond .vico{background:var(--st-warn)} .v-cond h2{color:var(--st-warn)}
+.v-neu{background:var(--surface);border-color:var(--line)}
+.v-neu .vico{background:var(--brand-navy)} .v-neu h2{color:var(--brand-navy)}
+
+/* ── stat tiles ─────────────────────────────────────── */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:900px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px}
+.tile .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:700}
+.tile .val{font-size:29px;font-weight:750;letter-spacing:-.03em;margin:6px 0 2px;font-variant-numeric:tabular-nums}
+.tile .val small{font-size:14px;font-weight:600;color:var(--ink-3);letter-spacing:0}
+.tile .note{font-size:12px;color:var(--ink-2)}
+.pbar{height:5px;border-radius:3px;background:var(--surface-3);margin-top:9px;overflow:hidden}
+.pbar > i{display:block;height:100%;border-radius:3px}
+
+/* ── chips ──────────────────────────────────────────── */
+.chip{display:inline-block;font-size:11px;font-weight:700;padding:2.5px 9px;border-radius:100px;letter-spacing:.02em;white-space:nowrap}
+.c-good{background:var(--st-good-bg);color:var(--st-good)}
+.c-warn{background:var(--st-warn-bg);color:var(--st-warn)}
+.c-crit{background:var(--st-crit-bg);color:var(--st-crit)}
+.c-neu{background:var(--surface-3);color:var(--ink-2)}
+
+/* ── lists ──────────────────────────────────────────── */
+ul.clean{list-style:none;margin:0;padding:0}
+ul.clean li{padding:9px 0;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:baseline;font-size:14px}
+ul.clean li:last-child{border-bottom:0;padding-bottom:0}
+ul.clean li:first-child{padding-top:0}
+ul.clean .num{font-family:var(--mono);font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;flex-shrink:0;width:34px}
+.hi{color:var(--s1)} .lo{color:var(--st-crit)}
+.bullets{margin:0;padding-left:19px;font-size:14px}
+.bullets li{margin-bottom:7px} .bullets li:last-child{margin-bottom:0}
+.bullets.tight li{margin-bottom:9px}
+.hov{border-bottom:1px dotted var(--ink-3);cursor:help}
+
+/* ── tables ─────────────────────────────────────────── */
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:700;padding:0 12px 9px 0;border-bottom:1px solid var(--line-2)}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.tight{white-space:nowrap}
+table.matrix td:first-child{font-weight:650;width:26%}
+table.matrix td:nth-child(2){width:14%}
+
+/* ── heatmap de afinidad ────────────────────────────── */
+table.heat{border-collapse:separate;border-spacing:3px;width:100%;font-size:13px}
+table.heat th{padding:0 0 8px;border:0;text-align:center;font-size:11px}
+table.heat th.rowh{text-align:left;width:29%}
+table.heat td{border:0;padding:0;vertical-align:middle}
+table.heat td.cap{font-size:13px;font-weight:600;padding-right:12px;line-height:1.35}
+table.heat td.cap span{display:block;font-weight:400;font-size:11.5px;color:var(--ink-3);margin-top:2px}
+.lvl{width:96px}
+.lvlbar{height:22px;border-radius:5px;background:var(--surface-3);position:relative;overflow:hidden}
+.lvlbar i{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
+.lvlbar b{position:absolute;right:6px;top:0;line-height:22px;font-size:11px;font-variant-numeric:tabular-nums}
+.hc{border-radius:6px;text-align:center;padding:7px 4px;font-size:10.5px;font-weight:700;
+  letter-spacing:.02em;line-height:1.3;border:1px solid transparent}
+.h-gap{background:var(--st-crit);color:#fff}
+.h-gap2{background:var(--st-crit-bg);color:var(--st-crit);border-color:var(--st-crit-b)}
+.h-part{background:var(--st-warn-bg);color:var(--st-warn);border-color:var(--st-warn-b)}
+.h-ok{background:var(--st-good);color:#fff}
+.h-ok2{background:var(--st-good-bg);color:var(--st-good);border-color:var(--st-good-b)}
+.h-min{background:var(--surface-3);color:var(--ink-3)}
+.heatlegend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-2);margin-top:14px}
+.heatlegend span{display:flex;align-items:center;gap:6px}
+.heatlegend i{width:14px;height:14px;border-radius:4px;display:inline-block;border:1px solid transparent}
+
+/* ── role cards ─────────────────────────────────────── */
+.role{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;display:flex;flex-direction:column;gap:11px}
+.role.on{border-color:var(--st-good-b);background:var(--st-good-bg)}
+.role h4{font-size:15.5px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.role .pct{font-size:26px;font-weight:750;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:var(--st-crit)}
+.role.on .pct{color:var(--st-good)}
+.role p{font-size:13px;color:var(--ink-2)}
+.role .mini{height:8px;border-radius:4px;background:var(--surface-3);overflow:hidden}
+.role .mini i{display:block;height:100%;border-radius:4px;background:var(--st-crit)}
+.role.on .mini i{background:var(--st-good)}
+
+/* ── quote / callout ────────────────────────────────── */
+blockquote{margin:10px 0;padding:11px 16px;background:var(--surface-2);border-left:3px solid var(--brand-red);
+  border-radius:0 6px 6px 0;font-size:13.5px;color:var(--ink-2);font-style:italic}
+blockquote cite{display:block;font-style:normal;font-size:11px;color:var(--ink-3);margin-top:6px;letter-spacing:.03em;text-transform:uppercase;font-weight:700}
+.callout{background:var(--surface-3);border-radius:8px;padding:14px 16px;font-size:13.5px;color:var(--ink-2);margin-top:12px}
+.callout strong{color:var(--ink)}
+.flag{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.flag:last-child{border-bottom:0;padding-bottom:0}
+.flag .fn{flex-shrink:0;width:24px;height:24px;border-radius:6px;background:var(--st-crit);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}
+.flag .fn.w{background:var(--st-warn)} .flag .fn.g{background:var(--st-good)}
+.flag strong{display:block;margin-bottom:2px}
+
+/* ── timeline ───────────────────────────────────────── */
+.tl{position:relative;padding-left:20px}
+.tl::before{content:"";position:absolute;left:4px;top:6px;bottom:6px;width:2px;background:var(--line-2)}
+.tl-i{position:relative;padding:0 0 15px}
+.tl-i:last-child{padding-bottom:0}
+.tl-i::before{content:"";position:absolute;left:-20px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--surface);border:2px solid var(--s1)}
+.tl-i .yr{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);font-weight:600}
+.tl-i .rl{font-size:13.5px;font-weight:650}
+.tl-i .co{font-size:12.5px;color:var(--ink-2)}
+
+/* ── charts ─────────────────────────────────────────── */
+.chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:4px}
+.chart-title{font-size:15.5px;font-weight:700}
+.chart-sub{font-size:12.5px;color:var(--ink-3);margin-top:3px}
+.legend{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2)}
+.legend b{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.ctrls{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 4px}
+.ctrls button{appearance:none;font-family:inherit;font-size:12.5px;font-weight:600;border:1px solid var(--line-2);
+  background:var(--surface);color:var(--ink-2);padding:5px 12px;border-radius:100px;cursor:pointer;transition:.13s}
+.ctrls button:hover{border-color:var(--ink-3)}
+.ctrls button[aria-pressed="true"]{background:var(--brand-navy);border-color:var(--brand-navy);color:#fff}
+svg{display:block;width:100%;height:auto;overflow:visible}
+.ax{font-size:11px;fill:var(--ink-3)}
+.axlbl{font-size:12.5px;fill:var(--ink-2)}
+.axlbl.b{font-weight:650;fill:var(--ink)}
+.grid{stroke:var(--line);stroke-width:1}
+.gridref{stroke:var(--brand-navy);stroke-width:1.5;stroke-dasharray:4 3}
+.val{font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.band{fill:var(--surface-2)}
+.bandtxt{font-size:9.5px;fill:var(--ink-3);letter-spacing:.05em;text-transform:uppercase;font-weight:700}
+.hitarea{fill:transparent;cursor:pointer}
+.grp:hover .bar{opacity:.82}
+#tip{position:fixed;z-index:99;pointer-events:none;background:var(--brand-navy);color:#fff;padding:10px 13px;
+  border-radius:8px;font-size:12.5px;max-width:360px;line-height:1.5;box-shadow:0 6px 24px rgba(20,25,43,.28);opacity:0;transition:opacity .1s}
+#tip.on{opacity:1}
+#tip b{display:block;font-size:13px;margin-bottom:4px}
+#tip em{font-style:normal;color:var(--brand-sky);font-weight:700}
+#tip .pl{display:block;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.2);color:#cdd5e3}
+.tblview{display:none;margin-top:14px}
+.tblview.on{display:block}
+
+footer{max-width:1240px;margin:0 auto;padding:0 30px 40px;font-size:11.5px;color:var(--ink-3);line-height:1.7}
+@media print{
+  nav,.ctrls{display:none}
+  .panel[hidden]{display:block!important}
+  body{background:#fff}
+  .card,.role{break-inside:avoid;page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-top">
+    <div class="logo">
+      <svg viewBox="0 0 270 32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="IA interactive">
+        <path d="M147.707,8.871C146.995,8.792 146.283,8.792 145.651,8.792L143.12,8.792C141.539,8.792 140.194,8.95 138.929,9.188C137.663,9.426 136.635,9.901 135.686,10.614C134.737,11.327 133.947,12.277 133.314,13.545C132.681,14.812 132.128,16.396 131.811,18.297L129.202,31.604L134.184,31.604C135.291,31.604 136.24,30.812 136.477,29.782L138.612,18.772C138.771,17.901 139.008,17.188 139.166,16.634C139.403,16.079 139.641,15.604 140.036,15.287C140.352,14.97 140.827,14.733 141.38,14.574C141.934,14.416 142.567,14.416 143.357,14.416L144.465,14.416C144.86,14.416 145.255,14.416 145.651,14.495L147.707,8.871ZM129.676,15.762C129.755,15.366 129.755,14.97 129.755,14.574C129.755,12.515 129.044,10.931 127.62,9.822C126.197,8.713 123.982,8.158 121.056,8.158C119.633,8.158 118.209,8.317 116.865,8.634C115.521,8.95 114.334,9.505 113.227,10.376C112.12,11.248 111.171,12.436 110.301,13.941C109.431,15.445 108.799,17.426 108.403,19.802C108.166,21.069 108.008,22.337 108.008,23.604C108.008,24.792 108.166,25.822 108.482,26.852C108.799,27.881 109.273,28.673 109.985,29.465C110.697,30.178 111.646,30.733 112.832,31.129C114.018,31.525 115.521,31.683 117.339,31.762C119.633,31.842 121.452,31.921 122.875,31.683C122.954,31.683 123.112,31.604 123.192,31.604C123.271,31.604 123.271,31.604 123.35,31.525C123.429,31.525 123.429,31.525 123.508,31.445C123.745,31.366 123.982,31.208 124.14,30.97L124.22,30.891C124.299,30.812 124.299,30.733 124.378,30.654C124.378,30.574 124.457,30.574 124.457,30.495C124.536,30.337 124.615,30.178 124.773,30.02C125.089,29.228 126.197,26.455 126.197,26.455C124.931,26.535 124.061,26.614 122.875,26.614C121.689,26.614 120.345,26.693 118.684,26.693C117.181,26.693 116.153,26.455 115.521,25.98C114.888,25.505 114.572,24.713 114.572,23.604L114.572,22.891L119.158,22.891C122.322,22.891 124.694,22.416 126.355,21.545C128.016,20.673 129.123,19.089 129.597,16.871C129.597,16.555 129.676,16.158 129.676,15.762ZM123.35,16.158C123.271,16.555 123.112,16.871 122.954,17.109C122.796,17.346 122.559,17.584 122.243,17.743C121.926,17.901 121.531,17.98 121.056,18.059C120.582,18.139 119.949,18.139 119.237,18.139L115.441,18.139C115.916,16.238 116.549,14.97 117.26,14.178C118.051,13.465 119.158,13.069 120.582,13.069C121.689,13.069 122.48,13.228 122.875,13.624C123.35,13.941 123.508,14.416 123.508,15.05C123.508,15.445 123.429,15.842 123.35,16.158ZM65.225,6.574C66.648,6.574 67.755,6.257 68.546,5.703C69.337,5.149 69.732,4.04 69.732,2.535C69.732,1.584 69.416,0.95 68.862,0.554C68.309,0.158 67.439,0 66.253,0C65.62,0 64.987,0.079 64.434,0.158C63.88,0.317 63.406,0.475 63.01,0.792C62.615,1.109 62.298,1.505 62.061,2.059C61.824,2.614 61.745,3.248 61.745,4.04C61.745,5.703 62.931,6.574 65.225,6.574ZM61.429,8.871L57,31.525L61.982,31.525C63.089,31.525 64.038,30.733 64.275,29.624L68.309,8.871L61.429,8.871ZM101.128,14.337L107.059,14.337L109.115,8.95L102.156,8.95L103.342,2.693L98.043,3.327C97.015,3.406 96.225,4.198 95.987,5.149L95.987,5.228L92.666,22.574C92.587,23.049 92.508,23.525 92.429,24C92.35,24.475 92.35,24.871 92.35,25.267C92.35,27.327 92.903,28.832 94.089,30.02C95.276,31.129 97.094,31.604 99.704,31.683C100.653,31.683 101.839,31.762 103.184,31.683C104.054,31.604 104.607,30.97 105.003,30.02C106.268,26.772 106.426,26.297 106.426,26.297L102.077,26.297C101.128,26.297 100.416,26.139 100.021,25.743C99.625,25.426 99.467,24.871 99.467,24.158C99.467,23.683 99.546,23.208 99.625,22.654L101.128,14.337ZM88.395,9.98C86.814,8.792 84.441,8.238 81.357,8.238C79.538,8.238 78.036,8.396 76.691,8.713C75.347,9.03 74.24,9.584 73.291,10.297C72.342,11.01 71.551,11.96 70.998,13.149C70.444,14.337 69.969,15.762 69.653,17.426L66.885,31.604L71.867,31.604C72.975,31.604 73.844,30.812 74.161,29.782L76.454,17.822C76.612,17.03 76.77,16.396 77.008,15.921C77.245,15.445 77.482,15.05 77.799,14.733C78.115,14.416 78.51,14.178 79.064,14.099C79.538,13.941 80.171,13.941 80.962,13.941C81.911,13.941 82.702,14.099 83.176,14.495C83.651,14.891 83.967,15.525 83.967,16.396C83.967,16.634 83.967,16.792 83.888,17.03C83.888,17.267 83.809,17.584 83.73,17.822L81.041,31.604L86.023,31.604C87.051,31.604 87.921,30.891 88.237,29.941L88.237,29.861C88.237,29.782 88.316,29.703 88.316,29.545L90.531,18.059C90.61,17.584 90.689,17.109 90.768,16.634C90.847,16.158 90.847,15.762 90.847,15.366C90.768,12.99 89.977,11.168 88.395,9.98ZM257.473,9.901C256.049,8.792 253.835,8.238 250.909,8.238C249.485,8.238 248.062,8.396 246.717,8.713C245.373,9.03 244.187,9.584 243.08,10.455C241.972,11.327 241.023,12.515 240.154,14.02C239.284,15.525 238.651,17.505 238.256,19.881C238.018,21.148 237.86,22.416 237.86,23.683C237.86,24.871 238.018,25.901 238.335,26.931C238.651,27.96 239.126,28.753 239.837,29.545C240.549,30.257 241.498,30.812 242.684,31.208C243.87,31.604 245.373,31.762 247.192,31.842C249.485,31.921 251.304,32 252.728,31.762C252.886,31.762 252.965,31.683 253.123,31.683L253.202,31.683C253.281,31.683 253.281,31.683 253.36,31.604C253.598,31.525 253.756,31.366 253.993,31.129L254.072,31.049C254.151,30.97 254.151,30.891 254.23,30.891C254.23,30.812 254.309,30.812 254.309,30.733C254.388,30.574 254.467,30.416 254.626,30.257C254.942,29.465 256.049,26.693 256.049,26.693C254.784,26.772 253.914,26.852 252.728,26.852C251.541,26.852 250.197,26.931 248.536,26.931C247.034,26.931 246.006,26.693 245.373,26.218C244.74,25.743 244.424,24.951 244.424,23.842L244.424,23.129L249.011,23.129C252.174,23.129 254.547,22.654 256.207,21.782C257.868,20.911 258.975,19.327 259.45,17.109C259.529,16.713 259.608,16.317 259.608,15.921C259.687,15.525 259.687,15.129 259.687,14.733C259.608,12.515 258.896,10.931 257.473,9.901ZM253.123,16.158C253.044,16.555 252.886,16.871 252.728,17.109C252.569,17.346 252.332,17.584 252.016,17.743C251.7,17.901 251.304,17.98 250.83,18.059C250.355,18.139 249.723,18.139 249.011,18.139L245.215,18.139C245.689,16.238 246.322,14.97 247.034,14.178C247.745,13.465 248.932,13.069 250.355,13.069C251.462,13.069 252.253,13.228 252.649,13.624C253.044,13.941 253.281,14.416 253.281,15.05C253.281,15.445 253.281,15.842 253.123,16.158ZM215.243,0.554C214.689,0.158 213.819,0 212.633,0C212,0 211.368,0.079 210.814,0.158C210.261,0.317 209.786,0.475 209.391,0.792C208.995,1.109 208.679,1.505 208.442,2.059C208.205,2.614 208.125,3.248 208.125,4.04C208.125,5.782 209.312,6.574 211.605,6.574C213.029,6.574 214.136,6.257 214.926,5.703C215.717,5.149 216.113,4.04 216.113,2.535C216.192,1.584 215.875,0.95 215.243,0.554ZM164.789,10.455C163.207,9.347 160.834,8.792 157.592,8.792L153.559,8.792C152.294,8.792 151.266,8.792 150.475,8.871L148.498,14.178C150.158,14.099 151.661,14.099 153.005,14.099L156.88,14.099C158.146,14.099 159.174,14.257 159.806,14.574C160.439,14.891 160.834,15.525 160.834,16.475C160.834,16.792 160.755,17.109 160.676,17.505L160.518,18.376C159.965,17.822 159.174,17.505 158.146,17.267C157.118,17.03 156.01,16.951 154.745,16.951C151.819,16.951 149.684,17.505 148.26,18.614C146.837,19.723 145.809,21.307 145.414,23.287C145.334,23.762 145.255,24.158 145.176,24.634C145.176,25.03 145.097,25.426 145.097,25.901C145.097,28.04 145.809,29.545 147.232,30.495C148.656,31.445 150.87,31.921 153.875,31.921C154.982,31.921 156.169,31.921 157.276,31.842C158.383,31.762 159.332,31.762 160.123,31.683C160.914,31.604 161.546,31.445 162.1,31.287C162.653,31.129 163.128,30.891 163.523,30.495C163.919,30.178 164.235,29.703 164.551,29.148C164.789,28.594 165.026,27.881 165.184,27.089L166.766,18.693C166.845,18.139 166.924,17.663 167.003,17.188C167.082,16.713 167.082,16.238 167.082,15.762C167.161,13.386 166.37,11.644 164.789,10.455ZM158.937,26.931C158.462,27.01 157.908,27.01 157.276,27.089C156.643,27.168 156.01,27.168 155.378,27.168C154.113,27.168 153.164,27.01 152.531,26.772C151.977,26.535 151.661,25.98 151.661,25.109L151.661,24.713C151.661,24.555 151.661,24.317 151.74,24.079C151.898,23.129 152.294,22.495 152.926,22.178C153.559,21.861 154.508,21.703 155.773,21.703C156.88,21.703 157.75,21.861 158.462,22.099C159.174,22.337 159.49,22.97 159.49,24C159.411,24.079 158.937,26.931 158.937,26.931ZM232.799,8.871L225.286,24.792L223.863,8.871L216.745,8.871L220.146,31.525L226.631,31.525C227.5,31.525 228.212,31.049 228.608,30.337L239.916,8.792L232.799,8.792L232.799,8.871ZM203.539,31.604L208.521,31.604C209.628,31.604 210.577,30.812 210.814,29.703L214.847,8.95L207.967,8.95L203.539,31.604ZM196.817,14.337L202.669,14.337L204.725,8.95L197.766,8.95L198.952,2.693L193.574,3.327C192.546,3.406 191.755,4.198 191.518,5.149L191.518,5.228L188.355,22.495C188.276,22.97 188.197,23.445 188.118,23.921C188.039,24.396 188.039,24.792 188.039,25.188C188.039,27.247 188.592,28.753 189.778,29.941C190.965,31.049 192.784,31.525 195.393,31.604C196.342,31.604 197.528,31.683 198.873,31.604C199.743,31.525 200.296,30.891 200.692,29.941C201.957,26.693 202.115,26.218 202.115,26.218L197.766,26.218C196.817,26.218 196.105,26.059 195.71,25.663C195.314,25.346 195.156,24.792 195.156,24.079C195.156,23.604 195.235,23.129 195.314,22.574L196.817,14.337ZM176.018,19.723C176.255,18.614 176.493,17.663 176.809,16.951C177.125,16.238 177.521,15.683 177.995,15.287C178.47,14.891 179.023,14.574 179.735,14.495C180.447,14.337 181.238,14.257 182.187,14.257L184.322,14.257C184.954,14.257 185.587,14.257 186.22,14.337L188.276,8.95L186.773,8.95C186.22,8.95 185.745,8.95 185.271,8.871L182.661,8.871C180.842,8.871 179.261,9.03 177.758,9.267C176.255,9.584 174.99,10.059 173.804,10.851C172.618,11.644 171.669,12.752 170.878,14.099C170.087,15.525 169.454,17.346 169.059,19.564C168.822,20.99 168.664,22.257 168.664,23.525C168.664,24.792 168.822,25.901 169.217,26.852C169.533,27.881 170.166,28.673 170.957,29.386C171.748,30.099 172.776,30.654 174.12,31.049C175.386,31.445 177.046,31.604 178.944,31.604C179.577,31.604 180.368,31.683 181.949,31.525L182.028,31.525C182.187,31.525 182.345,31.525 182.503,31.445C183.056,31.366 183.452,31.129 183.768,30.654C184.005,30.416 184.164,30.099 184.243,29.782L185.666,26.059C184.401,26.139 183.373,26.139 182.503,26.139L179.972,26.139C178.47,26.139 177.363,25.901 176.651,25.505C175.939,25.109 175.623,24.158 175.623,22.812C175.623,22.416 175.623,21.941 175.702,21.386C175.781,20.99 175.86,20.356 176.018,19.723ZM267.041,8.317C267.437,8.158 267.753,7.842 267.753,7.446C267.753,7.129 267.595,6.812 267.437,6.653C267.2,6.495 266.883,6.416 266.172,6.416C265.618,6.416 265.143,6.495 264.827,6.495L264.827,10.059L265.618,10.059L265.618,8.634L266.013,8.634C266.488,8.634 266.646,8.792 266.725,9.188C266.804,9.584 266.883,9.901 267.041,10.059L267.911,10.059C267.832,9.901 267.753,9.743 267.674,9.188C267.595,8.713 267.437,8.396 267.041,8.317ZM266.092,8L265.697,8L265.697,6.97C265.776,6.97 265.934,6.891 266.172,6.891C266.725,6.891 266.962,7.129 266.962,7.446C266.962,7.842 266.567,8 266.092,8ZM266.251,4.594C264.194,4.594 262.613,6.178 262.613,8.158C262.613,10.139 264.274,11.723 266.251,11.723C268.307,11.723 269.888,10.139 269.888,8.158C269.888,6.178 268.307,4.594 266.251,4.594ZM266.251,11.01C264.669,11.01 263.483,9.743 263.483,8.158C263.483,6.574 264.669,5.307 266.251,5.307C267.832,5.307 269.018,6.574 269.018,8.158C269.018,9.743 267.832,11.01 266.251,11.01Z" style="fill:#fff;fill-rule:nonzero;"/>
+        <path d="M15.074,0C12.751,0 11.95,0.561 10.348,3.288C10.348,3.288 1.376,18.607 1.056,19.248C-0.065,21.253 -0.546,22.777 0.896,25.263C2.097,27.348 4.42,30.797 4.42,30.797L22.363,0L15.074,0ZM38.945,3.128C37.423,0.561 36.542,0 34.299,0L29.012,0C26.689,0 25.808,0.561 24.286,3.288L7.544,32L15.074,32C17.237,32 18.118,31.358 19.64,28.712L31.655,8.02L37.263,17.724L32.857,17.724C30.534,17.724 29.653,18.366 28.131,21.012C27.33,22.456 24.847,26.546 24.847,26.627L37.503,26.627C37.503,26.627 34.699,31.358 34.459,31.92L42.069,31.92C44.231,31.92 45.113,31.278 46.635,28.632L48.317,25.825C48.958,24.782 49.438,23.739 49.438,22.536C49.438,21.093 48.637,19.649 47.916,18.446C46.955,16.762 39.265,3.609 38.945,3.128Z" style="fill:#fff;fill-rule:nonzero;"/>
+      </svg>
+    </div>
+    <div class="hdr-main">
+      <h1>Evaluación de afinidad directiva — Sergio A. Pérez Rolón</h1>
+      <div class="sub">Metodología Reddin · Teoría 3D de Efectividad Gerencial</div>
+      <div class="hdr-meta">
+        <span>Diagnóstico de Efectividad Gerencial (DEG)</span>
+        <span>Diagnóstico de Efectividad en Ventas (DEV)</span>
+      </div>
+    </div>
+    <div class="conf">Uso exclusivo de<br>Dirección General</div>
+  </div>
+  <nav>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-p="p1"><i>1</i>Resumen ejecutivo</button>
+      <button class="tab" role="tab" aria-selected="false" data-p="p2"><i>2</i>¿Funciona en rol Comercial?</button>
+      <button class="tab" role="tab" aria-selected="false" data-p="p3"><i>3</i>¿Abre mercado fuera de México?</button>
+      <button class="tab" role="tab" aria-selected="false" data-p="p4"><i>4</i>¿Perfil de co-CEO?</button>
+      <button class="tab" role="tab" aria-selected="false" data-p="p5"><i>5</i>Fit en IA Interactive</button>
+    </div>
+  </nav>
+</header>
+
+<main>
+
+<!-- ══════════ 1. RESUMEN EJECUTIVO ══════════ -->
+<section class="panel" id="p1" role="tabpanel">
+
+  <div class="verdict v-neu">
+    <div class="vico">B</div>
+    <div>
+      <h2>Es un perfil de orden y ejecución, no de crecimiento</h2>
+      <p>Sergio obtiene resultados a través de reglas, procesos y control, en entornos que ya conoce. Ahí rinde por encima del promedio: su efectividad como gerente supera al 67% de las personas evaluadas. En cuanto el terreno cambia a lo comercial, su desempeño baja a la mitad de la tabla y su capacidad de adaptación cae de forma pronunciada. <strong>Sirve para hacer que las cosas funcionen bien; no para abrir camino nuevo.</strong></p>
+    </div>
+  </div>
+
+  <div class="tiles">
+    <div class="tile">
+      <div class="lbl">Como gerente</div>
+      <div class="val">2.6<small> / 4</small></div>
+      <div class="note">Alta. Mejor que el 67% de los evaluados</div>
+      <div class="pbar"><i style="width:67%;background:var(--s1)"></i></div>
+    </div>
+    <div class="tile">
+      <div class="lbl">Como comercial</div>
+      <div class="val">2.2<small> / 4</small></div>
+      <div class="note">Justo en la mitad de la tabla (47%)</div>
+      <div class="pbar"><i style="width:47%;background:var(--s2)"></i></div>
+    </div>
+    <div class="tile">
+      <div class="lbl">Capacidad de crecer</div>
+      <div class="val">3.0<small> / 4</small></div>
+      <div class="note">Alta, e idéntica en las dos evaluaciones</div>
+      <div class="pbar"><i style="width:75%;background:var(--brand-navy)"></i></div>
+    </div>
+    <div class="tile">
+      <div class="lbl">Cómo dirige</div>
+      <div class="val">95<small> Burócrata</small></div>
+      <div class="note">Su forma casi única de operar: la regla y el proceso</div>
+      <div class="pbar"><i style="width:95%;background:var(--brand-red)"></i></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="chart-head">
+      <div>
+        <div class="chart-title">Las ocho formas de dirigir, y cuánto usa cada una</div>
+        <div class="chart-sub">Pase el cursor sobre cada nombre para ver, en lenguaje simple, qué significa esa forma de dirigir</div>
+      </div>
+      <div class="legend">
+        <span><b style="background:var(--s1)"></b>Como gerente</span>
+        <span><b style="background:var(--s2)"></b>Como comercial</span>
+      </div>
+    </div>
+    <div id="chartEstilos"></div>
+    <div class="callout"><strong>Lectura para el CEO.</strong> De las ocho formas de dirigir que mide la evaluación, Sergio usa una sola de manera fuerte: <strong>la del que cumple y hace cumplir las reglas</strong>. Es una forma efectiva —produce orden, calidad y eficiencia— pero es la única que tiene disponible.
+    <br><br>Las dos formas que hacen crecer un negocio casi no aparecen en él: <strong>la del que hace equipo y saca resultados con la gente (5 de 100)</strong> y <strong>la del que desarrolla y contagia a los demás (5 de 100)</strong>. En esta escala, todo lo que está por debajo de 30 significa “prácticamente no lo hace”.
+    <br><br>Y hay un dato que conviene tener presente: cuando el contexto es de ventas, aparece con fuerza <strong>la forma de imponer (85 de 100)</strong> — conseguir la venta presionando. Es la única de las formas poco efectivas que se le dispara, y solo se le dispara ahí.</div>
+  </div>
+
+  <div class="grid2">
+    <div class="card mb0">
+      <h3>Lo que mejor hace</h3>
+      <ul class="clean" id="topComp"></ul>
+    </div>
+    <div class="card mb0">
+      <h3>Lo que peor hace</h3>
+      <ul class="clean" id="botComp"></ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="chart-head">
+      <div>
+        <div class="chart-title">La misma persona cambia según el terreno</div>
+        <div class="chart-sub">Las dos evaluaciones se aplicaron el mismo mes. Donde la línea es roja, el resultado se mueve de forma importante.</div>
+      </div>
+      <div class="legend">
+        <span><b style="background:var(--s1)"></b>Como gerente</span>
+        <span><b style="background:var(--s2)"></b>Como comercial</span>
+      </div>
+    </div>
+    <div id="chartEscalas"></div>
+    <div class="callout"><strong>Qué significa esto para las opciones que tenemos con Sergio.</strong> Dirigiendo una operación que ya existe, se adapta mejor que el 86% de las personas evaluadas y no necesita que le construyan el terreno. En cuanto se le pide vender y abrir, necesita mucha más estructura de la que hoy podríamos darle y su capacidad de adaptarse cae por debajo de dos terceras partes de los evaluados.
+    <br><br>En una frase: <strong>funciona muy bien cuando entra a un sistema que ya está armado, y se descoloca cuando tiene que armarlo él.</strong> Eso orienta directamente dónde ubicarlo y dónde no.</div>
+  </div>
+
+  <div class="card">
+    <h3>Lo que el CEO debe saber antes de decidir</h3>
+    <div class="flag"><div class="fn">1</div><div><strong>No tiene la forma de dirigir que hace crecer.</strong> Las dos maneras de liderar que se necesitan para desarrollar gente y abrir negocio están en 5 de 100. En esta metodología eso se llama “estilo rechazado”: no es que le falte pulirlo, es que no lo pone en práctica.</div></div>
+    <div class="flag"><div class="fn">2</div><div><strong>Roza con quien está arriba de él.</strong> Es su segundo indicador más bajo. La evaluación lo describe así: <em>“ofrece respuestas dogmáticas que le llevan a imponer su particular criterio… a quien continuamente está señalando como fácilmente influenciable y débil. Su postura representa un fuerte escollo para los ímpetus de cambio de sus superiores.”</em></div></div>
+    <div class="flag"><div class="fn">3</div><div><strong>Reporta solo lo bueno.</strong> <em>“En sus reportes omite datos que podrían causar descontrol y sólo se concentra en las buenas noticias.”</em> Y sobre las políticas de la empresa: <em>“tendencia a criticarla, sin mostrar interés en las razones para su implementación.”</em> Dos señales a considerar en cualquier posición que reporte hacia arriba.</div></div>
+    <div class="flag"><div class="fn w">4</div><div><strong>No sostiene la conversación de desempeño.</strong> Es su indicador más bajo de los 40 medidos: <em>“muestra demasiada tolerancia y laxitud… evalúa positivamente rendimientos de bajo nivel como recurso para mantener la armonía.”</em> En un momento en que la agencia está ajustando estructura y exigiendo productividad, esto pesa.</div></div>
+    <div class="flag"><div class="fn w">5</div><div><strong>Bajo presión comercial pierde consistencia.</strong> La propia evaluación lo llama <em>“su talón de Aquiles… pierde la brújula”</em>. Su forma de operar comercialmente no tiene un sesgo definido: depende de que exista estructura, y sin ella <em>“puede derivar en indecisión y postergación”</em>.</div></div>
+    <div class="flag"><div class="fn g">✓</div><div><strong>Lo que juega a su favor.</strong> Alta capacidad de crecimiento (3.0 de 4), efectividad gerencial por encima del 67% y adaptabilidad por encima del 86% en su terreno, buen aguante bajo presión operativa, y una trayectoria de 34 años sin interrupciones dirigiendo entrega de tecnología a escala regional, en tres idiomas.</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card mb0">
+      <h3>Activos reales del candidato</h3>
+      <ul class="bullets">
+        <li><strong>34 años de carrera continua en TI</strong> (EDS, T-Systems, Cinépolis, Diebold Nixdorf, Axity), sin discontinuidades.</li>
+        <li><strong>Escala regional comprobada:</strong> responsabilidad sobre EE. UU., México y Brasil, y sobre toda la región LATAM.</li>
+        <li><strong>Conoce al cliente estratégico desde adentro:</strong> fue Global IT Director de Cinépolis.</li>
+        <li><strong>Trilingüe</strong> — español e inglés nativo/bilingüe, portugués profesional.</li>
+        <li><strong>Fortalezas de ejecución:</strong> detecta y corrige errores, implementa con método, controla desviaciones y sostiene la relación con los pares.</li>
+        <li><strong>Formación directiva:</strong> IPADE (Alta Dirección) e IMD (transformación digital).</li>
+      </ul>
+    </div>
+    <div class="card mb0">
+      <h3>Trayectoria profesional</h3>
+      <div class="tl">
+        <div class="tl-i"><div class="yr">ene 2026 — hoy</div><div class="rl">Director Operaciones TI — automatización y servicios AMS</div><div class="co">Axity</div></div>
+        <div class="tl-i"><div class="yr">feb 2021 — feb 2026</div><div class="rl">Director Application Services LATAM</div><div class="co">Axity</div></div>
+        <div class="tl-i"><div class="yr">sep 2017 — feb 2021</div><div class="rl">Director Software &amp; Professional Services LATAM</div><div class="co">Diebold Nixdorf</div></div>
+        <div class="tl-i"><div class="yr">nov 2016 — sep 2017</div><div class="rl">Global IT Director</div><div class="co">Cinépolis · 11 meses</div></div>
+        <div class="tl-i"><div class="yr">2009 — 2016</div><div class="rl">Director SI Americas → VP Systems Integration Americas → VP y Director Delivery México</div><div class="co">T-Systems</div></div>
+        <div class="tl-i"><div class="yr">1992 — 2009</div><div class="rl">Director de Aplicaciones México</div><div class="co">Electronic Data Systems · 17 años</div></div>
+      </div>
+      <div class="callout" style="margin-top:14px"><strong>El patrón:</strong> toda su carrera está del lado de <em>entregar</em> —operación, servicios gestionados, integración de sistemas—. Nunca ha ocupado una posición del lado de <em>vender</em>: no hay roles de desarrollo de negocio, cuota comercial ni cierre de alianzas. Su historia laboral apunta en la misma dirección que las evaluaciones.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 2. COMERCIAL ══════════ -->
+<section class="panel" id="p2" role="tabpanel" hidden>
+  <div class="verdict v-no">
+    <div class="vico">✕</div>
+    <div>
+      <h2>No para abrir mercado. Sí, con condiciones, para cuidar una cuenta que ya tenemos.</h2>
+      <p>La evidencia apunta en una sola dirección: Sergio puede <strong>administrar</strong> una operación comercial que ya funciona; no puede <strong>crearla</strong>. Las cinco capacidades que definen una venta consultiva —abrir cuentas, manejar objeciones, comunicar, atender reclamos y sostener el precio— están todas por debajo del nivel mínimo de efectividad que marca el instrumento.</p>
+    </div>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><div class="lbl">Efectividad comercial</div><div class="val">47<small>%</small></div><div class="note">Mitad exacta de la tabla. Un director comercial debería estar en el cuartil superior.</div></div>
+    <div class="tile"><div class="lbl">Abrir negocio nuevo</div><div class="val" style="color:var(--st-crit)">1.6</div><div class="note">Bajo el mínimo de 1.8. Es justo la capacidad central del puesto.</div></div>
+    <div class="tile"><div class="lbl">Adaptación comercial</div><div class="val" style="color:var(--st-crit)">32<small>%</small></div><div class="note">Contra 86% en su terreno gerencial. Se desploma al cambiar de campo.</div></div>
+    <div class="tile"><div class="lbl">Tendencia a imponer</div><div class="val" style="color:var(--st-crit)">85</div><div class="note">Aparece con fuerza solo en ventas: presiona por el cierre inmediato.</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Los cinco argumentos, con lo que dice textualmente la evaluación</h3>
+    <table class="matrix">
+      <thead><tr><th>Lo que exige el rol</th><th>Nivel</th><th>Qué dice el reporte</th></tr></thead>
+      <tbody>
+        <tr><td>Abrir cuentas nuevas</td><td class="tight"><span class="chip c-crit">1.6 · bajo</span></td><td>“Algunas veces se comporta <strong>evadiendo el desarrollo de nuevos negocios</strong>, dando la impresión de no importarle el crecimiento y desarrollo de la organización… Se le llega a ver como una persona segregacionista.”</td></tr>
+        <tr><td>Sostener la conversación incómoda</td><td class="tight"><span class="chip c-crit">1.6 · bajo</span></td><td>Objeciones: “el manejo de objeciones queda en manos de la iniciativa de sus clientes… <strong>evitando la confrontación con ellos</strong>.” Reclamos: “tiende a reaccionar evitándolos… las verdaderas causas quedan encubiertas.”</td></tr>
+        <tr><td>Defender el precio</td><td class="tight"><span class="chip c-crit">1.6 · bajo</span></td><td>“A veces <strong>complace en todo a sus clientes, viéndose débil y excesivamente dócil. Fácilmente llega a comprometer los intereses de su área y consecuentemente los de la empresa</strong>, en aras de una aceptación de su persona. Le es común declarar que no tiene clientes sino amigos.”</td></tr>
+        <tr><td>Comunicar y convencer</td><td class="tight"><span class="chip c-crit">1.4 · el más bajo</span></td><td>“Su comunicación es débil y poco efectiva… su rechazo a las relaciones interpersonales le impide abrirse a escuchar los puntos de vista de otros… <strong>retiene información valiosa</strong>.”</td></tr>
+        <tr><td>Operar sin un método ya montado</td><td class="tight"><span class="chip c-crit">2.8 · alta</span></td><td>Necesidad de estructura: “su renuencia a decir ‘no’ le lleva a aceptar proyectos que no pueden completarse a tiempo… <strong>es mejor que se le sitúe en ambientes de venta estructurados donde exista poco cambio ambiental</strong>.”</td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><strong>Por qué importa hoy.</strong> La agencia está construyendo su método comercial desde cero: todavía no existe el marco de trabajo, las métricas ni la cadencia que un director comercial heredaría. Le estaríamos pidiendo justo lo contrario de lo que la evaluación recomienda — cazar sin el andamiaje que él necesita para rendir. Y en una etapa donde hay que proteger márgenes, un perfil que cede para ser aceptado y evita la objeción trabaja en contra.</div>
+  </div>
+
+  <div class="card">
+    <div class="chart-head">
+      <div><div class="chart-title">Sus 20 capacidades comerciales</div>
+      <div class="chart-sub">Contra el nivel mínimo de efectividad (1.8). Pase el cursor sobre cada barra para leer el diagnóstico completo.</div></div>
+    </div>
+    <div class="ctrls" id="ctrlsDEV">
+      <button data-f="all" aria-pressed="true">Todas</button>
+      <button data-f="low" aria-pressed="false">Sólo las bajas</button>
+      <button data-f="tbl" aria-pressed="false">Ver como tabla</button>
+    </div>
+    <div id="chartDEV"></div>
+    <div class="tblview" id="tblDEV"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card mb0">
+      <h3>Dónde sí funcionaría comercialmente</h3>
+      <p style="font-size:13px;color:var(--ink-3);margin-bottom:10px">Pase el cursor sobre cada capacidad para ver qué dice la evaluación.</p>
+      <ul class="bullets tight">
+        <li><strong>Dirigir una cuenta que ya está ganada</strong>, con reglas, gobierno y ritmo establecidos. Es el único terreno comercial donde su perfil suma.</li>
+        <li><strong>Conducir un equipo comercial que ya existe:</strong> <span class="hov" data-k="dev:Propia fuerza de ventas">propia fuerza de ventas 2.4</span>, <span class="hov" data-k="dev:Metas de venta">metas de venta 2.4</span>, <span class="hov" data-k="dev:Juntas de ventas">juntas de ventas 2.4</span>, <span class="hov" data-k="dev:Colegas">colegas 2.6</span>. Sabe operar el aparato, no crearlo.</li>
+        <li><strong>Vigilar a la competencia:</strong> <span class="hov" data-k="dev:Competencia">competencia 2.0</span> — se mantiene informado e inicia estrategias para contrarrestarla.</li>
+        <li><strong>Introducir cambios ya decididos:</strong> <span class="hov" data-k="dev:Introducción de cambios">introducción de cambios 2.4</span> — prepara al cliente con anticipación cuando el cambio le afecta.</li>
+        <li><strong>Un matiz a su favor:</strong> la forma de dirigir que desarrolla a otros llega a 55 en el terreno comercial (contra 5 en el gerencial). Aparece, pero como recurso de apoyo bajo estrés, no como conducta base.</li>
+      </ul>
+    </div>
+    <div class="card mb0">
+      <h3>La lectura honesta del instrumento</h3>
+      <p>Esta evaluación mide cómo se comporta una persona <strong>frente al trabajo que tiene hoy</strong>, no rasgos fijos de personalidad. Sergio fue evaluado dirigiendo una operación de tecnología, donde nadie le pide salir a cazar clientes. Parte del bajo resultado en “abrir negocio nuevo” viene de ese contexto y hay que reconocerlo.</p>
+      <p>Pero dos señales no se explican por el contexto:</p>
+      <ul class="bullets">
+        <li><strong>Las formas de dirigir sí miden lo que tiene disponible</strong>, no lo que le piden. Que las dos formas de liderazgo integrador estén en 5 de 100 describe conductas que no posee, no conductas que nadie le solicita.</li>
+        <li><strong>Su historia laboral apunta igual:</strong> 34 años sin una sola posición de apertura comercial. Si esa capacidad estuviera latente, tres décadas habrían dado ocasión de mostrarla.</li>
+      </ul>
+      <div class="callout"><strong>Contraevidencia que hay que registrar:</strong> la evaluación comercial recomienda para él “medio ambiente variable e impredecible” y puestos de especialista de mercado en entornos impredecibles — pero siempre con la condición de <em>“bajo supervisión constante”</em>. Esa condición es la que impide extenderlo a una dirección autónoma.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 3. VISTA / INTERNACIONAL ══════════ -->
+<section class="panel" id="p3" role="tabpanel" hidden>
+  <div class="verdict v-cond">
+    <div class="vico">!</div>
+    <div>
+      <h2>Puede construir la prueba. No puede ser quien la vende.</h2>
+      <p>La vertical Vista tiene cuatro momentos distintos, y no exigen lo mismo de una persona. Sergio encaja bien en el momento de <strong>construir y garantizar la entrega</strong>, y aporta credibilidad real en la sala. Pero los momentos que deciden si el negocio existe —abrir la puerta con Vista y sentarse con las cadenas— piden exactamente lo que su perfil no tiene.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>La vertical, en cuatro momentos — y quién debe conducir cada uno</h3>
+    <table class="matrix">
+      <thead><tr><th>Momento</th><th>Afinidad</th><th>Por qué</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>1 · Conseguir que Vista abra un ambiente de laboratorio</td>
+          <td class="tight"><span class="chip c-warn">Parcial</span></td>
+          <td>Es una negociación institucional sin palanca formal: hay que pedir algo que hoy no dan. Su credibilidad técnica ayuda a que la petición se tome en serio; su tendencia a evitar la confrontación y a ceder para ser aceptado juega en contra de conseguirlo.</td>
+        </tr>
+        <tr>
+          <td>2 · Construir el prototipo y garantizar que se puede entregar</td>
+          <td class="tight"><span class="chip c-good">Alta</span></td>
+          <td><strong>Su terreno.</strong> Método, control, calidad y cumplimiento de fechas son sus puntos más altos, y ha dirigido entrega de software y servicios gestionados a escala regional durante tres décadas.</td>
+        </tr>
+        <tr>
+          <td>3 · El pitch a Vista: proponer una categoría que no existe en su programa</td>
+          <td class="tight"><span class="chip c-crit">Baja</span></td>
+          <td>Este momento exige plantarse de igual a igual y proponer un intercambio, no pedir un lugar. Sus indicadores de comunicación, manejo de objeciones y firmeza ante el cliente son los tres más bajos de la evaluación comercial.</td>
+        </tr>
+        <tr>
+          <td>4 · Abrir conversación con las cadenas enterprise (dueños y C-level)</td>
+          <td class="tight"><span class="chip c-crit">Baja</span></td>
+          <td>Es apertura pura, en frío, en entorno desconocido y con ciclo largo. La evaluación señala que <em>“reacciona en forma deficiente frente al rechazo”</em> y que en situaciones ambiguas cambia de conducta hasta que <em>“los clientes se desconciertan”</em>.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid2">
+    <div class="card mb0">
+      <h3>Lo que sí aporta</h3>
+      <ul class="bullets tight">
+        <li><strong>Credibilidad de par.</strong> Fue Global IT Director de Cinépolis: habla el idioma del CIO y del director de operaciones de una cadena de cine, desde el lado del cliente.</li>
+        <li><strong>Sabe si se puede entregar.</strong> Servicios gestionados y delivery multi-país son literalmente su especialidad.</li>
+        <li><strong>Idiomas y geografía.</strong> Inglés bilingüe y portugués profesional; ya operó en EE. UU., México y Brasil.</li>
+        <li><strong>Rigor de ejecución.</strong> Es quien haría que un prototipo llegue a tiempo y en calidad demostrable.</li>
+      </ul>
+    </div>
+    <div class="card mb0">
+      <h3>Lo que no cubre</h3>
+      <ul class="bullets tight">
+        <li><strong>No abre puertas.</strong> Su capacidad de generar negocio nuevo está por debajo del mínimo del instrumento.</li>
+        <li><strong>No sostiene el pitch.</strong> Comunicación y manejo de objeciones son sus dos indicadores más bajos.</li>
+        <li><strong>Cede en la negociación.</strong> La evaluación lo describe como “excesivamente dócil” frente al cliente: riesgo directo al negociar términos de alianza.</li>
+        <li><strong>Sin historial de alianzas.</strong> Su trayectoria no registra ninguna experiencia de originar o cerrar acuerdos de partnership.</li>
+        <li><strong>Aguante al rechazo limitado</strong> en ciclos largos y ambiguos, que es exactamente la forma de este negocio.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>La conclusión, en una línea</h3>
+    <p style="font-size:15px">La vertical Vista necesita <strong>dos personas, no una</strong>: alguien que abra y negocie —perfil de desarrollo de negocio, tipo <em>hunter</em>— y alguien que garantice que lo prometido se puede construir y entregar. <strong>Sergio es el segundo, no el primero.</strong> Ponerlo a abrir desperdicia su activo real y expone la vertical a un ciclo comercial que no va a cerrar.</p>
+    <div class="callout"><strong>Lo que estas evaluaciones no pueden responder aquí.</strong> Reddin no mide red de contactos en la industria de exhibición, historial de cierres internacionales, conocimiento del ecosistema Vista, ni disponibilidad real de viaje. Eso se resuelve con referencias y con un ejercicio práctico: pedirle que construya y defienda una tesis de entrada al mercado, con cuentas objetivo nombradas y ruta de acceso a cada una.</div>
+  </div>
+</section>
+
+<!-- ══════════ 4. CO-CEO ══════════ -->
+<section class="panel" id="p4" role="tabpanel" hidden>
+  <div class="verdict v-no">
+    <div class="vico">✕</div>
+    <div>
+      <h2>No. Y lo dicen las propias evaluaciones, sin necesidad de contrastarlo con nada más.</h2>
+      <p>No hace falta compararlo contra un perfil ideal: los instrumentos Reddin <strong>recomiendan explícitamente el tipo de puesto que le corresponde</strong>, y describen el tipo de jefe que necesita para rendir. Ninguna de las dos cosas es compatible con una posición de dirección general compartida.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Lo que la propia evaluación recomienda para él</h3>
+    <div class="grid2">
+      <div>
+        <blockquote>“Tipo de puesto: <strong>gerencia intermedia</strong> en tareas simples y estructuradas donde el conocimiento agrega competitividad en ambientes de baja competencia y de productos o servicios genéricos.”<cite>Reddin · Repertorio de estilos · Roles más afines</cite></blockquote>
+        <blockquote>Responsabilidades recomendadas: “funciones de control de políticas, de procedimientos y de sistemas rutinarios… <strong>bajo contacto con personal superior o subordinado</strong>… <strong>medio ambiente definido, estable y predecible</strong>.”<cite>Reddin · Predictibilidad de la conducta</cite></blockquote>
+      </div>
+      <div>
+        <blockquote>Cómo debe dirigirlo su jefe: “<strong>políticas claras</strong> en tareas rutinarias trascendentales… <strong>medición sistemática del avance</strong>… influencia basada en <strong>indicaciones y sugerencias</strong>.”<cite>Reddin · Dirección requerida</cite></blockquote>
+        <blockquote>Su equipo ideal: gente “<strong>a favor de la uniformidad</strong>… responsable de <strong>tareas rutinarias y simples</strong>… <strong>conservadora en su necesidad de autodesarrollo</strong>… que requiere normas y guías institucionales.”<cite>Reddin · Equipo ideal</cite></blockquote>
+      </div>
+    </div>
+    <div class="callout"><strong>El problema de fondo.</strong> El instrumento describe a alguien que rinde <em>recibiendo</em> políticas claras y medición sistemática de un superior. Un co-CEO es precisamente quien <strong>emite</strong> esas políticas y no tiene ese superior. Además, el equipo que la evaluación considera ideal para él —gente para tareas rutinarias, conservadora en su autodesarrollo— es lo opuesto al equipo de una agencia de diseño y desarrollo de producto digital.</div>
+  </div>
+
+  <div class="card">
+    <h3>Las cinco capacidades que una dirección general exige, contra lo que muestra</h3>
+    <table class="matrix">
+      <thead><tr><th>Capacidad</th><th>Nivel</th><th>Evidencia de la evaluación</th></tr></thead>
+      <tbody>
+        <tr><td>Hacer equipo y sacar resultados a través de otros</td><td class="tight"><span class="chip c-crit">5 / 100</span></td><td>Es la forma de dirigir que la metodología asocia a la sinergia, y prácticamente no la usa. Se acompaña de trabajo en equipo 1.8 y conducción de juntas 1.8: <em>“su presencia pasa continuamente inadvertida… sus contribuciones son inconexas con el tema en turno.”</em></td></tr>
+        <tr><td>Desarrollar y contagiar a la gente</td><td class="tight"><span class="chip c-crit">5 / 100</span></td><td>La forma de dirigir que predice desarrollo hacia otros está en el piso de la escala. Su estilo natural es distante: orientación a la tarea 0.2 y orientación a las relaciones 0.2, con <em>“relaciones impersonales”</em> y una identificación mayor con la organización que con las personas.</td></tr>
+        <tr><td>Convivir de igual a igual con la otra dirección general</td><td class="tight"><span class="chip c-crit">1.6</span></td><td><em>“Su postura representa un fuerte escollo para los ímpetus de cambio de sus superiores.”</em> Para un modelo de liderazgo compartido, esto es prácticamente una contraindicación explícita.</td></tr>
+        <tr><td>Proponer y crear lo que no existe</td><td class="tight"><span class="chip c-crit">1.6</span></td><td>Creatividad: <em>“en su concepción de las cosas la creatividad carece de sentido… exagera el apego a las prácticas del pasado y con frecuencia desalienta cualquier idea nueva bajo el pretexto de posibles desviaciones.”</em> Y en su descripción de estilo: <em>“al ser una persona comprometida con el status quo, suele defender y cuidar las prácticas en uso.”</em></td></tr>
+        <tr><td>Sostener el estándar de desempeño del equipo directivo</td><td class="tight"><span class="chip c-crit">1.2</span></td><td>El indicador más bajo de los 40: <em>“evalúa positivamente rendimientos de bajo nivel como un recurso para mantener la armonía.”</em></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid2">
+    <div class="card mb0">
+      <h3>Lo que sí tiene, y hay que decirlo</h3>
+      <ul class="bullets">
+        <li><strong>Capacidad de crecimiento alta (3.0 de 4)</strong> en ambas evaluaciones.</li>
+        <li><strong>Efectividad como gerente por encima del 67%</strong> de los evaluados, y adaptabilidad por encima del 86% en su terreno.</li>
+        <li><strong>Buen desempeño bajo presión operativa:</strong> organiza el entorno, crea orden y dirige con lógica.</li>
+        <li><strong>Detecta y corrige errores mejor que la mayoría</strong>, y ejecuta con precisión lo que se acuerda.</li>
+      </ul>
+      <div class="callout">Todo esto es real y valioso — <strong>en una dirección funcional con un superior claro</strong>, que es exactamente donde el instrumento lo ubica.</div>
+    </div>
+    <div class="card mb0">
+      <h3>¿Y con un plan de desarrollo de 12 a 24 meses?</h3>
+      <ul class="clean">
+        <li><span class="num" style="width:auto"><span class="chip c-good">Se puede cerrar</span></span><div>Conocimiento y exposición: finanzas avanzadas, gobierno de alianzas, exposición a la toma de decisión estratégica. Su capacidad de aprendizaje es alta.</div></li>
+        <li><span class="num" style="width:auto"><span class="chip c-crit">No se cierra</span></span><div>Las dos formas de liderazgo integrador en 5 de 100. La metodología define de 0 a 29 como “estilos rechazados: aquellos que la persona difícilmente pone en práctica”. Un plan de desarrollo mueve estilos que ya están asomando; no construye desde el piso absoluto de la escala en dos años y con 34 años de carrera consolidada.</div></li>
+      </ul>
+      <div class="callout"><strong>En corto:</strong> se le puede enseñar lo que le falta saber. No se le puede instalar la forma de dirigir que no tiene.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 5. FIT ══════════ -->
+<section class="panel" id="p5" role="tabpanel" hidden>
+  <div class="verdict v-cond">
+    <div class="vico">!</div>
+    <div>
+      <h2>Un solo rol pasa el umbral: Operaciones, con 71% de afinidad. Los otros tres no llegan al 45%.</h2>
+      <p>El cruce entre las dos evaluaciones Reddin, su trayectoria profesional y lo que exige cada una de las cuatro direcciones de la agencia da un resultado nítido y sin zonas grises: <strong>encaja en la dirección de Operaciones y no encaja en ninguna de las otras tres.</strong></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="chart-head">
+      <div>
+        <div class="chart-title">Afinidad de Sergio con las cuatro direcciones de la agencia</div>
+        <div class="chart-sub">Cruce ponderado de las evaluaciones Reddin, la trayectoria profesional y las exigencias de cada descripción de puesto</div>
+      </div>
+    </div>
+    <div id="chartFit"></div>
+  </div>
+
+  <div class="card">
+    <h3>De dónde sale ese número — dónde cubre y dónde no, rol por rol</h3>
+    <div id="heatFit"></div>
+    <div class="heatlegend">
+      <span><i style="background:var(--st-good)"></i> Crítico para el rol · lo cubre</span>
+      <span><i style="background:var(--st-good-bg);border-color:var(--st-good-b)"></i> Importante · lo cubre</span>
+      <span><i style="background:var(--st-warn-bg);border-color:var(--st-warn-b)"></i> Cobertura parcial</span>
+      <span><i style="background:var(--st-crit)"></i> Crítico para el rol · brecha</span>
+      <span><i style="background:var(--st-crit-bg);border-color:var(--st-crit-b)"></i> Importante · brecha</span>
+      <span><i style="background:var(--surface-3)"></i> Poco relevante para ese rol</span>
+    </div>
+    <div class="callout"><strong>Se lee de un vistazo:</strong> la columna de Operaciones es la única donde los requisitos críticos aparecen en verde. En Comercial, en Finanzas y en Recursos Humanos, los recuadros rojos caen justo sobre lo que cada uno de esos puestos no puede permitirse fallar.</div>
+  </div>
+
+  <div class="grid2">
+    <div class="role on">
+      <div><h4>Operaciones <span class="pct">71%</span></h4></div>
+      <div class="mini"><i style="width:71%"></i></div>
+      <p><strong>Por qué encaja.</strong> El puesto pide control de costo, entrega en tiempo y presupuesto, calidad y seguridad, definición de procesos y gobierno de alianzas tecnológicas. Es exactamente donde están sus indicadores más altos: método, prevención de errores, implementación y control. Y su carrera literal —servicios gestionados, delivery, integración de sistemas durante 34 años— <em>es</em> este puesto.</p>
+      <p><strong>Reservas.</strong> El desarrollo y la evaluación de su equipo seguirían siendo un pasivo, igual que su relación con la Dirección General. Ambas requerirían acompañamiento explícito.</p>
+    </div>
+    <div class="role">
+      <div><h4>Finanzas <span class="pct">41%</span></h4></div>
+      <div class="mini"><i style="width:41%"></i></div>
+      <p>Su rigor y su control de desviaciones son un activo real para el puesto, pero no compensan la ausencia total de dominio en el terreno: tesorería, cumplimiento fiscal, contabilidad y representación legal no forman parte de su formación ni de su trayectoria.</p>
+      <p>Además, la transparencia del reporte —crítica justo en esta dirección— es uno de sus indicadores bajos: la evaluación señala que <em>“omite datos que podrían causar descontrol y sólo se concentra en las buenas noticias”</em>.</p>
+    </div>
+    <div class="role">
+      <div><h4>Comercial <span class="pct">39%</span></h4></div>
+      <div class="mini"><i style="width:39%"></i></div>
+      <p>Falla en lo central del puesto: abrir negocio, manejar objeciones, comunicar y sostener el precio están todos por debajo del mínimo, y su capacidad de adaptación en terreno comercial cae al 32%.</p>
+      <p>Suma únicamente en la parte de administrar una cuenta que ya existe y conducir un equipo comercial ya formado — que es la porción menor del puesto, no su razón de ser. El desarrollo completo está en la sección 2.</p>
+    </div>
+    <div class="role">
+      <div><h4>Recursos Humanos <span class="pct">38%</span></h4></div>
+      <div class="mini"><i style="width:38%"></i></div>
+      <p>Es el opuesto conductual del rol. El puesto exige ser contrapeso activo, cuestionar la permanencia y sostener conversaciones de desempeño; su indicador de evaluación es el más bajo de los 40 medidos, y su orientación natural a las relaciones es prácticamente nula.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>Recomendación del Head of HR</h3>
+    <table>
+      <thead><tr><th style="width:4%"></th><th style="width:25%">Opción</th><th>Argumento</th><th style="width:20%">Condición</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="chip c-good">A</span></td>
+          <td><strong>Dirección de Servicios Gestionados / Delivery Internacional</strong><br><span style="font-size:12px;color:var(--ink-3)">Puesto por crear, ligado a la vertical Vista</span></td>
+          <td>Si la agencia convierte el conocimiento del ecosistema Vista en una línea de servicio recurrente fuera de México, alguien tiene que diseñar y garantizar el modelo de entrega multi-país. <strong>Ese es exactamente el negocio que Sergio construyó durante los últimos quince años.</strong> Es vender resultados en modo servicio gestionado, no salir a cazar.</td>
+          <td>Que la línea de negocio se apruebe primero. El puesto se justifica por la estrategia, nunca por el candidato.</td>
+        </tr>
+        <tr>
+          <td><span class="chip c-warn">B</span></td>
+          <td><strong>Autoridad de negocio en dupla con un perfil <em>hunter</em></strong><br><span style="font-size:12px;color:var(--ink-3)">Asesor, consejero o líder de cuenta internacional</span></td>
+          <td>Aporta credibilidad de par ante los C-level de la industria de exhibición sin que se le pida abrir. El <em>hunter</em> abre la puerta y negocia; Sergio sostiene la conversación técnica y de operación, y garantiza la entrega.</td>
+          <td>Exige incorporar primero al perfil de desarrollo de negocio. Sin esa pieza, la dupla no existe.</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="callout"><strong>En una línea:</strong> Sergio no es la respuesta para la dirección comercial ni para la co-dirección general. Sí es un candidato serio para dirigir la entrega de la vertical internacional, en el momento en que esa línea de negocio se apruebe formalmente.</div>
+  </div>
+
+  <div class="card mb0">
+    <h3>Alcance de esta evaluación y siguiente paso</h3>
+    <div id="scopeTable"></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Documento preparado por Recursos Humanos de IA Interactive® para uso exclusivo de la Dirección General. Contiene resultados de evaluación psicométrica de una persona identificada: su tratamiento está sujeto a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares. No difundir, reproducir ni compartir con el evaluado sin un proceso de retroalimentación estructurado.
+  <br><br>Las evaluaciones Reddin describen la congruencia de la conducta con la situación laboral vigente a la fecha de su aplicación y no constituyen por sí solas base suficiente para una decisión de contratación.
+</footer>
+
+<div id="tip"></div>
+
+<script>
+/* ═══ DATOS ═══ */
+const DATA = {
+  estilos: [
+    { n:"Ejecutivo",          deg:5,  dev:5,  ef:"alta", pred:"sinergia",
+      pl:"Saca resultados haciendo que la gente trabaje junta. Exige y acompaña al mismo tiempo. Es la forma de dirigir de quien construye equipo." },
+    { n:"Promotor",           deg:5,  dev:55, ef:"alta", pred:"desarrollo hacia otros",
+      pl:"Hace crecer a las personas a su alrededor. Escucha, desarrolla y contagia. Es la forma de dirigir de quien deja gente mejor de la que encontró." },
+    { n:"Autócrata Benévolo", deg:35, dev:25, ef:"alta", pred:"productividad",
+      pl:"Sabe lo que quiere y lo consigue sin romper la relación. Muy productivo: marca el rumbo y la gente lo sigue de buena gana." },
+    { n:"Burócrata",          deg:95, dev:95, ef:"alta", pred:"eficiencia",
+      pl:"Cumple y hace cumplir las reglas. Ordenado, confiable y eficiente. Produce calidad y control — pero no propone ni empuja hacia adelante." },
+    { n:"Transacción",        deg:35, dev:5,  ef:"baja", pred:"complacencia",
+      pl:"Acepta lo que venga con tal de no tener un conflicto. Cede terreno y termina complaciendo en lugar de decidir." },
+    { n:"Misionero",          deg:25, dev:35, ef:"baja", pred:"tolerancia excesiva",
+      pl:"Prioriza la armonía por encima del resultado. Evita la conversación incómoda y deja pasar el bajo desempeño." },
+    { n:"Autócrata",          deg:25, dev:85, ef:"baja", pred:"autoritarismo",
+      pl:"Impone. Consigue la tarea a costa de la relación: presiona, ordena y genera resistencia a su alrededor." },
+    { n:"Desertor",           deg:45, dev:45, ef:"baja", pred:"estancamiento",
+      pl:"Se desconecta. Ni empuja la tarea ni cuida la relación: pospone decisiones y se aparta del problema." }
+  ],
+  escalas: [
+    { n:"Efectividad",                  deg:2.6, degP:67, degT:'p', dev:2.2, devP:47, devT:'p',
+      pl:"Qué tan bien encaja su forma de actuar con lo que su trabajo le pide." },
+    { n:"Adaptabilidad",                deg:2.2, degP:86, degT:'p', dev:1.2, devP:32, devT:'p',
+      pl:"Capacidad de responder bien cuando el entorno cambia." },
+    { n:"Aguante bajo presión",         deg:2.2, degP:68, degT:'p', dev:1.8, devP:51, devT:'p',
+      pl:"Si mantiene la cabeza fría y sigue siendo efectivo cuando la presión sube." },
+    { n:"Capacidad de crecer",          deg:3.0, degP:48, degT:'p', dev:3.0, devP:48, devT:'p',
+      pl:"Cuánto más podría dar si aprovechara capacidades que hoy no está usando." },
+    { n:"Aptitud general",              deg:2.2, degP:49, degT:'p', dev:2.2, devP:49, devT:'p',
+      pl:"Resumen del conjunto de sus competencias medidas." },
+    { n:"Necesidad de estructura",      deg:1.8, degP:15, degT:'m', dev:2.8, devP:69, devT:'p',
+      pl:"Cuánta jerarquía, política y proceso necesita para poder rendir. Más bajo es mejor: significa más autonomía." },
+    { n:"Resistencia al cambio",        deg:1.4, degP:31, degT:'m', dev:1.8, devP:51, devT:'m',
+      pl:"Qué tanto se opone a los esfuerzos de cambio de la organización. Más bajo es mejor." }
+  ],
+  compDEG: [
+    { g:"Manejo del ambiente", n:"Relación con clientes", v:2.6, t:"A veces interactúa fácilmente con sus clientes en procura de la mejor solución para sus necesidades. Consigue altos resultados a través de la motivación y el compromiso." },
+    { g:"Manejo del ambiente", n:"Relación con grupos de trabajo", v:2.4, t:"Atiende formalmente los requerimientos del personal de servicio. Evita relacionarse personalmente para conservar la objetividad." },
+    { g:"Manejo del ambiente", n:"Relación con colegas", v:2.2, t:"Facilidad superior al promedio para rodear de confianza las relaciones con colegas. Consigue resultados aun sin autoridad jerárquica sobre ellos." },
+    { g:"Manejo del ambiente", n:"Relación con su equipo", v:2.0, t:"Se apoya en el peso de su jerarquía. Mantiene relaciones impersonales con alta orientación a resultados." },
+    { g:"Manejo del ambiente", n:"Relación con público en general", v:2.0, t:"Prefiere guiarse por la tradición. Su actitud es distante y cautelosa." },
+    { g:"Manejo del ambiente", n:"Relación con asesores", v:1.8, t:"Sus relaciones con otras áreas son deficientes. Ejerce una pesada autoridad personal que desata aversiones y resentimiento." },
+    { g:"Manejo del ambiente", n:"Relación con superiores", v:1.6, t:"Ofrece respuestas dogmáticas que le llevan a imponer su particular criterio. Señala a la superioridad como fácilmente influenciable y débil. Su postura representa un fuerte escollo para los ímpetus de cambio de sus superiores." },
+    { g:"Ejecución de tareas", n:"Implementación", v:2.4, t:"Vigila detalladamente la implementación de decisiones y planes. Metódico y constante: la implementación a su cargo ocurre con precisión y eficacia." },
+    { g:"Ejecución de tareas", n:"Fijación de objetivos", v:2.2, t:"Respuesta confiable; establece metas elevadas. Corre el riesgo de comprometerse con objetivos que no logra cumplir." },
+    { g:"Ejecución de tareas", n:"Planeación", v:2.0, t:"Pone atención en el mejoramiento del futuro, dirigiendo a los demás hacia altos estándares de producción." },
+    { g:"Ejecución de tareas", n:"Controles", v:2.0, t:"Actúa metódicamente para prevenir desviaciones. Mantiene con eficiencia sistemas de información como herramienta de control." },
+    { g:"Ejecución de tareas", n:"Manejo del cambio", v:1.8, t:"Impetuoso y atropellado en la introducción de cambios. Espera que los demás se plieguen a su sentido de urgencia. Le es difícil confiar en los demás." },
+    { g:"Ejecución de tareas", n:"Productividad", v:1.8, t:"Subestima la productividad. Se resiste a todo cambio que signifique un aumento de esfuerzo." },
+    { g:"Ejecución de tareas", n:"Creatividad", v:1.6, t:"En su concepción de las cosas la creatividad carece de sentido. Exagera el apego a las prácticas del pasado y con frecuencia desalienta cualquier idea nueva." },
+    { g:"Ejecución de tareas", n:"Evaluación", v:1.2, t:"Baja confiabilidad en la evaluación. Muestra demasiada tolerancia y laxitud; evalúa positivamente rendimientos de bajo nivel como recurso para mantener la armonía." },
+    { g:"Relaciones interpersonales", n:"Manejo de errores", v:2.6, t:"Pronunciada sensibilidad para percibir errores, por pequeños que sean. Actúa con prontitud y eficacia para eliminarlos." },
+    { g:"Relaciones interpersonales", n:"Comunicación", v:2.2, t:"Pone interés en que sus interlocutores comprendan. Sus parlamentos generalmente son monólogos apoyados en la razón." },
+    { g:"Relaciones interpersonales", n:"Manejo del conflicto", v:2.0, t:"Identifica la fuente del problema y al responsable directo; establece los correctivos e impulsa el retorno a la normalidad." },
+    { g:"Relaciones interpersonales", n:"Conducción de juntas", v:1.8, t:"Su presencia pasa continuamente inadvertida. Evade la responsabilidad de asistir; sus contribuciones son inconexas con el tema en turno." },
+    { g:"Relaciones interpersonales", n:"Trabajo en equipo", v:1.8, t:"Efectividad disminuida. Cuida la interrelación y deja de lado el proceso, los objetivos del equipo y sus resultados." }
+  ],
+  compDEV: [
+    { g:"Relaciones interpersonales", n:"Colegas", v:2.6, t:"Obtiene altos resultados movilizando a sus colegas para implementar lo que piensa son los mejores planes. Propone e impulsa muchas iniciativas por encima de las que vienen de ellos." },
+    { g:"Relaciones interpersonales", n:"Propia fuerza de ventas", v:2.4, t:"Facilidad superior al promedio para generar un ambiente de confianza con su propia fuerza de ventas. Motiva a fijar elevados estándares y los apoya para que logren sus objetivos, aun sin autoridad jerárquica." },
+    { g:"Relaciones interpersonales", n:"Competencia", v:2.0, t:"Se mantiene informado de las actividades de la competencia y frecuentemente inicia estrategias efectivas para controlarlas. Mantiene canales abiertos con otros proveedores." },
+    { g:"Relaciones interpersonales", n:"Gerencia de ventas", v:1.8, t:"Antepone los problemas humanos donde no es prioridad; llega a abandonar su papel de vendedor y se preocupa poco por los objetivos de la organización y los de su superior." },
+    { g:"Relaciones interpersonales", n:"Clientes", v:1.6, t:"A veces complace en todo a sus clientes, viéndose débil y excesivamente dócil. Fácilmente llega a comprometer los intereses de su área y de la empresa en aras de una aceptación de su persona. Le es común declarar que no tiene clientes sino amigos." },
+    { g:"Capacidad de ventas", n:"Creatividad en la venta", v:2.2, t:"Conoce los principios de la venta creativa, pero tiene inclinación a producir pocas ideas: se identifica mejor con lo que ya está funcionando bien." },
+    { g:"Capacidad de ventas", n:"Productividad", v:2.2, t:"Procede con energía cuando considera que la productividad en las ventas está en riesgo. Fija altos rendimientos para sí y para los demás." },
+    { g:"Capacidad de ventas", n:"Cierre de la venta", v:2.0, t:"Trabaja con todos los interesados para lograr el mejor cierre, eligiendo el método de venta más apropiado." },
+    { g:"Capacidad de ventas", n:"Desarrollo de nuevos negocios", v:1.6, t:"Algunas veces se comporta evadiendo el desarrollo de nuevos negocios, dando la impresión de no importarle el crecimiento y desarrollo de la organización. Se le llega a ver como una persona segregacionista." },
+    { g:"Capacidad de ventas", n:"Manejo de objeciones", v:1.6, t:"El manejo de objeciones queda en manos de la iniciativa de sus clientes, sin que haga esfuerzos deliberados para asegurar la efectividad, evitando la confrontación con ellos." },
+    { g:"Motivación personal", n:"Metas de venta", v:2.4, t:"Motiva a los demás a fijar elevadas metas de venta y los impulsa y apoya para lograrlas, promoviendo la satisfacción individual. Muy cuidadoso en mantener las buenas relaciones establecidas con los clientes." },
+    { g:"Motivación personal", n:"Auto-organización", v:2.2, t:"Actúa metódicamente para prevenir desviaciones. Mantiene sistemas de información para el control de sus actividades. Le disgusta que otros interfieran en sus planes." },
+    { g:"Motivación personal", n:"Auto-evaluación", v:2.2, t:"Mantiene en constante revisión sus métodos y resultados. Se le percibe exigente e intolerante con las desviaciones." },
+    { g:"Motivación personal", n:"Fijación de objetivos", v:2.2, t:"Participa efectivamente en la fijación de objetivos. Basa sus estimaciones en el logro a largo y corto plazo, mostrándose en disposición al riesgo." },
+    { g:"Motivación personal", n:"Comunicación", v:1.4, t:"Su comunicación es débil y poco efectiva: su rechazo a las relaciones interpersonales le impide abrirse a escuchar los puntos de vista de otros. Retiene información valiosa." },
+    { g:"Responsabilidad empresarial", n:"Juntas de ventas", v:2.4, t:"Prefiere que las juntas se realicen por la vía formal, resintiendo cualquier desviación de la agenda. Le resulta importante comprobar documentalmente lo comunicado. Persona precisa y concisa." },
+    { g:"Responsabilidad empresarial", n:"Introducción de cambios", v:2.4, t:"Tiene el convencimiento de que cada quien tiene un ritmo propio y se abre a cualquier cambio que pueda conducir a mayor realización individual. Prepara a los clientes con suficiente anticipación cuando un cambio les puede afectar." },
+    { g:"Responsabilidad empresarial", n:"Manejo de quejas", v:1.6, t:"Tiende a reaccionar evitando las quejas, porque manejarlas implica confrontarse con el cliente. Las verdaderas causas quedan encubiertas." },
+    { g:"Responsabilidad empresarial", n:"Manejo de reportes", v:1.6, t:"Poco eficaz por su tendencia a autojustificarse. En sus reportes omite datos que podrían causar descontrol y sólo se concentra en las buenas noticias." },
+    { g:"Responsabilidad empresarial", n:"Política de la empresa", v:1.6, t:"Se muestra poco eficaz por su tendencia a criticarla; no muestra interés en las razones para su implementación." }
+  ],
+  roles: [
+    { k:"ops", n:"Operaciones",       pct:71 },
+    { k:"fin", n:"Finanzas",          pct:41 },
+    { k:"com", n:"Comercial",         pct:39 },
+    { k:"rh",  n:"Recursos Humanos",  pct:38 }
+  ],
+  // nivel de Sergio 0-100 + criticidad por rol (3 crítica · 2 importante · 1 secundaria)
+  capacidades: [
+    { n:"Método, control y prevención de errores", d:"Ordenar el trabajo, evitar desviaciones y sostener la calidad",
+      lvl:88, ops:3, com:1, fin:3, rh:2 },
+    { n:"Ejecución y cumplimiento", d:"Entregar en tiempo, en presupuesto y con lo prometido",
+      lvl:80, ops:3, com:2, fin:2, rh:2 },
+    { n:"Abrir negocio y crear demanda", d:"Generar oportunidades que hoy no existen",
+      lvl:35, ops:1, com:3, fin:1, rh:1 },
+    { n:"Negociar, comunicar e influir", d:"Convencer, sostener la objeción y defender la posición",
+      lvl:36, ops:2, com:3, fin:2, rh:3 },
+    { n:"Desarrollar y evaluar personas", d:"Hacer crecer al equipo y sostener la conversación de desempeño",
+      lvl:33, ops:3, com:2, fin:2, rh:3 },
+    { n:"Relación con Dirección General", d:"Alinearse hacia arriba y reportar con transparencia",
+      lvl:40, ops:2, com:2, fin:3, rh:2 },
+    { n:"Adaptarse a lo nuevo y ambiguo", d:"Rendir cuando no hay camino trazado",
+      lvl:48, ops:2, com:3, fin:1, rh:2 },
+    { n:"Trayectoria en el terreno del rol", d:"Haber hecho antes, y a escala, lo que el puesto exige",
+      lvlByRole:{ops:95,com:25,fin:10,rh:10}, ops:3, com:3, fin:3, rh:3 }
+  ],
+  alcance: [
+    { si:"Cómo dirige y con qué estilo lo hace", no:"Su inteligencia y su conocimiento técnico" },
+    { si:"Qué tan efectivo es frente al trabajo que tiene hoy", no:"Su integridad y su conducta ética" },
+    { si:"Sus 40 competencias de gestión y comerciales", no:"Su red de contactos y capital relacional" },
+    { si:"Cómo responde a la presión y al cambio", no:"Sus resultados verificables: cuentas abiertas, negocio cerrado" },
+    { si:"Cuánta estructura necesita para rendir", no:"Su motivación económica y su horizonte de permanencia" },
+    { si:"Cuánto más podría crecer con desarrollo", no:"Su disponibilidad real de viaje y dedicación" },
+    { si:"El tipo de puesto y de jefe que le corresponden", no:"La química personal con el CEO y el equipo directivo" }
+  ]
+};
+
+/* ═══ TOOLTIP ═══ */
+const tip = document.getElementById('tip');
+function showTip(html, e){ tip.innerHTML = html; tip.classList.add('on'); moveTip(e); }
+function moveTip(e){
+  const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = e.clientX + pad, y = e.clientY + pad;
+  if (x + w > innerWidth - 8)  x = e.clientX - w - pad;
+  if (y + h > innerHeight - 8) y = e.clientY - h - pad;
+  tip.style.left = Math.max(8,x)+'px'; tip.style.top = Math.max(8,y)+'px';
+}
+function hideTip(){ tip.classList.remove('on'); }
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const SVGNS = 'http://www.w3.org/2000/svg';
+function el(t,a){ const n=document.createElementNS(SVGNS,t); for(const k in a) n.setAttribute(k,a[k]); return n; }
+function bind(node, html){
+  node.addEventListener('mousemove', e=>showTip(html,e));
+  node.addEventListener('mouseleave', hideTip);
+}
+
+/* ═══ CHART 1 · ESTILOS ═══ */
+function drawEstilos(){
+  const host = document.getElementById('chartEstilos');
+  const W=900, ML=176, MR=30, MT=52, rowH=46, barH=13, gap=4, SPLIT=40;
+  const H = MT + DATA.estilos.length*rowH + SPLIT + 46;
+  const PW = W-ML-MR, x = v => ML + (v/100)*PW;
+  const svg = el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Uso de las ocho formas de dirigir'});
+  const plotBot = MT + DATA.estilos.length*rowH + SPLIT - 10;
+
+  const bands=[[0,29,'Casi nunca'],[30,49,'A veces'],[50,69,'De apoyo'],[70,100,'Su forma habitual']];
+  bands.forEach((b,i)=>{
+    if(i%2===0) svg.appendChild(el('rect',{x:x(b[0]),y:MT-16,width:x(b[1])-x(b[0]),height:plotBot-(MT-16),class:'band'}));
+    const t=el('text',{x:(x(b[0])+x(b[1]))/2,y:MT-22,'text-anchor':'middle',class:'bandtxt'});
+    t.textContent=b[2]; svg.appendChild(t);
+  });
+  [0,29,49,69,100].forEach(v=>svg.appendChild(el('line',{x1:x(v),y1:MT-16,x2:x(v),y2:plotBot,class:'grid'})));
+
+  const hi=el('text',{x:0,y:MT-22,class:'bandtxt',fill:'#1a7a52'});
+  hi.textContent='▲ FORMAS EFECTIVAS'; svg.appendChild(hi);
+  const sepY = MT + 4*rowH + SPLIT/2 - 8;
+  svg.appendChild(el('line',{x1:0,y1:sepY,x2:W-MR,y2:sepY,stroke:'#c9cfda','stroke-width':1.5}));
+  const lo=el('text',{x:0,y:sepY+16,class:'bandtxt',fill:'#b8231a'});
+  lo.textContent='▼ FORMAS POCO EFECTIVAS'; svg.appendChild(lo);
+
+  DATA.estilos.forEach((d,i)=>{
+    const y0 = MT + i*rowH + (i>=4 ? SPLIT : 0);
+    const g = el('g',{class:'grp'});
+    const lbl=el('text',{x:ML-12,y:y0+16,'text-anchor':'end',class:'axlbl b'}); lbl.textContent=d.n; g.appendChild(lbl);
+    const pr=el('text',{x:ML-12,y:y0+29,'text-anchor':'end',class:'ax'}); pr.textContent='produce '+d.pred; g.appendChild(pr);
+    [['deg','var(--s1)',0],['dev','var(--s2)',barH+gap]].forEach(([k,c,off])=>{
+      const v=d[k], bw=Math.max(2,x(v)-ML);
+      g.appendChild(el('rect',{x:ML,y:y0+off,width:bw,height:barH,rx:4,fill:c,class:'bar'}));
+      const t=el('text',{x:ML+bw+7,y:y0+off+barH-2.5,class:'val',fill:'var(--ink-2)'}); t.textContent=v; g.appendChild(t);
+    });
+    const hit=el('rect',{x:0,y:y0-6,width:W,height:rowH-4,class:'hitarea'});
+    bind(hit, `<b>${esc(d.n)}</b>Como gerente <em>${d.deg}</em> · Como comercial <em>${d.dev}</em>
+      <span class="pl">${esc(d.pl)}</span>`);
+    g.appendChild(hit); svg.appendChild(g);
+  });
+  [0,20,40,60,80,100].forEach(v=>{
+    const t=el('text',{x:x(v),y:plotBot+20,'text-anchor':'middle',class:'ax'}); t.textContent=v; svg.appendChild(t);
+  });
+  host.appendChild(svg);
+}
+
+/* ═══ CHART 2 · ESCALAS ═══ */
+function drawEscalas(){
+  const host=document.getElementById('chartEscalas');
+  const W=900, ML=214, MR=126, MT=26, rowH=44;
+  const H = MT + DATA.escalas.length*rowH + 34;
+  const PW=W-ML-MR, x=v=>ML+(v/4)*PW;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Comparación de escalas entre los dos diagnósticos'});
+  [0,1,2,3,4].forEach(v=>{
+    svg.appendChild(el('line',{x1:x(v),y1:MT-10,x2:x(v),y2:MT+DATA.escalas.length*rowH-16,class:'grid'}));
+    const t=el('text',{x:x(v),y:MT+DATA.escalas.length*rowH+2,'text-anchor':'middle',class:'ax'}); t.textContent=v.toFixed(1); svg.appendChild(t);
+  });
+  const ttl=el('text',{x:x(2),y:MT+DATA.escalas.length*rowH+20,'text-anchor':'middle',class:'ax'});
+  ttl.textContent='Escala de 0 a 4'; svg.appendChild(ttl);
+
+  DATA.escalas.forEach((d,i)=>{
+    const y=MT+i*rowH+10, g=el('g',{class:'grp'});
+    const lbl=el('text',{x:ML-14,y:y+4,'text-anchor':'end',class:'axlbl b'}); lbl.textContent=d.n; g.appendChild(lbl);
+    const diff=Math.abs(d.deg-d.dev);
+    g.appendChild(el('line',{x1:x(Math.min(d.deg,d.dev)),y1:y,x2:x(Math.max(d.deg,d.dev)),y2:y,
+      stroke: diff>=0.6?'var(--brand-red)':'var(--line-2)','stroke-width':diff>=0.6?3:2,'stroke-linecap':'round'}));
+    g.appendChild(el('circle',{cx:x(d.deg),cy:y,r:7,fill:'var(--s1)',stroke:'#fff','stroke-width':2}));
+    g.appendChild(el('circle',{cx:x(d.dev),cy:y,r:7,fill:'var(--s2)',stroke:'#fff','stroke-width':2}));
+    const mk=(v,t)=> t==='p' ? 'mejor que '+v+'%' : v+'% igual';
+    const pt=el('text',{x:W-MR+12,y:y+4,class:'ax',fill:'var(--ink-2)'});
+    pt.textContent = mk(d.degP,d.degT)+' → '+mk(d.devP,d.devT); g.appendChild(pt);
+    if(diff>=0.6){ const w=el('text',{x:W-MR+12,y:y+17,class:'ax',fill:'var(--brand-red)'}); w.textContent='cambio importante'; g.appendChild(w); }
+    const ex = t => t==='p' ? 'mejor que el %d% de los evaluados' : '%d% de las personas está en el mismo nivel';
+    const hit=el('rect',{x:0,y:y-18,width:W,height:rowH-2,class:'hitarea'});
+    bind(hit, `<b>${esc(d.n)}</b>Como gerente <em>${d.deg.toFixed(1)}</em> — ${ex(d.degT).replace('%d',d.degP)}<br>
+      Como comercial <em>${d.dev.toFixed(1)}</em> — ${ex(d.devT).replace('%d',d.devP)}
+      <span class="pl">${esc(d.pl)}</span>`);
+    g.appendChild(hit); svg.appendChild(g);
+  });
+  host.appendChild(svg);
+}
+
+/* ═══ CHART 3 · COMPETENCIAS ═══ */
+function drawComp(hostId, rows, filter){
+  const host=document.getElementById(hostId); host.innerHTML='';
+  const data = filter==='low' ? rows.filter(r=>r.v<1.8) : rows;
+  const groups=[]; data.forEach(r=>{ let g=groups.find(x=>x.g===r.g); if(!g){g={g:r.g,items:[]};groups.push(g);} g.items.push(r); });
+  const W=900, ML=250, MR=44, MT=30, rowH=27, gHead=30, barH=14;
+  let H = MT+34; groups.forEach(g=> H += gHead + g.items.length*rowH + 8);
+  const PW=W-ML-MR, x=v=>ML+(v/4)*PW;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Competencias contra el nivel mínimo'});
+  [0,1,2,3,4].forEach(v=>{
+    svg.appendChild(el('line',{x1:x(v),y1:MT-14,x2:x(v),y2:H-30,class:'grid'}));
+    const t=el('text',{x:x(v),y:H-14,'text-anchor':'middle',class:'ax'}); t.textContent=v.toFixed(1); svg.appendChild(t);
+  });
+  svg.appendChild(el('line',{x1:x(1.8),y1:MT-20,x2:x(1.8),y2:H-30,class:'gridref'}));
+  const rl=el('text',{x:x(1.8),y:MT-26,'text-anchor':'middle',class:'bandtxt',fill:'var(--brand-navy)'});
+  rl.textContent='MÍNIMO 1.8'; svg.appendChild(rl);
+  let y=MT;
+  groups.forEach(gr=>{
+    const gh=el('text',{x:0,y:y+10,class:'bandtxt',fill:'var(--ink-2)'}); gh.textContent=gr.g.toUpperCase(); svg.appendChild(gh);
+    svg.appendChild(el('line',{x1:0,y1:y+18,x2:W-MR,y2:y+18,stroke:'var(--line)','stroke-width':1}));
+    y+=gHead;
+    gr.items.forEach(d=>{
+      const low = d.v<1.8, g=el('g',{class:'grp'});
+      const lbl=el('text',{x:ML-14,y:y+11,'text-anchor':'end',class:'axlbl'}); lbl.textContent=d.n;
+      if(low) lbl.setAttribute('fill','var(--st-crit)');
+      g.appendChild(lbl);
+      const bw=Math.max(2,x(d.v)-ML);
+      g.appendChild(el('rect',{x:ML,y:y,width:bw,height:barH,rx:4,fill: low?'var(--brand-red)':'var(--s1)',class:'bar'}));
+      const t=el('text',{x:ML+bw+7,y:y+barH-2,class:'val',fill: low?'var(--st-crit)':'var(--ink-2)'});
+      t.textContent=d.v.toFixed(1); g.appendChild(t);
+      const hit=el('rect',{x:0,y:y-5,width:W,height:rowH,class:'hitarea'});
+      bind(hit, `<b>${esc(d.n)} — <em>${d.v.toFixed(1)}</em>${low?' · bajo el mínimo':''}</b>${esc(d.t)}`);
+      g.appendChild(hit); svg.appendChild(g);
+      y+=rowH;
+    });
+    y+=8;
+  });
+  host.appendChild(svg);
+}
+function buildTable(hostId, rows){
+  document.getElementById(hostId).innerHTML =
+   '<table><thead><tr><th style="width:22%">Grupo</th><th style="width:22%">Capacidad</th>'+
+   '<th style="width:8%">Nivel</th><th>Qué dice la evaluación</th></tr></thead><tbody>'+
+   rows.map(r=>`<tr><td style="color:var(--ink-3)">${esc(r.g)}</td><td><strong>${esc(r.n)}</strong></td>`+
+     `<td class="tight"><span class="chip ${r.v<1.8?'c-crit':'c-good'}">${r.v.toFixed(1)}</span></td>`+
+     `<td style="color:var(--ink-2)">${esc(r.t)}</td></tr>`).join('')+'</tbody></table>';
+}
+
+/* ═══ CHART 4 · AFINIDAD POR ROL ═══ */
+function drawFit(){
+  const host=document.getElementById('chartFit');
+  const W=900, ML=190, MR=60, MT=42, rowH=62, barH=30;
+  const H = MT + DATA.roles.length*rowH + 24;
+  const PW=W-ML-MR, x=v=>ML+(v/100)*PW, THR=65;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Afinidad de Sergio con las cuatro direcciones'});
+  [0,25,50,75,100].forEach(v=>{
+    svg.appendChild(el('line',{x1:x(v),y1:MT-14,x2:x(v),y2:MT+DATA.roles.length*rowH-16,class:'grid'}));
+    const t=el('text',{x:x(v),y:MT+DATA.roles.length*rowH,'text-anchor':'middle',class:'ax'}); t.textContent=v+'%'; svg.appendChild(t);
+  });
+  svg.appendChild(el('line',{x1:x(THR),y1:MT-24,x2:x(THR),y2:MT+DATA.roles.length*rowH-16,class:'gridref'}));
+  const tl=el('text',{x:x(THR),y:MT-30,'text-anchor':'middle',class:'bandtxt',fill:'var(--brand-navy)'});
+  tl.textContent='UMBRAL PARA UNA DIRECCIÓN · 65%'; svg.appendChild(tl);
+
+  DATA.roles.forEach((r,i)=>{
+    const y=MT+i*rowH, pass=r.pct>=THR, g=el('g',{class:'grp'});
+    const lbl=el('text',{x:ML-16,y:y+20,'text-anchor':'end',class:'axlbl b'}); lbl.textContent=r.n; g.appendChild(lbl);
+    const st=el('text',{x:ML-16,y:y+34,'text-anchor':'end',class:'ax',fill: pass?'var(--st-good)':'var(--st-crit)'});
+    st.textContent = pass ? 'Encaja' : 'No encaja'; g.appendChild(st);
+    g.appendChild(el('rect',{x:ML,y:y,width:PW,height:barH,rx:6,fill:'var(--surface-3)'}));
+    g.appendChild(el('rect',{x:ML,y:y,width:Math.max(4,x(r.pct)-ML),height:barH,rx:6,
+      fill: pass?'var(--st-good)':'var(--st-crit)',class:'bar'}));
+    const v=el('text',{x:x(r.pct)+10,y:y+21,class:'val',fill: pass?'var(--st-good)':'var(--st-crit)',
+      style:'font-size:16px'}); v.textContent=r.pct+'%'; g.appendChild(v);
+    const hit=el('rect',{x:0,y:y-8,width:W,height:rowH-6,class:'hitarea'});
+    bind(hit, `<b>Dirección de ${esc(r.n)} — <em>${r.pct}%</em> de afinidad</b>
+      Resultado del cruce ponderado entre las dos evaluaciones Reddin, su trayectoria profesional y las exigencias de la descripción del puesto.
+      <span class="pl">${pass?'Supera el umbral del 65% que consideramos mínimo para una posición directiva.':'Por debajo del umbral del 65% que consideramos mínimo para una posición directiva.'}</span>`);
+    g.appendChild(hit); svg.appendChild(g);
+  });
+  host.appendChild(svg);
+}
+
+/* ═══ HEATMAP DE AFINIDAD ═══ */
+function drawHeat(){
+  const roles=[['ops','Operaciones · 71%'],['fin','Finanzas · 41%'],['com','Comercial · 39%'],['rh','Rec. Humanos · 38%']];
+  const cellFor=(lvl,crit)=>{
+    if(crit===1) return ['h-min','Poco relevante'];
+    const ok = lvl>=65, part = lvl>=50 && lvl<65;
+    if(crit===3) return ok?['h-ok','Crítico · cubre']:(part?['h-part','Crítico · parcial']:['h-gap','Crítico · brecha']);
+    return ok?['h-ok2','Importante · cubre']:(part?['h-part','Importante · parcial']:['h-gap2','Importante · brecha']);
+  };
+  let html='<table class="heat"><thead><tr><th class="rowh">Capacidad</th><th style="width:96px">Nivel de Sergio</th>'+
+    roles.map(r=>`<th>${r[1]}</th>`).join('')+'</tr></thead><tbody>';
+  DATA.capacidades.forEach(c=>{
+    const fixed = c.lvl!=null;
+    html+=`<tr><td class="cap">${esc(c.n)}<span>${esc(c.d)}</span></td><td class="lvl">`;
+    if(fixed){
+      const col = c.lvl>=65?'var(--st-good)':(c.lvl>=50?'var(--st-warn)':'var(--st-crit)');
+      html+=`<div class="lvlbar"><i style="width:${c.lvl}%;background:${col};opacity:.22"></i><b style="color:${col}">${c.lvl}</b></div>`;
+    } else {
+      html+=`<div class="lvlbar" style="background:transparent"><b style="color:var(--ink-3);right:auto;left:2px;font-size:10.5px">varía por rol</b></div>`;
+    }
+    html+='</td>';
+    roles.forEach(([k])=>{
+      const lvl = fixed ? c.lvl : c.lvlByRole[k];
+      const [cls,txt]=cellFor(lvl,c[k]);
+      html+=`<td><div class="hc ${cls}" data-tip="${esc(c.n)}||${lvl}||${esc(txt)}">${txt}${fixed?'':' · '+lvl}</div></td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  const host=document.getElementById('heatFit'); host.innerHTML=html;
+  host.querySelectorAll('.hc').forEach(n=>{
+    const [cap,lvl,txt]=n.dataset.tip.split('||');
+    bind(n, `<b>${esc(cap)}</b>Nivel de Sergio: <em>${lvl} / 100</em><span class="pl">${esc(txt)}</span>`);
+  });
+}
+
+/* ═══ TABLA DE ALCANCE ═══ */
+function drawScope(){
+  const rows = DATA.alcance.map(r=>
+    `<tr><td style="width:44%"><span class="chip c-good" style="margin-right:8px">SÍ</span>${esc(r.si)}</td>
+     <td><span class="chip c-crit" style="margin-right:8px">NO</span>${esc(r.no)}</td></tr>`).join('');
+  document.getElementById('scopeTable').innerHTML =
+   `<table><thead><tr><th>Lo que estas evaluaciones sí miden</th><th>Lo que no miden y hay que averiguar aparte</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+    <div class="callout"><strong>Recomendación:</strong> este dashboard responde con solidez el <em>cómo</em> trabaja Sergio. No responde el <em>qué ha logrado</em> ni el <em>qué quiere ahora</em>. Antes de cualquier decisión firme, una <strong>conversación directa entre el CEO y Sergio</strong> es la pieza que falta — enfocada en tres cosas: resultados verificables de su trayectoria, qué busca en esta etapa de su carrera, y cómo se ve trabajando dentro de la agencia. Esa conversación complementa el instrumento; no la sustituye ninguna prueba.</div>`;
+}
+
+/* ═══ LISTAS ═══ */
+function fillLists(){
+  const all=[...DATA.compDEG.map(r=>({...r,src:'Gerencial'})),...DATA.compDEV.map(r=>({...r,src:'Comercial'}))];
+  const top=[...all].sort((a,b)=>b.v-a.v).slice(0,8);
+  const bot=[...all].sort((a,b)=>a.v-b.v).slice(0,8);
+  const row=(r,cls)=>`<li><span class="num ${cls}">${r.v.toFixed(1)}</span>
+     <span><strong>${esc(r.n)}</strong> <span class="chip c-neu">${r.src}</span><br>
+     <span style="color:var(--ink-3);font-size:12.5px">${esc(r.t.split('.')[0])}.</span></span></li>`;
+  document.getElementById('topComp').innerHTML=top.map(r=>row(r,'hi')).join('');
+  document.getElementById('botComp').innerHTML=bot.map(r=>row(r,'lo')).join('');
+}
+
+/* ═══ TOOLTIPS EN TEXTO ═══ */
+function wireInlineTips(){
+  document.querySelectorAll('.hov[data-k]').forEach(n=>{
+    const [src,name]=n.dataset.k.split(':');
+    const rows = src==='dev' ? DATA.compDEV : DATA.compDEG;
+    const r = rows.find(x=>x.n===name);
+    if(r) bind(n, `<b>${esc(r.n)} — <em>${r.v.toFixed(1)}</em></b>${esc(r.t)}`);
+  });
+}
+
+/* ═══ TABS ═══ */
+document.querySelectorAll('.tab').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected','false'));
+    document.querySelectorAll('.panel').forEach(p=>p.hidden=true);
+    b.setAttribute('aria-selected','true');
+    document.getElementById(b.dataset.p).hidden=false;
+    hideTip();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+
+/* ═══ CONTROLES ═══ */
+function wire(ctrlId, chartId, tblId, rows){
+  const box=document.getElementById(ctrlId), tbl=document.getElementById(tblId);
+  box.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const f=b.dataset.f;
+      if(f==='tbl'){ const on=b.getAttribute('aria-pressed')==='true';
+        b.setAttribute('aria-pressed',String(!on)); tbl.classList.toggle('on',!on); return; }
+      box.querySelectorAll('button[data-f="all"],button[data-f="low"]').forEach(o=>o.setAttribute('aria-pressed',String(o===b)));
+      drawComp(chartId, rows, f);
+    });
+  });
+  drawComp(chartId, rows, 'all');
+  buildTable(tblId, rows);
+}
+
+drawEstilos();
+drawEscalas();
+fillLists();
+drawFit();
+drawHeat();
+drawScope();
+wire('ctrlsDEV','chartDEV','tblDEV',DATA.compDEV);
+wireInlineTips();
+</script>
+</body>
+</html>
