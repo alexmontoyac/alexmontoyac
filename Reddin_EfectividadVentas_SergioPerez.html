@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reddin · Efectividad en Ventas — Sergio A. Pérez Rolón</title>
+<style>
+:root{
+  color-scheme: light;
+  --navy:#1F2A44; --red:#DA291C; --sky:#77C5D5;
+  --ok:#38539a;      /* por encima del umbral */
+  --dev:#9a6a0f;     /* zona de desarrollo */
+  --acc:#0091a6;
+  --ok-bg:#eaeefa; --dev-bg:#fbf1de; --acc-bg:#e4f4f7;
+  --ok-b:#c3cdea;  --dev-b:#eddab0;
+  --surface:#fff; --s2:#f6f7f9; --s3:#eef0f4;
+  --ink:#14192b; --ink2:#4a5163; --ink3:#767d90;
+  --line:#dfe3ea; --line2:#c9cfda;
+  --r:10px;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box} html,body{margin:0;padding:0}
+body{font-family:var(--sans);background:var(--s2);color:var(--ink);font-size:15px;line-height:1.58;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;line-height:1.25;letter-spacing:-.01em}
+p{margin:0 0 .75em} p:last-child{margin-bottom:0}
+
+header{background:var(--navy);color:#fff;padding:26px 30px 0}
+.hdr{display:flex;align-items:flex-start;gap:30px;flex-wrap:wrap;max-width:1180px;margin:0 auto}
+.logo{flex-shrink:0;padding-top:4px} .logo svg{height:23px;width:auto;display:block}
+.hmain{flex:1;min-width:300px}
+.kick{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--sky);font-weight:700;margin-bottom:6px}
+.hmain h1{font-size:23px;font-weight:700}
+.hmain .sub{color:#b9c2d4;font-size:13.5px;margin-top:5px}
+.who{margin-left:auto;text-align:right;font-size:11.5px;color:#aeb9cd;line-height:1.55;padding-top:6px}
+.who strong{display:block;color:#fff;font-size:13.5px;font-weight:650;margin-bottom:3px}
+nav{background:var(--navy);position:sticky;top:0;z-index:40;border-bottom:1px solid rgba(255,255,255,.10)}
+.tabs{max-width:1180px;margin:0 auto;padding:0 30px;display:flex;gap:2px;overflow-x:auto}
+.tab{appearance:none;border:0;background:none;color:#a8b3c8;font-family:inherit;font-size:13px;font-weight:600;
+  padding:14px 15px 12px;cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;transition:.14s}
+.tab:hover{color:#fff}
+.tab[aria-selected="true"]{color:#fff;border-bottom-color:var(--red)}
+.tab i{font-style:normal;display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;
+  background:rgba(255,255,255,.14);border-radius:5px;font-size:10.5px;margin-right:7px;font-weight:700;vertical-align:1px}
+.tab[aria-selected="true"] i{background:var(--red)}
+
+main{max-width:1180px;margin:0 auto;padding:26px 30px 70px}
+.panel[hidden]{display:none}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px 24px;margin-bottom:16px}
+.card>h3{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);font-weight:700;margin-bottom:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:900px){.g2,.g3{grid-template-columns:1fr}}
+.mb0{margin-bottom:0}
+.lead{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:var(--r);
+  padding:20px 24px;margin-bottom:16px;font-size:15.5px;line-height:1.6}
+.lead h2{font-size:19px;margin-bottom:7px}
+
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:900px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px}
+.tile .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);font-weight:700}
+.tile .val{font-size:29px;font-weight:750;letter-spacing:-.03em;margin:6px 0 2px;font-variant-numeric:tabular-nums}
+.tile .val small{font-size:14px;font-weight:600;color:var(--ink3);letter-spacing:0}
+.tile .note{font-size:12px;color:var(--ink2)}
+
+.chip{display:inline-block;font-size:11px;font-weight:700;padding:2.5px 9px;border-radius:100px;white-space:nowrap}
+.c-ok{background:var(--ok-bg);color:var(--ok)} .c-dev{background:var(--dev-bg);color:var(--dev)}
+.c-acc{background:var(--acc-bg);color:var(--acc)} .c-neu{background:var(--s3);color:var(--ink2)}
+
+ul.b{margin:0;padding-left:19px;font-size:14px} ul.b li{margin-bottom:7px} ul.b li:last-child{margin-bottom:0}
+ul.n{list-style:none;margin:0;padding:0}
+ul.n li{padding:8px 0;border-bottom:1px solid var(--line);font-size:14px;display:flex;gap:11px}
+ul.n li:last-child{border-bottom:0;padding-bottom:0} ul.n li:first-child{padding-top:0}
+ul.n .dot{flex-shrink:0;width:6px;height:6px;border-radius:50%;background:var(--acc);margin-top:8px}
+
+blockquote{margin:0;padding:13px 17px;background:var(--s2);border-left:3px solid var(--line2);border-radius:0 6px 6px 0;
+  font-size:13.5px;color:var(--ink2)}
+.note{background:var(--s3);border-radius:8px;padding:14px 16px;font-size:13.5px;color:var(--ink2);margin-top:12px}
+.note strong{color:var(--ink)}
+.note.acc{background:var(--acc-bg)}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);font-weight:700;
+  padding:0 12px 9px 0;border-bottom:1px solid var(--line2)}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+
+.foco{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;margin-bottom:14px}
+.foco .fh{display:flex;gap:14px;align-items:flex-start;margin-bottom:11px}
+.foco .fn{flex-shrink:0;width:30px;height:30px;border-radius:8px;background:var(--navy);color:#fff;
+  font-weight:800;font-size:14px;display:grid;place-items:center}
+.foco h4{font-size:16px} .foco .fi{font-size:11.5px;color:var(--dev);font-weight:650;margin-top:3px}
+.foco .fd{font-size:14px;color:var(--ink2);margin-bottom:12px}
+.foco .fa{background:var(--s2);border-radius:8px;padding:13px 16px}
+.foco .fa .t{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);font-weight:700;margin-bottom:7px}
+
+svg{display:block;width:100%;height:auto;overflow:visible}
+.ax{font-size:11px;fill:var(--ink3)}
+.axl{font-size:12.5px;fill:var(--ink2)} .axl.b{font-weight:650;fill:var(--ink)}
+.grid{stroke:var(--line);stroke-width:1}
+.ref{stroke:var(--navy);stroke-width:1.5;stroke-dasharray:4 3}
+.vv{font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.band{fill:var(--s2)}
+.bt{font-size:9.5px;fill:var(--ink3);letter-spacing:.05em;text-transform:uppercase;font-weight:700}
+.hit{fill:transparent;cursor:pointer}
+.grp:hover .bar{opacity:.82}
+.ctrls{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 4px}
+.ctrls button{appearance:none;font-family:inherit;font-size:12.5px;font-weight:600;border:1px solid var(--line2);
+  background:var(--surface);color:var(--ink2);padding:5px 12px;border-radius:100px;cursor:pointer}
+.ctrls button[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+.legend{display:flex;gap:15px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);align-items:center}
+.legend b{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+#tip{position:fixed;z-index:99;pointer-events:none;background:var(--navy);color:#fff;padding:11px 14px;border-radius:8px;
+  font-size:12.5px;max-width:380px;line-height:1.5;box-shadow:0 6px 24px rgba(20,25,43,.28);opacity:0;transition:opacity .1s}
+#tip.on{opacity:1}
+#tip b{display:block;font-size:13px;margin-bottom:4px}
+#tip em{font-style:normal;color:var(--sky);font-weight:700}
+#tip .pl{display:block;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,.22);color:#ccd4e2}
+
+.quad{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.qi{border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:13px}
+.qi.on{border-color:var(--acc);background:var(--acc-bg)}
+.qi strong{display:block;font-size:13.5px;margin-bottom:3px}
+
+footer{max-width:1180px;margin:0 auto;padding:0 30px 44px;font-size:11.5px;color:var(--ink3);line-height:1.7}
+@media print{ nav,.ctrls{display:none} .panel[hidden]{display:block!important} body{background:#fff}
+  .card,.foco{break-inside:avoid;page-break-inside:avoid} }
+</style>
+</head>
+<body>
+<header>
+  <div class="hdr">
+    <div class="logo"><svg viewBox="0 0 270 32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="IA interactive">
+        <path d="M147.707,8.871C146.995,8.792 146.283,8.792 145.651,8.792L143.12,8.792C141.539,8.792 140.194,8.95 138.929,9.188C137.663,9.426 136.635,9.901 135.686,10.614C134.737,11.327 133.947,12.277 133.314,13.545C132.681,14.812 132.128,16.396 131.811,18.297L129.202,31.604L134.184,31.604C135.291,31.604 136.24,30.812 136.477,29.782L138.612,18.772C138.771,17.901 139.008,17.188 139.166,16.634C139.403,16.079 139.641,15.604 140.036,15.287C140.352,14.97 140.827,14.733 141.38,14.574C141.934,14.416 142.567,14.416 143.357,14.416L144.465,14.416C144.86,14.416 145.255,14.416 145.651,14.495L147.707,8.871ZM129.676,15.762C129.755,15.366 129.755,14.97 129.755,14.574C129.755,12.515 129.044,10.931 127.62,9.822C126.197,8.713 123.982,8.158 121.056,8.158C119.633,8.158 118.209,8.317 116.865,8.634C115.521,8.95 114.334,9.505 113.227,10.376C112.12,11.248 111.171,12.436 110.301,13.941C109.431,15.445 108.799,17.426 108.403,19.802C108.166,21.069 108.008,22.337 108.008,23.604C108.008,24.792 108.166,25.822 108.482,26.852C108.799,27.881 109.273,28.673 109.985,29.465C110.697,30.178 111.646,30.733 112.832,31.129C114.018,31.525 115.521,31.683 117.339,31.762C119.633,31.842 121.452,31.921 122.875,31.683C122.954,31.683 123.112,31.604 123.192,31.604C123.271,31.604 123.271,31.604 123.35,31.525C123.429,31.525 123.429,31.525 123.508,31.445C123.745,31.366 123.982,31.208 124.14,30.97L124.22,30.891C124.299,30.812 124.299,30.733 124.378,30.654C124.378,30.574 124.457,30.574 124.457,30.495C124.536,30.337 124.615,30.178 124.773,30.02C125.089,29.228 126.197,26.455 126.197,26.455C124.931,26.535 124.061,26.614 122.875,26.614C121.689,26.614 120.345,26.693 118.684,26.693C117.181,26.693 116.153,26.455 115.521,25.98C114.888,25.505 114.572,24.713 114.572,23.604L114.572,22.891L119.158,22.891C122.322,22.891 124.694,22.416 126.355,21.545C128.016,20.673 129.123,19.089 129.597,16.871C129.597,16.555 129.676,16.158 129.676,15.762ZM123.35,16.158C123.271,16.555 123.112,16.871 122.954,17.109C122.796,17.346 122.559,17.584 122.243,17.743C121.926,17.901 121.531,17.98 121.056,18.059C120.582,18.139 119.949,18.139 119.237,18.139L115.441,18.139C115.916,16.238 116.549,14.97 117.26,14.178C118.051,13.465 119.158,13.069 120.582,13.069C121.689,13.069 122.48,13.228 122.875,13.624C123.35,13.941 123.508,14.416 123.508,15.05C123.508,15.445 123.429,15.842 123.35,16.158ZM65.225,6.574C66.648,6.574 67.755,6.257 68.546,5.703C69.337,5.149 69.732,4.04 69.732,2.535C69.732,1.584 69.416,0.95 68.862,0.554C68.309,0.158 67.439,0 66.253,0C65.62,0 64.987,0.079 64.434,0.158C63.88,0.317 63.406,0.475 63.01,0.792C62.615,1.109 62.298,1.505 62.061,2.059C61.824,2.614 61.745,3.248 61.745,4.04C61.745,5.703 62.931,6.574 65.225,6.574ZM61.429,8.871L57,31.525L61.982,31.525C63.089,31.525 64.038,30.733 64.275,29.624L68.309,8.871L61.429,8.871ZM101.128,14.337L107.059,14.337L109.115,8.95L102.156,8.95L103.342,2.693L98.043,3.327C97.015,3.406 96.225,4.198 95.987,5.149L95.987,5.228L92.666,22.574C92.587,23.049 92.508,23.525 92.429,24C92.35,24.475 92.35,24.871 92.35,25.267C92.35,27.327 92.903,28.832 94.089,30.02C95.276,31.129 97.094,31.604 99.704,31.683C100.653,31.683 101.839,31.762 103.184,31.683C104.054,31.604 104.607,30.97 105.003,30.02C106.268,26.772 106.426,26.297 106.426,26.297L102.077,26.297C101.128,26.297 100.416,26.139 100.021,25.743C99.625,25.426 99.467,24.871 99.467,24.158C99.467,23.683 99.546,23.208 99.625,22.654L101.128,14.337ZM88.395,9.98C86.814,8.792 84.441,8.238 81.357,8.238C79.538,8.238 78.036,8.396 76.691,8.713C75.347,9.03 74.24,9.584 73.291,10.297C72.342,11.01 71.551,11.96 70.998,13.149C70.444,14.337 69.969,15.762 69.653,17.426L66.885,31.604L71.867,31.604C72.975,31.604 73.844,30.812 74.161,29.782L76.454,17.822C76.612,17.03 76.77,16.396 77.008,15.921C77.245,15.445 77.482,15.05 77.799,14.733C78.115,14.416 78.51,14.178 79.064,14.099C79.538,13.941 80.171,13.941 80.962,13.941C81.911,13.941 82.702,14.099 83.176,14.495C83.651,14.891 83.967,15.525 83.967,16.396C83.967,16.634 83.967,16.792 83.888,17.03C83.888,17.267 83.809,17.584 83.73,17.822L81.041,31.604L86.023,31.604C87.051,31.604 87.921,30.891 88.237,29.941L88.237,29.861C88.237,29.782 88.316,29.703 88.316,29.545L90.531,18.059C90.61,17.584 90.689,17.109 90.768,16.634C90.847,16.158 90.847,15.762 90.847,15.366C90.768,12.99 89.977,11.168 88.395,9.98ZM257.473,9.901C256.049,8.792 253.835,8.238 250.909,8.238C249.485,8.238 248.062,8.396 246.717,8.713C245.373,9.03 244.187,9.584 243.08,10.455C241.972,11.327 241.023,12.515 240.154,14.02C239.284,15.525 238.651,17.505 238.256,19.881C238.018,21.148 237.86,22.416 237.86,23.683C237.86,24.871 238.018,25.901 238.335,26.931C238.651,27.96 239.126,28.753 239.837,29.545C240.549,30.257 241.498,30.812 242.684,31.208C243.87,31.604 245.373,31.762 247.192,31.842C249.485,31.921 251.304,32 252.728,31.762C252.886,31.762 252.965,31.683 253.123,31.683L253.202,31.683C253.281,31.683 253.281,31.683 253.36,31.604C253.598,31.525 253.756,31.366 253.993,31.129L254.072,31.049C254.151,30.97 254.151,30.891 254.23,30.891C254.23,30.812 254.309,30.812 254.309,30.733C254.388,30.574 254.467,30.416 254.626,30.257C254.942,29.465 256.049,26.693 256.049,26.693C254.784,26.772 253.914,26.852 252.728,26.852C251.541,26.852 250.197,26.931 248.536,26.931C247.034,26.931 246.006,26.693 245.373,26.218C244.74,25.743 244.424,24.951 244.424,23.842L244.424,23.129L249.011,23.129C252.174,23.129 254.547,22.654 256.207,21.782C257.868,20.911 258.975,19.327 259.45,17.109C259.529,16.713 259.608,16.317 259.608,15.921C259.687,15.525 259.687,15.129 259.687,14.733C259.608,12.515 258.896,10.931 257.473,9.901ZM253.123,16.158C253.044,16.555 252.886,16.871 252.728,17.109C252.569,17.346 252.332,17.584 252.016,17.743C251.7,17.901 251.304,17.98 250.83,18.059C250.355,18.139 249.723,18.139 249.011,18.139L245.215,18.139C245.689,16.238 246.322,14.97 247.034,14.178C247.745,13.465 248.932,13.069 250.355,13.069C251.462,13.069 252.253,13.228 252.649,13.624C253.044,13.941 253.281,14.416 253.281,15.05C253.281,15.445 253.281,15.842 253.123,16.158ZM215.243,0.554C214.689,0.158 213.819,0 212.633,0C212,0 211.368,0.079 210.814,0.158C210.261,0.317 209.786,0.475 209.391,0.792C208.995,1.109 208.679,1.505 208.442,2.059C208.205,2.614 208.125,3.248 208.125,4.04C208.125,5.782 209.312,6.574 211.605,6.574C213.029,6.574 214.136,6.257 214.926,5.703C215.717,5.149 216.113,4.04 216.113,2.535C216.192,1.584 215.875,0.95 215.243,0.554ZM164.789,10.455C163.207,9.347 160.834,8.792 157.592,8.792L153.559,8.792C152.294,8.792 151.266,8.792 150.475,8.871L148.498,14.178C150.158,14.099 151.661,14.099 153.005,14.099L156.88,14.099C158.146,14.099 159.174,14.257 159.806,14.574C160.439,14.891 160.834,15.525 160.834,16.475C160.834,16.792 160.755,17.109 160.676,17.505L160.518,18.376C159.965,17.822 159.174,17.505 158.146,17.267C157.118,17.03 156.01,16.951 154.745,16.951C151.819,16.951 149.684,17.505 148.26,18.614C146.837,19.723 145.809,21.307 145.414,23.287C145.334,23.762 145.255,24.158 145.176,24.634C145.176,25.03 145.097,25.426 145.097,25.901C145.097,28.04 145.809,29.545 147.232,30.495C148.656,31.445 150.87,31.921 153.875,31.921C154.982,31.921 156.169,31.921 157.276,31.842C158.383,31.762 159.332,31.762 160.123,31.683C160.914,31.604 161.546,31.445 162.1,31.287C162.653,31.129 163.128,30.891 163.523,30.495C163.919,30.178 164.235,29.703 164.551,29.148C164.789,28.594 165.026,27.881 165.184,27.089L166.766,18.693C166.845,18.139 166.924,17.663 167.003,17.188C167.082,16.713 167.082,16.238 167.082,15.762C167.161,13.386 166.37,11.644 164.789,10.455ZM158.937,26.931C158.462,27.01 157.908,27.01 157.276,27.089C156.643,27.168 156.01,27.168 155.378,27.168C154.113,27.168 153.164,27.01 152.531,26.772C151.977,26.535 151.661,25.98 151.661,25.109L151.661,24.713C151.661,24.555 151.661,24.317 151.74,24.079C151.898,23.129 152.294,22.495 152.926,22.178C153.559,21.861 154.508,21.703 155.773,21.703C156.88,21.703 157.75,21.861 158.462,22.099C159.174,22.337 159.49,22.97 159.49,24C159.411,24.079 158.937,26.931 158.937,26.931ZM232.799,8.871L225.286,24.792L223.863,8.871L216.745,8.871L220.146,31.525L226.631,31.525C227.5,31.525 228.212,31.049 228.608,30.337L239.916,8.792L232.799,8.792L232.799,8.871ZM203.539,31.604L208.521,31.604C209.628,31.604 210.577,30.812 210.814,29.703L214.847,8.95L207.967,8.95L203.539,31.604ZM196.817,14.337L202.669,14.337L204.725,8.95L197.766,8.95L198.952,2.693L193.574,3.327C192.546,3.406 191.755,4.198 191.518,5.149L191.518,5.228L188.355,22.495C188.276,22.97 188.197,23.445 188.118,23.921C188.039,24.396 188.039,24.792 188.039,25.188C188.039,27.247 188.592,28.753 189.778,29.941C190.965,31.049 192.784,31.525 195.393,31.604C196.342,31.604 197.528,31.683 198.873,31.604C199.743,31.525 200.296,30.891 200.692,29.941C201.957,26.693 202.115,26.218 202.115,26.218L197.766,26.218C196.817,26.218 196.105,26.059 195.71,25.663C195.314,25.346 195.156,24.792 195.156,24.079C195.156,23.604 195.235,23.129 195.314,22.574L196.817,14.337ZM176.018,19.723C176.255,18.614 176.493,17.663 176.809,16.951C177.125,16.238 177.521,15.683 177.995,15.287C178.47,14.891 179.023,14.574 179.735,14.495C180.447,14.337 181.238,14.257 182.187,14.257L184.322,14.257C184.954,14.257 185.587,14.257 186.22,14.337L188.276,8.95L186.773,8.95C186.22,8.95 185.745,8.95 185.271,8.871L182.661,8.871C180.842,8.871 179.261,9.03 177.758,9.267C176.255,9.584 174.99,10.059 173.804,10.851C172.618,11.644 171.669,12.752 170.878,14.099C170.087,15.525 169.454,17.346 169.059,19.564C168.822,20.99 168.664,22.257 168.664,23.525C168.664,24.792 168.822,25.901 169.217,26.852C169.533,27.881 170.166,28.673 170.957,29.386C171.748,30.099 172.776,30.654 174.12,31.049C175.386,31.445 177.046,31.604 178.944,31.604C179.577,31.604 180.368,31.683 181.949,31.525L182.028,31.525C182.187,31.525 182.345,31.525 182.503,31.445C183.056,31.366 183.452,31.129 183.768,30.654C184.005,30.416 184.164,30.099 184.243,29.782L185.666,26.059C184.401,26.139 183.373,26.139 182.503,26.139L179.972,26.139C178.47,26.139 177.363,25.901 176.651,25.505C175.939,25.109 175.623,24.158 175.623,22.812C175.623,22.416 175.623,21.941 175.702,21.386C175.781,20.99 175.86,20.356 176.018,19.723ZM267.041,8.317C267.437,8.158 267.753,7.842 267.753,7.446C267.753,7.129 267.595,6.812 267.437,6.653C267.2,6.495 266.883,6.416 266.172,6.416C265.618,6.416 265.143,6.495 264.827,6.495L264.827,10.059L265.618,10.059L265.618,8.634L266.013,8.634C266.488,8.634 266.646,8.792 266.725,9.188C266.804,9.584 266.883,9.901 267.041,10.059L267.911,10.059C267.832,9.901 267.753,9.743 267.674,9.188C267.595,8.713 267.437,8.396 267.041,8.317ZM266.092,8L265.697,8L265.697,6.97C265.776,6.97 265.934,6.891 266.172,6.891C266.725,6.891 266.962,7.129 266.962,7.446C266.962,7.842 266.567,8 266.092,8ZM266.251,4.594C264.194,4.594 262.613,6.178 262.613,8.158C262.613,10.139 264.274,11.723 266.251,11.723C268.307,11.723 269.888,10.139 269.888,8.158C269.888,6.178 268.307,4.594 266.251,4.594ZM266.251,11.01C264.669,11.01 263.483,9.743 263.483,8.158C263.483,6.574 264.669,5.307 266.251,5.307C267.832,5.307 269.018,6.574 269.018,8.158C269.018,9.743 267.832,11.01 266.251,11.01Z" style="fill:#fff;fill-rule:nonzero;"/>
+        <path d="M15.074,0C12.751,0 11.95,0.561 10.348,3.288C10.348,3.288 1.376,18.607 1.056,19.248C-0.065,21.253 -0.546,22.777 0.896,25.263C2.097,27.348 4.42,30.797 4.42,30.797L22.363,0L15.074,0ZM38.945,3.128C37.423,0.561 36.542,0 34.299,0L29.012,0C26.689,0 25.808,0.561 24.286,3.288L7.544,32L15.074,32C17.237,32 18.118,31.358 19.64,28.712L31.655,8.02L37.263,17.724L32.857,17.724C30.534,17.724 29.653,18.366 28.131,21.012C27.33,22.456 24.847,26.546 24.847,26.627L37.503,26.627C37.503,26.627 34.699,31.358 34.459,31.92L42.069,31.92C44.231,31.92 45.113,31.278 46.635,28.632L48.317,25.825C48.958,24.782 49.438,23.739 49.438,22.536C49.438,21.093 48.637,19.649 47.916,18.446C46.955,16.762 39.265,3.609 38.945,3.128Z" style="fill:#fff;fill-rule:nonzero;"/>
+      </svg></div>
+    <div class="hmain">
+      <div class="kick">Metodología Reddin · Teoría 3D · DEV</div>
+      <h1>Reporte de Efectividad en Ventas</h1>
+      <div class="sub">Cómo aplicas tu conducta comercial y qué impacto produce</div>
+    </div>
+    <div class="who"><strong>Sergio A. Pérez Rolón</strong>Documento personal<br>Resultados de tu evaluación</div>
+  </div>
+  <nav><div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-p="t1"><i>1</i>Cómo leer este reporte</button>
+    <button class="tab" role="tab" aria-selected="false" data-p="t2"><i>2</i>Tu estilo natural</button>
+    <button class="tab" role="tab" aria-selected="false" data-p="t3"><i>3</i>Tus resultados clave</button>
+    <button class="tab" role="tab" aria-selected="false" data-p="t4"><i>4</i>Cómo aplicas los 8 estilos</button>
+    <button class="tab" role="tab" aria-selected="false" data-p="t5"><i>5</i>Tus 20 competencias</button>
+    <button class="tab" role="tab" aria-selected="false" data-p="t6"><i>6</i>Tu potencial y focos</button>
+  </div></nav>
+</header>
+
+<main>
+
+<!-- 1 · METODOLOGÍA -->
+<section class="panel" id="t1" role="tabpanel">
+  <div class="lead">
+    <h2>Qué mide esto — y qué no mide</h2>
+    <p>Esta metodología no mide tu inteligencia, tu conocimiento técnico ni tu valor profesional. Mide algo mucho más específico: <strong>qué tan bien encaja tu forma de actuar con lo que tu trabajo actual te está pidiendo</strong>. Es una fotografía de un momento y de un contexto, no un retrato permanente.</p>
+  </div>
+  <div class="g2">
+    <div class="card mb0">
+      <h3>Los dos ejes de la teoría</h3>
+      <p style="font-size:14px"><strong>Orientación a la Tarea (OT).</strong> Qué tanto diriges tu esfuerzo y el de los demás hacia sacar el trabajo adelante.</p><p style="font-size:14px"><strong>Orientación a las Relaciones (OR).</strong> Qué tanto generas un clima de confianza y libertad en la gente que te rodea.</p>
+      <p style="font-size:14px;margin-top:10px">Son independientes entre sí, y al cruzarse producen cuatro cuadrantes de conducta:</p>
+      <div class="quad">
+        <div class="qi on"><strong>Separado — tu cuadrante</strong>Cautela, precisión, apego a hechos y datos.</div><div class="qi"><strong>Relacionado</strong>Énfasis en el desarrollo, conversaciones largas, conexión personal.</div><div class="qi"><strong>Dedicado</strong>Toma la iniciativa, fija tareas y responsabilidades a los demás.</div><div class="qi"><strong>Integrado</strong>Busca innovación, colaboración y acuerdos.</div>
+      </div>
+    </div>
+    <div class="card mb0">
+      <h3>La idea central</h3>
+      <p style="font-size:14px">El hallazgo central de Reddin es este: <strong>ninguno de los cuatro cuadrantes es bueno o malo por sí mismo.</strong> Cada uno es efectivo en ciertas situaciones y poco efectivo en otras. De ahí salen ocho estilos aplicados: cuatro versiones más efectivas y cuatro menos efectivas de esas mismas conductas. Serás más efectivo en la medida en que puedas <em>elegir</em> el estilo que la situación necesita, en lugar de repetir el que te sale natural.</p>
+      <div class="note" style="margin-top:14px">
+        <div style="display:flex;gap:11px;padding:6px 0;border-bottom:1px solid var(--line)">
+          <span class="chip c-neu" style="flex-shrink:0">Unidimensional</span><span>Usas un solo estilo, el que nace de tu convicción.</span></div><div style="display:flex;gap:11px;padding:6px 0;border-bottom:1px solid var(--line)">
+          <span class="chip c-neu" style="flex-shrink:0">Bidimensional</span><span>Eliges el estilo por su forma.</span></div><div style="display:flex;gap:11px;padding:6px 0">
+          <span class="chip c-acc" style="flex-shrink:0">Tridimensional</span><span>Usas el estilo que la situación necesita. Es el más efectivo — y es la meta.</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card mb0">
+      <h3>Ficha del instrumento</h3>
+      <p style="font-size:14px">Test matricial de <strong>320 frases en 80 reactivos de elección forzada</strong>. Diseñado por William James Reddin, doctorado en el MIT y en Bradford University, decano de la Universidad de Negocios de New Brunswick. Sus indicadores son los 8 estilos, las 2 orientaciones y 20 elementos de la tarea. Cumple con altos índices de confiabilidad y de validez interna y externa.</p>
+      <blockquote style="margin-top:12px">“Este reporte permite obtener información, <strong>a la fecha de su aplicación</strong>, del impacto de las conductas de la persona <strong>ante su situación actual de trabajo</strong>. Tiene como fin convertirse en un documento que permita al individuo reflexionar y emprender cambios.”</blockquote>
+    </div>
+    <div class="card mb0">
+      <h3>Cómo aprovecharlo</h3>
+      <ul class="n"><li><span class="dot"></span><span>Lee primero los resultados globales, no las competencias sueltas. El detalle cobra sentido dentro del panorama.</span></li><li><span class="dot"></span><span>Donde veas “zona de desarrollo”, no leas “defecto”. Léelo como una conducta que hoy no estás usando y que, si la activas, te costará menos esfuerzo obtener resultados.</span></li><li><span class="dot"></span><span>El instrumento recomienda enfocarse en <strong>tres o cuatro iniciativas de cambio como máximo</strong>. Más que eso se dispersa y no se logra.</span></li><li><span class="dot"></span><span>Los textos entre comillas son literales del reporte. No están editados.</span></li></ul>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · ESTILO NATURAL -->
+<section class="panel" id="t2" role="tabpanel" hidden>
+  <div class="lead">
+    <h2>Tu estilo preferente es <strong>Separado</strong></h2>
+    <p>En el terreno comercial tu zona de confort sigue siendo el método y el dato, más que la relación con el cliente o el empuje por la venta. Es el conjunto de conductas con las que te sientes más cómodo y que usas de forma natural — y también el lenguaje que más sentido te hace en una conversación.</p>
+  </div>
+  <div class="g2">
+    <div class="card mb0">
+      <h3>Tu posición en los dos ejes</h3>
+      <div id="quadChart"></div>
+      <div class="note">Ambas orientaciones están en <strong>0.2 de 4</strong>. En el lenguaje de la metodología, tu modo natural es de baja intensidad tanto en el empuje de la tarea como en el cultivo de la relación: <strong>tu palanca preferida es el sistema, no la presión ni el vínculo.</strong> Esto no habla de tu efectividad — la efectividad se mide aparte, en la sección 3.</div>
+    </div>
+    <div class="card mb0">
+      <h3>Cómo se ve en el día a día</h3>
+      <ul class="n"><li><span class="dot"></span><span>Te apegas a la normatividad sin considerar tanto el entorno.</span></li><li><span class="dot"></span><span>Te incomoda cuando las cosas no están escritas con precisión.</span></li><li><span class="dot"></span><span>Te basas en el pasado para justificar el futuro.</span></li><li><span class="dot"></span><span>Tienes un alto nivel de “deber ser”, que a veces impide ver las cosas de otra manera.</span></li><li><span class="dot"></span><span>Puedes trabajar en ambientes muy controlados donde todo debe estar muy claro.</span></li><li><span class="dot"></span><span>Rehúyes el conflicto con el argumento de que posiblemente no te toca.</span></li><li><span class="dot"></span><span>Mantienes las relaciones cuando existe afinidad; de lo contrario te abres menos ante personas diferentes.</span></li></ul>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card mb0">
+      <h3>Responsabilidades donde rindes más</h3>
+      <ul class="b"><li>Funciones de cuestionamiento y revisión de políticas, procedimientos y sistemas rutinarios.</li><li>Contacto formal y activo con personas sobre quienes es necesario ejercer una influencia.</li><li>Supervisión de tareas complejamente estructuradas.</li><li>Responsabilidad en la edición de documentos, instructivos y herramientas de control.</li><li>Medio ambiente variable e impredecible.</li></ul>
+    </div>
+    <div class="card mb0">
+      <h3>Serás muy efectivo si tus clientes son</h3>
+      <ul class="b"><li>Experimentados y en búsqueda de la uniformidad.</li><li>Responsables de tareas rutinarias y simples.</li><li>Disciplinados y autónomos.</li><li>Conservadores en su necesidad de autodesarrollo.</li><li>Dependientes de normas y guías institucionales.</li></ul>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card mb0" style="border-left:4px solid var(--ok)">
+      <h3 style="color:var(--ok)">Fortalezas · texto del instrumento</h3>
+      <p style="font-size:14px">Presentas una actitud persistente a través de la cual te mantienes distante de los clientes en el cumplimiento de tus responsabilidades, esperando que cada uno se haga cargo de su propio nivel de rendimiento conforme está estipulado en los procedimientos. Sueles interesarte más en tu eficiencia respecto a la realización de las ventas y harás lo procedente para asegurar un mínimo de desviaciones.<br><br><strong>Por tu amplio repertorio de conductas</strong>, te inclinas hacia responsabilidades con bajas exigencias de administración y papeleo, razón por la cual tu comunicación con el cliente tiende a ser más verbal que escrita y tu interacción es más informal. Estás en disposición de intervenir en cualquier momento.</p>
+    </div>
+    <div class="card mb0" style="border-left:4px solid var(--dev)">
+      <h3 style="color:var(--dev)">Zonas de desarrollo · texto del instrumento</h3>
+      <p style="font-size:14px">Es frecuente verte reacciones marcadas alrededor de la aplicación de normas y criterios, con lo que a menudo das más importancia a la forma de las cosas que al fondo. Te ves perfeccionista, actitud con la cual frenas posibilidades de arreglo. Recurres a excesivas explicaciones acerca del porqué deben o no hacerse las cosas. Con relativa facilidad te desinvolucras y dejas la responsabilidad en otros.<br><br>Aunque generalmente respondes con solvencia, se te exige continuamente emplear el máximo de tu esfuerzo. <strong>Tu estado normal es la lucha por estar al día.</strong> Las pequeñas ventajas que consigues te representan un margen de respiro antes de volver a enfrentar las presiones crecientes.</p>
+    </div>
+  </div>
+  <div class="note acc" style="margin-top:4px">Estos dos textos son los que el instrumento asigna a tu perfil de estilo. Están redactados en el lenguaje directo del reporte original y describen tendencias de conducta observadas frente a tu situación de trabajo actual — no rasgos permanentes.</div>
+</section>
+
+<!-- 3 · RESULTADOS CLAVE -->
+<section class="panel" id="t3" role="tabpanel" hidden>
+  <div class="lead">
+    <h2>Tus cinco resultados globales</h2>
+    <p>Este reporte mide las exigencias que percibes en un puesto comercial y cómo estás respondiendo a ellas. Tu resultado global es <strong>medio alto</strong>. Una nota importante para leerlo bien: se aplicó mientras diriges una operación de tecnología, no una función de venta — y el instrumento mide congruencia con la situación de trabajo actual. Varios resultados bajos reflejan conductas que tu puesto de hoy no te está pidiendo.</p>
+  </div>
+  <div class="tiles">
+    <div class="tile">
+      <div class="lbl">Efectividad comercial</div>
+      <div class="val" style="color:var(--ok)">2.2<small> / 4</small></div>
+      <div class="note" style="background:none;padding:0;margin:0">Moderada · mejor que el 47%</div>
+    </div><div class="tile">
+      <div class="lbl">Necesidad de estructuración</div>
+      <div class="val" style="color:var(--dev)">2.8<small> / 4</small></div>
+      <div class="note" style="background:none;padding:0;margin:0">Alta · mejor que el 69%</div>
+    </div><div class="tile">
+      <div class="lbl">Efectividad ante la presión</div>
+      <div class="val" style="color:var(--dev)">1.8<small> / 4</small></div>
+      <div class="note" style="background:none;padding:0;margin:0">Moderada · mejor que el 51%</div>
+    </div><div class="tile">
+      <div class="lbl">Resistencia ante el cambio</div>
+      <div class="val" style="color:var(--ok)">1.8<small> / 4</small></div>
+      <div class="note" style="background:none;padding:0;margin:0">Moderada</div>
+    </div><div class="tile">
+      <div class="lbl">Adaptabilidad</div>
+      <div class="val" style="color:var(--dev)">1.2<small> / 4</small></div>
+      <div class="note" style="background:none;padding:0;margin:0">Baja · mejor que el 32%</div>
+    </div>
+    <div class="tile">
+      <div class="lbl">Potencial de desarrollo</div>
+      <div class="val" style="color:var(--acc)">3.0<small> / 4</small></div>
+      <div class="note" style="background:none;padding:0;margin:0">Alto</div>
+    </div>
+  </div>
+  
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:6px">
+      <div style="font-size:16.5px;font-weight:700">Efectividad comercial</div>
+      <div style="font-size:12.5px;color:var(--ink3)">Tu resultado supera al <strong style="color:var(--ink2)">47%</strong> de las personas evaluadas</div>
+    </div>
+    <div class="gauge" data-i="0"></div>
+    <div class="g2" style="margin-top:16px">
+      <div><blockquote>Mide el grado de congruencia con la que actúas ante tu ámbito actual. Una persona altamente efectiva logra resultados con menor esfuerzo y menor desgaste.</blockquote></div>
+      <div style="font-size:14px">Eres una persona de efectividad media alta en las ventas. Tiendes a utilizar con frecuencia la lógica y la racionalidad, y te identificas en mayor medida con la organización en su conjunto que con el cliente o con la venta específica. Eres cauteloso, ordenado, constante y discreto, y <strong>confiable por tu adaptación a sistemas organizados</strong>.<br><br>Cuando las cosas no salen como esperas puedes mostrar impaciencia, tratando de que todo el mundo se ajuste a tu voluntad. En otras ocasiones logras interesarte en los demás de manera efectiva, abriendo canales de comunicación y confiando en que el cliente conoce mejor sus necesidades.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:6px">
+      <div style="font-size:16.5px;font-weight:700">Necesidad de estructuración</div>
+      <div style="font-size:12.5px;color:var(--ink3)">Tu resultado supera al <strong style="color:var(--ink2)">69%</strong> de las personas evaluadas</div>
+    </div>
+    <div class="gauge" data-i="1"></div>
+    <div class="g2" style="margin-top:16px">
+      <div><blockquote>Grado en que requieres el apoyo de la estructura —jerarquía, información, políticas, canales formales— para tener un comportamiento efectivo. Un nivel bajo significa que puedes decidir con autonomía.</blockquote></div>
+      <div style="font-size:14px">Tienes una necesidad marcada de simetría y orden: te preocupas por que todo encuentre su sitio y su razón de ser, y enfrentas dificultades en situaciones de venta donde los cambios se dan con frecuencia y sin aviso.<br><br>Por tu amplio repertorio te abres a manejar ambientes de poca estructura y en ocasiones lo logras adecuadamente. <strong>Tu renuencia a decir “no” te lleva a aceptar proyectos que no pueden completarse a tiempo.</strong> Funcionas mejor en ambientes de venta estructurados, con tu rol de influencia bien definido.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:6px">
+      <div style="font-size:16.5px;font-weight:700">Efectividad ante la presión</div>
+      <div style="font-size:12.5px;color:var(--ink3)">Tu resultado supera al <strong style="color:var(--ink2)">51%</strong> de las personas evaluadas</div>
+    </div>
+    <div class="gauge" data-i="2"></div>
+    <div class="g2" style="margin-top:16px">
+      <div><blockquote>Capacidad de responder con conducta acertada a situaciones inesperadas y de presión creciente.</blockquote></div>
+      <div style="font-size:14px">El reporte lo llama tu “talón de Aquiles”: bajo presión se te dificulta el manejo de tus estilos de venta y te vuelves más cambiante. Te dices una persona abierta, pero te tornas influenciable y no tomas una posición propia.<br><br>En ambientes estables te apoyas en las reglas operativas básicas y <strong>se te ve como una persona justa, equitativa, formal y responsable</strong>. Cuando tu ámbito de influencia no está bien definido, tiendes a suprimir los conflictos con un comportamiento más crítico.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:6px">
+      <div style="font-size:16.5px;font-weight:700">Resistencia ante el cambio</div>
+      <div style="font-size:12.5px;color:var(--ink3)">El <strong style="color:var(--ink2)">51%</strong> de las personas se ubica en este mismo nivel</div>
+    </div>
+    <div class="gauge" data-i="3"></div>
+    <div class="g2" style="margin-top:16px">
+      <div><blockquote>Resumen de conductas por medio de las cuales una persona se opone a los esfuerzos de cambio de la organización. Un nivel bajo es favorable.</blockquote></div>
+      <div style="font-size:14px">Por tu estructura mental parecerías poco dispuesto al cambio, porque te interesa mantener el sistema establecido. <strong>Sin embargo, tu efectividad media alta te hace abrirte al cambio si con esto logras un mayor control de la venta</strong>, lo que implica cierta habilidad para percibir lo que la situación requiere.<br><br>Cuando te interesa lograr la venta inmediata puedes recurrir en exceso a la imposición, lo que genera resentimientos innecesarios entre tus clientes.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:6px">
+      <div style="font-size:16.5px;font-weight:700">Adaptabilidad</div>
+      <div style="font-size:12.5px;color:var(--ink3)">Tu resultado supera al <strong style="color:var(--ink2)">32%</strong> de las personas evaluadas</div>
+    </div>
+    <div class="gauge" data-i="4"></div>
+    <div class="g2" style="margin-top:16px">
+      <div><blockquote>Capacidad de responder con efectividad a los cambios del entorno, ajustándote o imponiéndote a nuevas realidades.</blockquote></div>
+      <div style="font-size:14px">Tiendes a mantenerte alejado tanto de la venta como de la relación con los clientes, porque para ti lo importante es mantener el sistema establecido de la organización que representas. Ante situaciones ambiguas o tensionantes tiendes a pasar de una conducta a otra, mostrando cierta inconsistencia.<br><br>En ambientes estables eres capaz de observar desviaciones con detalle y <strong>se te ve como alguien confiable</strong>. Ante ambientes que te exigen mucho, logras adaptarte cuando te enfocas en las necesidades del cliente más que en la venta específica: abres canales de comunicación, escuchas problemas y quejas, y fortaleces la relación.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div style="font-size:16.5px;font-weight:700;margin-bottom:6px">Tu repertorio de conductas</div>
+    <div id="repChart"></div>
+    <div class="g2" style="margin-top:16px">
+      <div><blockquote>El repertorio predice en qué situaciones serás más competente. Las personas con <strong>elasticidad</strong> se manejan mejor en ambientes conocidos, por su determinación. Las personas con <strong>flexibilidad</strong> lo hacen mejor en ambientes desconocidos, por su apertura y versatilidad. Tu resultado está exactamente en el punto medio.</blockquote>
+        <div class="note">El <strong>56%</strong> de las personas evaluadas tiene un repertorio como el tuyo.</div></div>
+      <div style="font-size:14px">
+        <p>Muestras cierto interés por las reglas, los procesos y los procedimientos, aunque en ocasiones los aplicas de forma desigual. Eres dependiente de la estructura organizativa, y la falta de la misma puede derivar en indecisión y postergación. Tus conductas cambiantes pueden crear ambientes poco predecibles ante los clientes.</p>
+        <p style="margin-top:10px"><strong style="font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3)">Roles más afines a tu repertorio</strong></p>
+        <ul class="b" style="margin-top:6px"><li>Gerencia intermedia de ventas de centros de utilidad de productos o servicios de marca.</li><li>Especialista de mercado en ambientes impredecibles, bajo supervisión constante.</li><li>Investigación y desarrollo de mercados, bajo lineamientos claros, donde el conocimiento da fuerza al área y agrega competitividad.</li><li>Supervisión de sistemas de administración de ventas.</li></ul>
+        <div class="note acc" style="margin-top:12px"><strong>Tipo de puesto sugerido.</strong> Puestos donde puedas influir positivamente en el equipo de ventas; donde puedas promover el cambio de las metas de venta para conseguir ventajas competitivas; donde puedas usar las juntas formales para hacer más eficiente tu área; y donde puedas impulsar el cambio sugerido por otros, buscando la perfección.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · LOS 8 ESTILOS -->
+<section class="panel" id="t4" role="tabpanel" hidden>
+  <div class="lead">
+    <h2>Los ocho estilos, y cuánto usas cada uno</h2>
+    <p>Cada estilo produce un resultado predecible. Cuatro son de alta efectividad y cuatro de baja. Lo que importa no es tener todos altos, sino <strong>tener disponibles los que tu situación necesita</strong>. Pasa el cursor sobre cada uno para ver qué significa.</p>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:6px">
+      <div style="font-size:15.5px;font-weight:700">Frecuencia con la que aplicas cada estilo</div>
+      <div class="legend"><span><b style="background:var(--ok)"></b>Estilo de alta efectividad</span><span><b style="background:var(--dev)"></b>Estilo de baja efectividad</span></div>
+    </div>
+    <div id="stylesChart"></div>
+    <div class="note"><strong>Cómo se lee la escala.</strong> De 0 a 29: estilos que difícilmente pones en práctica. De 30 a 49: los usas pocas veces, pero pueden desarrollarse. De 50 a 69: aparecen en ambientes de estrés o cuando el estilo dominante no te dio el resultado esperado. De 70 a 100: son tu forma habitual de operar.</div>
+  </div>
+  <div class="card mb0">
+    <h3>Lectura de tu balance</h3>
+    <p style="font-size:15px">En el terreno comercial aparecen <strong>dos estilos dominantes</strong>, no uno. El primero es el mismo de tu perfil gerencial: <em>el que sostiene el sistema</em> (95), de alta efectividad. El segundo es <em>el que impone</em> (85), y es de baja efectividad: aparece cuando quieres asegurar la venta y se traduce en presionar por el cierre. Es el dato más accionable del reporte, porque es una conducta situacional — no aparece en tu perfil gerencial, donde está en 25.<br><br>La buena noticia: <strong>el estilo que desarrolla a otros llega a 55</strong> aquí, contra 5 en tu perfil gerencial. En contexto comercial sí lo activas. Es una capacidad que ya tienes disponible y que puedes extender al resto de tu gestión.</p>
+  </div>
+</section>
+
+<!-- 5 · COMPETENCIAS -->
+<section class="panel" id="t5" role="tabpanel" hidden>
+  <div class="lead">
+    <h2>Tus 20 competencias, una por una</h2>
+    <p>El instrumento evalúa 20 elementos de la tarea en una escala de 0 a 4, con <strong>1.8 como línea de referencia</strong>. Por encima de esa línea la conducta te está funcionando; por debajo hay margen de desarrollo. Pasa el cursor sobre cualquier barra para leer el diagnóstico completo, o abre la vista de tabla.</p>
+  </div>
+  <div class="card">
+    <div class="ctrls" id="ctrls">
+      <button data-f="all" aria-pressed="true">Todas</button>
+      <button data-f="up" aria-pressed="false">Tus fortalezas</button>
+      <button data-f="low" aria-pressed="false">Zonas de desarrollo</button>
+      <button data-f="tbl" aria-pressed="false">Ver como tabla</button>
+    </div>
+    <div id="compChart"></div>
+    <div id="compTable" style="display:none;margin-top:16px"></div>
+  </div>
+  <div class="g2">
+    <div class="card mb0" style="border-left:4px solid var(--ok)">
+      <h3 style="color:var(--ok)">Tus cinco competencias más altas</h3>
+      <div id="topC"></div>
+    </div>
+    <div class="card mb0" style="border-left:4px solid var(--dev)">
+      <h3 style="color:var(--dev)">Tus cinco zonas de mayor desarrollo</h3>
+      <div id="botC"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · POTENCIAL -->
+<section class="panel" id="t6" role="tabpanel" hidden>
+  <div class="lead">
+    <h2>Tu potencial de desarrollo es alto: 3.0 de 4</h2>
+    <p>Tu potencial de desarrollo es <strong>alto</strong>, y coincide exactamente con el resultado de tu evaluación gerencial. Puede esperarse un alto desempeño futuro cuidando la alineación de tus destrezas con los requerimientos de la posición, con un plan de desarrollo focalizado y una correcta guía por parte de tu superior.</p>
+  </div>
+  <div class="g2">
+    <div class="card mb0">
+      <h3>Qué significa este indicador</h3>
+      <div class="gauge" data-pot="1"></div>
+      <blockquote style="margin-top:14px">Predice tu desempeño futuro si aprovechas mejor capacidades que actualmente no pones en juego.</blockquote>
+      <div class="note" style="margin-top:14px">Un potencial alto significa que <strong>hay capacidad disponible que hoy no está en juego</strong>. No es una promesa automática: se materializa con tres condiciones — que el puesto esté bien alineado a tus destrezas, que exista un plan de desarrollo enfocado, y que tu superior participe en él. Las tres son gestionables.</div>
+    </div>
+    <div class="card mb0">
+      <h3>El apoyo que potencia tu efectividad</h3>
+      <p style="font-size:13.5px;color:var(--ink2);margin-bottom:10px">El involucramiento de tu jefe es clave para el desarrollo. Esto es lo que el instrumento recomienda:</p>
+      <ul class="n"><li><span class="dot"></span><span>Políticas claras y tareas estructuradas, con control del superior.</span></li><li><span class="dot"></span><span>Medición continua y sistemática del avance.</span></li><li><span class="dot"></span><span>Una relación profesional que respete tu competencia técnica.</span></li><li><span class="dot"></span><span>Una influencia basada en indicaciones claras y normas de conducta.</span></li></ul>
+      <div class="note">Vale la pena conversarlo explícitamente con tu superior. Es información útil para ambos, y no suele quedar dicha.</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Tus cuatro focos de desarrollo</h3>
+    <p style="font-size:13.5px;color:var(--ink2);margin-bottom:4px">El propio instrumento recomienda enfocarse en un máximo de tres o cuatro iniciativas de cambio a la vez. Estos cuatro salen de tus resultados, ordenados por retorno.</p>
+  </div>
+  
+  <div class="foco">
+    <div class="fh"><div class="fn">1</div>
+      <div><h4>Comunicación y escucha con el cliente</h4><div class="fi">Comunicación 1.4 · el indicador con más margen del reporte</div></div></div>
+    <div class="fd">El reporte señala que no encuentras utilidad en dedicarle tiempo a la comunicación cuando lo que hay que hacer ya está escrito, y que así retienes información valiosa. En una relación comercial la información retenida se lee como falta de transparencia, aunque no lo sea.</div>
+    <div class="fa"><div class="t">Acciones concretas</div>
+      <ul class="b"><li>Sustituye una comunicación escrita por una conversación a la semana con el cliente clave.</li><li>Antes de exponer tu punto, resume el del otro en voz alta. Es la práctica que más rápido mueve este indicador.</li><li>Comparte por default; retén solo lo que tengas una razón explícita para retener.</li></ul></div>
+  </div>
+  <div class="foco">
+    <div class="fh"><div class="fn">2</div>
+      <div><h4>Firmeza: sostener la objeción, la queja y el interés propio</h4><div class="fi">Clientes 1.6 · Objeciones 1.6 · Quejas 1.6</div></div></div>
+    <div class="fd">Los tres apuntan a lo mismo: evitar la confrontación. El reporte lo dice sin rodeos — “llegas a comprometer los intereses de tu área y de la empresa en aras de una aceptación de tu persona”. Es el patrón con mayor costo económico del perfil.</div>
+    <div class="fa"><div class="t">Acciones concretas</div>
+      <ul class="b"><li>Antes de cada negociación, escribe tu punto de no retorno. Tu fortaleza documental funciona aquí como ancla.</li><li>Trata la objeción como información, no como rechazo: pregunta antes de responder.</li><li>En una queja, ve por la causa aunque incomode. Encubrirla protege la relación de hoy y la daña a plazo.</li></ul></div>
+  </div>
+  <div class="foco">
+    <div class="fh"><div class="fn">3</div>
+      <div><h4>Apertura de negocio nuevo</h4><div class="fi">Desarrollo de nuevos negocios 1.6 · Creatividad en la venta 2.2</div></div></div>
+    <div class="fd">Es el indicador que más depende de tu contexto actual: tu puesto de hoy no te pide abrir mercado. Pero conviene tenerlo consciente si en algún momento el rol lo requiere.</div>
+    <div class="fa"><div class="t">Acciones concretas</div>
+      <ul class="b"><li>Reserva un bloque fijo de agenda para actividad de apertura. Sin bloque protegido, no ocurre.</li><li>Apóyate en lo que sí tienes: usa tu conocimiento técnico como puerta de entrada, no el argumento comercial.</li><li>Trabaja en dupla con un perfil de apertura. Tu credibilidad técnica y su empuje se complementan bien.</li></ul></div>
+  </div>
+  <div class="foco">
+    <div class="fh"><div class="fn">4</div>
+      <div><h4>Rigor y transparencia del reporte</h4><div class="fi">Manejo de reportes 1.6 · Política de la empresa 1.6</div></div></div>
+    <div class="fd">Es la brecha más fácil de cerrar y la de mayor retorno reputacional. El reporte indica que omites datos que podrían causar descontrol y te concentras en las buenas noticias. Con tu nivel de método, esto es hábito, no capacidad.</div>
+    <div class="fa"><div class="t">Acciones concretas</div>
+      <ul class="b"><li>Formato fijo de reporte con un apartado obligatorio de riesgos y desviaciones.</li><li>Da la mala noticia primero y con dato, no al final y con matiz.</li><li>Si discrepas de una política, canaliza la discrepancia por la vía formal en lugar de la crítica lateral.</li></ul></div>
+  </div>
+  <div class="note acc" style="margin-top:4px"><strong>Siguiente paso sugerido.</strong> Este reporte cobra su valor real en conversación, no en lectura. Vale la pena una sesión para revisar los focos, elegir uno o dos por trimestre y definir cómo se van a medir.</div>
+</section>
+
+</main>
+
+<footer>
+  Reporte personal de resultados · Metodología Reddin, Teoría 3D de Efectividad Gerencial. Los textos entre comillas y las descripciones de competencias son literales del reporte original emitido por Reddin Assessments; se adaptaron a segunda persona para su lectura.
+  <br><br>Este documento describe la congruencia de la conducta con la situación laboral vigente a la fecha de aplicación de la evaluación. No mide inteligencia, conocimiento técnico, integridad ni valor profesional, y no constituye una evaluación de desempeño.
+</footer>
+<div id="tip"></div>
+<script>
+const D = {"escalas":[{"n":"Efectividad comercial","v":2.2,"pct":47,"tipo":"p","inv":false,"q":"Mide el grado de congruencia con la que actúas ante tu ámbito actual. Una persona altamente efectiva logra resultados con menor esfuerzo y menor desgaste.","t":"Eres una persona de efectividad media alta en las ventas. Tiendes a utilizar con frecuencia la lógica y la racionalidad, y te identificas en mayor medida con la organización en su conjunto que con el cliente o con la venta específica. Eres cauteloso, ordenado, constante y discreto, y <strong>confiable por tu adaptación a sistemas organizados</strong>.<br><br>Cuando las cosas no salen como esperas puedes mostrar impaciencia, tratando de que todo el mundo se ajuste a tu voluntad. En otras ocasiones logras interesarte en los demás de manera efectiva, abriendo canales de comunicación y confiando en que el cliente conoce mejor sus necesidades."},{"n":"Necesidad de estructuración","v":2.8,"pct":69,"tipo":"p","inv":true,"q":"Grado en que requieres el apoyo de la estructura —jerarquía, información, políticas, canales formales— para tener un comportamiento efectivo. Un nivel bajo significa que puedes decidir con autonomía.","t":"Tienes una necesidad marcada de simetría y orden: te preocupas por que todo encuentre su sitio y su razón de ser, y enfrentas dificultades en situaciones de venta donde los cambios se dan con frecuencia y sin aviso.<br><br>Por tu amplio repertorio te abres a manejar ambientes de poca estructura y en ocasiones lo logras adecuadamente. <strong>Tu renuencia a decir “no” te lleva a aceptar proyectos que no pueden completarse a tiempo.</strong> Funcionas mejor en ambientes de venta estructurados, con tu rol de influencia bien definido."},{"n":"Efectividad ante la presión","v":1.8,"pct":51,"tipo":"p","inv":false,"q":"Capacidad de responder con conducta acertada a situaciones inesperadas y de presión creciente.","t":"El reporte lo llama tu “talón de Aquiles”: bajo presión se te dificulta el manejo de tus estilos de venta y te vuelves más cambiante. Te dices una persona abierta, pero te tornas influenciable y no tomas una posición propia.<br><br>En ambientes estables te apoyas en las reglas operativas básicas y <strong>se te ve como una persona justa, equitativa, formal y responsable</strong>. Cuando tu ámbito de influencia no está bien definido, tiendes a suprimir los conflictos con un comportamiento más crítico."},{"n":"Resistencia ante el cambio","v":1.8,"pct":51,"tipo":"m","inv":true,"q":"Resumen de conductas por medio de las cuales una persona se opone a los esfuerzos de cambio de la organización. Un nivel bajo es favorable.","t":"Por tu estructura mental parecerías poco dispuesto al cambio, porque te interesa mantener el sistema establecido. <strong>Sin embargo, tu efectividad media alta te hace abrirte al cambio si con esto logras un mayor control de la venta</strong>, lo que implica cierta habilidad para percibir lo que la situación requiere.<br><br>Cuando te interesa lograr la venta inmediata puedes recurrir en exceso a la imposición, lo que genera resentimientos innecesarios entre tus clientes."},{"n":"Adaptabilidad","v":1.2,"pct":32,"tipo":"p","inv":false,"q":"Capacidad de responder con efectividad a los cambios del entorno, ajustándote o imponiéndote a nuevas realidades.","t":"Tiendes a mantenerte alejado tanto de la venta como de la relación con los clientes, porque para ti lo importante es mantener el sistema establecido de la organización que representas. Ante situaciones ambiguas o tensionantes tiendes a pasar de una conducta a otra, mostrando cierta inconsistencia.<br><br>En ambientes estables eres capaz de observar desviaciones con detalle y <strong>se te ve como alguien confiable</strong>. Ante ambientes que te exigen mucho, logras adaptarte cuando te enfocas en las necesidades del cliente más que en la venta específica: abres canales de comunicación, escuchas problemas y quejas, y fortaleces la relación."}],"repertorio":{"tipo":"Punto medio","v":1,"opuesto":"Deriva","vop":1,"pct":56,"esc":["Deriva","Flexibilidad"],"q":"El repertorio predice en qué situaciones serás más competente. Las personas con <strong>elasticidad</strong> se manejan mejor en ambientes conocidos, por su determinación. Las personas con <strong>flexibilidad</strong> lo hacen mejor en ambientes desconocidos, por su apertura y versatilidad. Tu resultado está exactamente en el punto medio.","t":"Muestras cierto interés por las reglas, los procesos y los procedimientos, aunque en ocasiones los aplicas de forma desigual. Eres dependiente de la estructura organizativa, y la falta de la misma puede derivar en indecisión y postergación. Tus conductas cambiantes pueden crear ambientes poco predecibles ante los clientes.","roles":["Gerencia intermedia de ventas de centros de utilidad de productos o servicios de marca.","Especialista de mercado en ambientes impredecibles, bajo supervisión constante.","Investigación y desarrollo de mercados, bajo lineamientos claros, donde el conocimiento da fuerza al área y agrega competitividad.","Supervisión de sistemas de administración de ventas."],"sugerido":"Puestos donde puedas influir positivamente en el equipo de ventas; donde puedas promover el cambio de las metas de venta para conseguir ventajas competitivas; donde puedas usar las juntas formales para hacer más eficiente tu área; y donde puedas impulsar el cambio sugerido por otros, buscando la perfección."},"estilos":[{"n":"Ejecutivo","pl":"El que integra","v":5,"ef":"alta","pred":"sinergia"},{"n":"Promotor","pl":"El que desarrolla a otros","v":55,"ef":"alta","pred":"desarrollo hacia otros"},{"n":"Autócrata Benévolo","pl":"El que dirige con firmeza","v":25,"ef":"alta","pred":"productividad"},{"n":"Burócrata","pl":"El que sostiene el sistema","v":95,"ef":"alta","pred":"eficiencia"},{"n":"Transacción","pl":"El que complace","v":5,"ef":"baja","pred":"complacencia"},{"n":"Misionero","pl":"El que evita el conflicto","v":35,"ef":"baja","pred":"tolerancia excesiva"},{"n":"Autócrata","pl":"El que impone","v":85,"ef":"baja","pred":"autoritarismo"},{"n":"Desertor","pl":"El que se retira","v":45,"ef":"baja","pred":"estancamiento"}],"comp":[{"g":"Relaciones interpersonales","n":"Colegas","v":2.6,"q":"Sentido de colaboración con las personas de departamentos asociados y de nivel jerárquico equivalente.","t":"Obtienes altos resultados a través de movilizar a tus colegas para implementar lo que piensas son los mejores planes y decisiones. Te abres a sus sugerencias, pero usas las que consideras mejores. Fijas elevados estándares para ti mismo y vigilas su cumplimiento, manteniendo a tus colegas bien informados. Propones e impulsas muchas iniciativas."},{"g":"Relaciones interpersonales","n":"Propia fuerza de ventas","v":2.4,"q":"Seguimiento, motivación y coaching a los planes de comercialización de cada integrante clave del equipo.","t":"Exhibes una facilidad superior al promedio para rodear de un ambiente de confianza y entendimiento las relaciones con tu propia fuerza de ventas; así, cuentas continuamente con su disposición y apoyo entusiasta. Motivas a los demás a fijar elevados estándares y los estimulas para que logren sus objetivos, aun cuando no tengas autoridad jerárquica sobre ellos."},{"g":"Relaciones interpersonales","n":"Competencia","v":2,"q":"Estudio metódico de las acciones de la competencia para validar fortalezas y debilidades propias.","t":"Te mantienes informado de las actividades de la competencia y frecuentemente inicias estrategias efectivas para controlarlas. Buscas la interacción e interdependencia que deriven en una alta efectividad frente al mercado. Mantienes canales de comunicación abiertos con otros proveedores y actúas de inmediato para incidir en el mercado."},{"g":"Relaciones interpersonales","n":"Gerencia de ventas","v":1.8,"q":"Capacidad para dirigir tu esfuerzo y el de tu equipo en torno a las metas estratégicas de la organización.","t":"Tu tendencia a anteponer los problemas humanos en situaciones que no exigen esta prioridad te hace vulnerable en el trato con la Gerencia de Ventas, ya que te identificas de tal modo con tus clientes y sus necesidades personales que llegas a abandonar tu papel de vendedor y te preocupas poco por los objetivos de la organización y los de tu superior."},{"g":"Relaciones interpersonales","n":"Clientes","v":1.6,"q":"Sensibilidad para establecer planos de relación que permitan conocer mejor las necesidades y expectativas de tus clientes.","t":"A veces complaces en todo a tus clientes o usuarios, viéndote débil y excesivamente dócil. Fácilmente llegas a comprometer los intereses de tu área y consecuentemente los de la empresa, en aras de una aceptación de tu persona. Te es común declarar que no tienes clientes sino amigos."},{"g":"Capacidad de ventas","n":"Creatividad en la venta","v":2.2,"q":"Versatilidad para resolver con imaginación los retos que se presentan, desde la preparación hasta la conducción de la venta.","t":"Conoces los principios de la venta creativa, pero muestras más escrupulosidad en la implementación de las ideas que proceden de la Gerencia de Ventas, y te encargas de que funcionen como se estipuló. Tienes inclinación a producir pocas ideas, ya que te identificas mejor con lo que ya está funcionando bien. Te interesan las ideas que conducen al mejoramiento de la estructura."},{"g":"Capacidad de ventas","n":"Productividad","v":2.2,"q":"Destreza para aprovechar en condiciones óptimas cada uno de los recursos críticos de la organización.","t":"Procedes con energía y oportunidad cada vez que consideras que la productividad en las ventas está en riesgo. Fijas personalmente altos rendimientos para ti mismo y para los demás y pones la muestra acerca de cómo deben hacerse las cosas para un máximo aprovechamiento. Vigilas su cumplimiento apoyándote en directrices muy claras."},{"g":"Capacidad de ventas","n":"Cierre de la venta","v":2,"q":"Acción inteligente de preparar las condiciones de negociación y el clima de la relación para asegurar decisiones favorables de compra.","t":"Trabajas conjuntamente con todos los interesados para lograr el mejor cierre de la venta, eligiendo el método más apropiado. Te gusta fijarte elevadas normas de desempeño en este terreno y actúas para conseguir que tus clientes estén personalmente comprometidos en la decisión de compra, buscando el mejor cierre posible para la satisfacción de ambas partes."},{"g":"Capacidad de ventas","n":"Desarrollo de nuevos negocios","v":1.6,"q":"Inventiva e imaginación para encontrar nuevos nichos de oportunidad que conduzcan al lanzamiento de productos.","t":"Algunas veces te comportas evadiendo el desarrollo de nuevos negocios, dando la impresión de no importarte el crecimiento y desarrollo de la organización; esto te hace tener problemas en diferentes partes de la empresa."},{"g":"Capacidad de ventas","n":"Manejo de objeciones","v":1.6,"q":"Destreza para aprovechar cada objeción convirtiéndola en un argumento a favor de la compañía.","t":"En ciertas situaciones tienes la creencia de que preocuparte por el estado de ánimo de tus clientes es suficiente para que asuman responsabilidad en el manejo de objeciones. De esta forma, el manejo de objeciones queda en manos de la iniciativa de tus clientes, sin que hagas esfuerzos deliberados para asegurar la efectividad en este campo, evitando la confrontación con ellos."},{"g":"Motivación personal","n":"Metas de venta","v":2.4,"q":"Esfuerzo constante y deliberado para alcanzar las metas comprometidas en el plan de comercialización.","t":"Ves las metas de venta como un acto de responsabilidad individual y dejas a otros en libertad de proceder según su estilo. Motivas a los demás a fijar elevadas metas de venta y los impulsas y apoyas para lograrlas, promoviendo la satisfacción individual. Eres muy cuidadoso en mantener las buenas relaciones que se han establecido con los clientes."},{"g":"Motivación personal","n":"Auto-organización","v":2.2,"q":"Hábitos para ordenar los eventos determinantes de la venta de forma coherente y disponer con oportunidad de los recursos.","t":"Consideras que no hay trabajo eficiente sin una auto-organización adecuada y actúas metódicamente para prevenir desviaciones. Realizas una revisión detallada en aquellos puntos donde una desviación pudiera provocar efectos de consideración. Mantienes con eficiencia sistemas de información para el control de tus actividades. Te disgusta que otros interfieran en tus planes y sistemas."},{"g":"Motivación personal","n":"Auto-evaluación","v":2.2,"q":"Hábitos para someter el propio esfuerzo a revisión periódica y rigurosa.","t":"Mantienes en constante revisión tus métodos y resultados para asegurar que las cosas ocurran según lo has previsto, en términos de cantidad, calidad, tiempo y costo de las ventas. Se te percibe exigente e intolerante con las desviaciones y haces cambios para mantener una elevada producción."},{"g":"Motivación personal","n":"Fijación de objetivos","v":2.2,"q":"Constancia y objetividad para fijar los objetivos que maximicen la contribución del talento.","t":"Participas efectivamente en la fijación de objetivos, ya que consideras que esta área es útil tanto para la Gerencia como para tu propia organización, y promueves la colaboración de otros. Basas tus estimaciones tanto en el logro a largo plazo como en el inmediato, con probabilidades lógicas de éxito y mostrándote en disposición al riesgo."},{"g":"Motivación personal","n":"Comunicación","v":1.4,"q":"Destreza para sostener una comunicación efectiva con los elementos clave de la dinámica de ventas, dentro y fuera de la organización.","t":"Ante ciertos ambientes tu comunicación es débil y poco efectiva, ya que tu rechazo a las relaciones interpersonales te impide abrirte a escuchar los puntos de vista de otros, y más bien consideras que la gente debería funcionar sola, siguiendo lo dispuesto en las reglas. No encuentras de utilidad dedicarle tiempo a la comunicación con los clientes cuando lo que hay que hacer ya fue escrito por alguien; de esta forma retienes información valiosa."},{"g":"Responsabilidad empresarial","n":"Juntas de ventas","v":2.4,"q":"Destreza para organizar y dirigir las juntas con el equipo, asegurando coordinación y compromiso.","t":"Prefieres que las juntas de ventas se realicen por la vía formal, resintiendo cualquier desviación de la agenda. Te resulta muy importante comprobar documentalmente lo que se ha comunicado, de manera que se puedan eliminar los malos entendidos de las reuniones. Normalmente eres una persona precisa y concisa."},{"g":"Responsabilidad empresarial","n":"Introducción de cambios","v":2.4,"q":"Proactividad en la percepción de obstáculos y oportunidades para introducir cambios que dan ventajas a tu función.","t":"Tienes el convencimiento de que cada quien tiene un ritmo y una necesidad en la realización de las ventas, y te abres a cualquier cambio que pueda conducir a una mayor realización individual. Hablas y preparas a los clientes con suficiente anticipación cuando la introducción de un cambio les puede afectar."},{"g":"Responsabilidad empresarial","n":"Manejo de quejas","v":1.6,"q":"Efectividad para resolver directamente las quejas, haciendo concurrir a las partes implicadas.","t":"Al enfrentarte a quejas de los clientes tiendes a reaccionar evitándolas, ya que en tu fuero interno sabes que manejarlas implica confrontarte con el cliente, con el riesgo de alterar las buenas relaciones que han generado el clima de confianza prevaleciente. Las verdaderas causas de las quejas quedan encubiertas."},{"g":"Responsabilidad empresarial","n":"Manejo de reportes","v":1.6,"q":"Hábitos para reportar metódica y sistemáticamente el estado de avance de los eventos.","t":"A veces eres poco eficaz en el manejo de reportes debido a tu tendencia a autojustificarte, de tal manera que pasas por alto errores y con esto disminuye tu efectividad. Generalmente en tus reportes omites datos que podrían causar descontrol y sólo te concentras en las buenas noticias."},{"g":"Responsabilidad empresarial","n":"Política de la empresa","v":1.6,"q":"Acción ética continua para velar por las políticas de la empresa.","t":"Con respecto a la política de la empresa, muchas veces te muestras poco eficaz por tu tendencia a criticarla, y no muestras interés en las razones para su implementación."}],"grupos":["Relaciones interpersonales","Capacidad de ventas","Motivación personal","Responsabilidad empresarial"],"potencial":{"v":3,"pct":48,"q":"Predice tu desempeño futuro si aprovechas mejor capacidades que actualmente no pones en juego.","t":"Tu potencial de desarrollo es <strong>alto</strong>, y coincide exactamente con el resultado de tu evaluación gerencial. Puede esperarse un alto desempeño futuro cuidando la alineación de tus destrezas con los requerimientos de la posición, con un plan de desarrollo focalizado y una correcta guía por parte de tu superior."},"estilo":{"ot":0.2,"or":0.2,"nombre":"Separado"}};
+const BANDS = ["Muy baja","Baja","Moderada","Alta","Muy alta"];
+
+const tip=document.getElementById('tip');
+function showTip(h,e){tip.innerHTML=h;tip.classList.add('on');moveTip(e)}
+function moveTip(e){const p=14,w=tip.offsetWidth,h=tip.offsetHeight;
+ let x=e.clientX+p,y=e.clientY+p;
+ if(x+w>innerWidth-8)x=e.clientX-w-p; if(y+h>innerHeight-8)y=e.clientY-h-p;
+ tip.style.left=Math.max(8,x)+'px';tip.style.top=Math.max(8,y)+'px'}
+function hideTip(){tip.classList.remove('on')}
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const NS='http://www.w3.org/2000/svg';
+function el(t,a){const n=document.createElementNS(NS,t);for(const k in a)n.setAttribute(k,a[k]);return n}
+function bind(n,h){n.addEventListener('mousemove',e=>showTip(h,e));n.addEventListener('mouseleave',hideTip)}
+function bandOf(v){return BANDS[Math.min(4,Math.floor(v/0.8))]}
+
+/* ── GAUGE (termómetro de 5 bandas) ── */
+function gauge(host, v, good){
+  const W=880,H=72,ML=6,MR=6,MT=26,BH=22;
+  const PW=W-ML-MR, x=t=>ML+(t/4)*PW;
+  const svg=el('svg',{viewBox:'0 0 '+W+' '+H,role:'img','aria-label':'Resultado '+v+' de 4'});
+  for(let i=0;i<5;i++){
+    const a=i*0.8,b=(i+1)*0.8;
+    svg.appendChild(el('rect',{x:x(a)+1,y:MT,width:x(b)-x(a)-2,height:BH,rx:4,
+      fill: i%2 ? 'var(--s3)' : 'var(--s2)'}));
+    const t=el('text',{x:(x(a)+x(b))/2,y:MT-9,'text-anchor':'middle',class:'bt'});
+    t.textContent=BANDS[i]; svg.appendChild(t);
+  }
+  const col = good ? 'var(--ok)' : 'var(--dev)';
+  svg.appendChild(el('rect',{x:ML,y:MT,width:Math.max(3,x(v)-ML),height:BH,rx:4,fill:col,opacity:.20}));
+  svg.appendChild(el('line',{x1:x(v),y1:MT-3,x2:x(v),y2:MT+BH+3,stroke:col,'stroke-width':3.5,'stroke-linecap':'round'}));
+  const lab=el('text',{x:x(v),y:MT+BH+20,'text-anchor':'middle',class:'vv',fill:col,style:'font-size:13px'});
+  lab.textContent=v.toFixed(1)+' · '+bandOf(v); svg.appendChild(lab);
+  [0,1,2,3,4].forEach(t=>{const n=el('text',{x:x(t),y:MT+BH+20,'text-anchor':'middle',class:'ax'});
+    if(Math.abs(t-v)>0.45){n.textContent=t.toFixed(1);svg.appendChild(n)}});
+  host.appendChild(svg);
+}
+document.querySelectorAll('.gauge').forEach(h=>{
+  if(h.dataset.pot){ gauge(h, D.potencial.v, true); return; }
+  const s=D.escalas[+h.dataset.i];
+  const good = s.inv ? s.v<=1.8 : s.v>=2.2;
+  gauge(h, s.v, good);
+});
+
+/* ── CUADRANTE OT/OR ── */
+(function(){
+  const host=document.getElementById('quadChart'); if(!host)return;
+  const W=560,H=340,M=52,S=Math.min(W-2*M,H-2*M);
+  const x0=M,y0=H-M, x=v=>x0+(v/4)*S, y=v=>y0-(v/4)*S;
+  const svg=el('svg',{viewBox:'0 0 '+W+' '+H,role:'img','aria-label':'Posición en los ejes de tarea y relaciones'});
+  svg.appendChild(el('rect',{x:x(0),y:y(4),width:S,height:S,fill:'var(--s2)',stroke:'var(--line)'}));
+  svg.appendChild(el('line',{x1:x(2),y1:y(0),x2:x(2),y2:y(4),class:'grid'}));
+  svg.appendChild(el('line',{x1:x(0),y1:y(2),x2:x(4),y2:y(2),class:'grid'}));
+  const q=[['Relacionado',1,3],['Integrado',3,3],['Separado',1,1],['Dedicado',3,1]];
+  q.forEach(([n,a,b])=>{const t=el('text',{x:x(a),y:y(b),'text-anchor':'middle',class:'bt',
+    fill: n===D.estilo.nombre?'var(--acc)':'var(--ink3)'}); t.textContent=n; svg.appendChild(t)});
+  svg.appendChild(el('circle',{cx:x(D.estilo.or===undefined?0:D.estilo.ot),cy:y(D.estilo.or),r:9,
+    fill:'var(--acc)',stroke:'#fff','stroke-width':3}));
+  const lb=el('text',{x:x(D.estilo.ot)+16,y:y(D.estilo.or)-8,class:'axl b',fill:'var(--acc)'});
+  lb.textContent='Tú · OT 0.2 / OR 0.2'; svg.appendChild(lb);
+  const xl=el('text',{x:x(2),y:H-14,'text-anchor':'middle',class:'axl'}); xl.textContent='Orientación a la Tarea →'; svg.appendChild(xl);
+  const yl=el('text',{x:0,y:0,class:'axl',transform:'translate(18,'+y(2)+') rotate(-90)','text-anchor':'middle'});
+  yl.textContent='Orientación a las Relaciones →'; svg.appendChild(yl);
+  [0,2,4].forEach(v=>{
+    const a=el('text',{x:x(v),y:y(0)+16,'text-anchor':'middle',class:'ax'}); a.textContent=v; svg.appendChild(a);
+    const b=el('text',{x:x(0)-10,y:y(v)+4,'text-anchor':'end',class:'ax'}); b.textContent=v; svg.appendChild(b);
+  });
+  host.appendChild(svg);
+})();
+
+/* ── REPERTORIO ── */
+(function(){
+  const host=document.getElementById('repChart'); if(!host)return;
+  const R=D.repertorio, W=880,H=96,ML=110,MR=110,MT=40;
+  const PW=W-ML-MR, mid=ML+PW/2, half=PW/2, x=v=>mid+(v/4)*half;
+  const svg=el('svg',{viewBox:'0 0 '+W+' '+H});
+  ['Alta','Moderada','Baja','Moderada','Alta'].forEach((n,i)=>{
+    const seg=PW/5, a=ML+i*seg;
+    if(i%2===0) svg.appendChild(el('rect',{x:a,y:MT-12,width:seg,height:26,fill:'var(--s2)'}));
+    const t=el('text',{x:a+seg/2,y:MT-20,'text-anchor':'middle',class:'bt'}); t.textContent=n; svg.appendChild(t);
+  });
+  svg.appendChild(el('line',{x1:mid,y1:MT-14,x2:mid,y2:MT+18,class:'ref'}));
+  const L=el('text',{x:ML-14,y:MT+5,'text-anchor':'end',class:'axl b'}); L.textContent=R.esc[0]; svg.appendChild(L);
+  const Rt=el('text',{x:W-MR+14,y:MT+5,class:'axl b'}); Rt.textContent=R.esc[1]; svg.appendChild(Rt);
+  svg.appendChild(el('circle',{cx:x(-R.vop),cy:MT+2,r:7,fill:'var(--dev)',stroke:'#fff','stroke-width':2}));
+  svg.appendChild(el('circle',{cx:x(R.v),cy:MT+2,r:7,fill:'var(--ok)',stroke:'#fff','stroke-width':2}));
+  const a=el('text',{x:x(-R.vop),y:MT+30,'text-anchor':'middle',class:'vv',fill:'var(--dev)'}); a.textContent=R.vop.toFixed(1); svg.appendChild(a);
+  const b=el('text',{x:x(R.v),y:MT+30,'text-anchor':'middle',class:'vv',fill:'var(--ok)'}); b.textContent=R.v.toFixed(1); svg.appendChild(b);
+  host.appendChild(svg);
+})();
+
+/* ── 8 ESTILOS ── */
+(function(){
+  const host=document.getElementById('stylesChart'); if(!host)return;
+  const E=D.estilos, W=880,ML=232,MR=34,MT=50,rowH=38,barH=17,SPLIT=34;
+  const H=MT+E.length*rowH+SPLIT+40, PW=W-ML-MR, x=v=>ML+(v/100)*PW;
+  const svg=el('svg',{viewBox:'0 0 '+W+' '+H,role:'img','aria-label':'Frecuencia de los ocho estilos'});
+  const bot=MT+E.length*rowH+SPLIT-12;
+  [[0,29,'Casi nunca'],[30,49,'A veces'],[50,69,'De apoyo'],[70,100,'Habitual']].forEach((b,i)=>{
+    if(i%2===0) svg.appendChild(el('rect',{x:x(b[0]),y:MT-14,width:x(b[1])-x(b[0]),height:bot-(MT-14),class:'band'}));
+    const t=el('text',{x:(x(b[0])+x(b[1]))/2,y:MT-21,'text-anchor':'middle',class:'bt'}); t.textContent=b[2]; svg.appendChild(t);
+  });
+  [0,29,49,69,100].forEach(v=>svg.appendChild(el('line',{x1:x(v),y1:MT-14,x2:x(v),y2:bot,class:'grid'})));
+  const hi=el('text',{x:0,y:MT-21,class:'bt',fill:'var(--ok)'}); hi.textContent='▲ ALTA EFECTIVIDAD'; svg.appendChild(hi);
+  const sy=MT+4*rowH+SPLIT/2-8;
+  svg.appendChild(el('line',{x1:0,y1:sy,x2:W-MR,y2:sy,stroke:'var(--line2)','stroke-width':1.5}));
+  const lo=el('text',{x:0,y:sy+15,class:'bt',fill:'var(--dev)'}); lo.textContent='▼ BAJA EFECTIVIDAD'; svg.appendChild(lo);
+  E.forEach((d,i)=>{
+    const y=MT+i*rowH+(i>=4?SPLIT:0), g=el('g',{class:'grp'});
+    const col = d.ef==='alta' ? 'var(--ok)' : 'var(--dev)';
+    const n=el('text',{x:ML-12,y:y+11,'text-anchor':'end',class:'axl b'}); n.textContent=d.n; g.appendChild(n);
+    const p=el('text',{x:ML-12,y:y+24,'text-anchor':'end',class:'ax'}); p.textContent=d.pl; g.appendChild(p);
+    const bw=Math.max(3,x(d.v)-ML);
+    g.appendChild(el('rect',{x:ML,y:y,width:bw,height:barH,rx:4,fill:col,class:'bar'}));
+    const t=el('text',{x:ML+bw+8,y:y+barH-3.5,class:'vv',fill:'var(--ink2)'}); t.textContent=d.v; g.appendChild(t);
+    const hit=el('rect',{x:0,y:y-5,width:W,height:rowH-2,class:'hit'});
+    bind(hit,'<b>'+esc(d.n)+' — <em>'+d.v+' de 100</em></b>'+esc(d.pl)+
+      '<span class="pl">Estilo de <em>'+d.ef+'</em> efectividad. Cuando se usa, produce <em>'+esc(d.pred)+'</em>.</span>');
+    g.appendChild(hit); svg.appendChild(g);
+  });
+  [0,20,40,60,80,100].forEach(v=>{const t=el('text',{x:x(v),y:bot+19,'text-anchor':'middle',class:'ax'});t.textContent=v;svg.appendChild(t)});
+  host.appendChild(svg);
+})();
+
+/* ── 20 COMPETENCIAS ── */
+function drawComp(filter){
+  const host=document.getElementById('compChart'); host.innerHTML='';
+  let rows=D.comp;
+  if(filter==='low') rows=rows.filter(r=>r.v<1.8);
+  if(filter==='up')  rows=rows.filter(r=>r.v>=2.2);
+  const groups=[]; rows.forEach(r=>{let g=groups.find(z=>z.g===r.g); if(!g){g={g:r.g,items:[]};groups.push(g)} g.items.push(r)});
+  const W=880,ML=248,MR=44,MT=30,rowH=27,gH=30,barH=14;
+  let H=MT+34; groups.forEach(g=>H+=gH+g.items.length*rowH+8);
+  const PW=W-ML-MR, x=v=>ML+(v/4)*PW;
+  const svg=el('svg',{viewBox:'0 0 '+W+' '+H,role:'img','aria-label':'Las 20 competencias'});
+  [0,1,2,3,4].forEach(v=>{
+    svg.appendChild(el('line',{x1:x(v),y1:MT-14,x2:x(v),y2:H-30,class:'grid'}));
+    const t=el('text',{x:x(v),y:H-14,'text-anchor':'middle',class:'ax'}); t.textContent=v.toFixed(1); svg.appendChild(t);
+  });
+  svg.appendChild(el('line',{x1:x(1.8),y1:MT-20,x2:x(1.8),y2:H-30,class:'ref'}));
+  const rl=el('text',{x:x(1.8),y:MT-26,'text-anchor':'middle',class:'bt',fill:'var(--navy)'});
+  rl.textContent='LÍNEA DE REFERENCIA 1.8'; svg.appendChild(rl);
+  let y=MT;
+  groups.forEach(gr=>{
+    const gh=el('text',{x:0,y:y+10,class:'bt',fill:'var(--ink2)'}); gh.textContent=gr.g.toUpperCase(); svg.appendChild(gh);
+    svg.appendChild(el('line',{x1:0,y1:y+18,x2:W-MR,y2:y+18,stroke:'var(--line)','stroke-width':1}));
+    y+=gH;
+    gr.items.forEach(d=>{
+      const low=d.v<1.8, g=el('g',{class:'grp'});
+      const n=el('text',{x:ML-14,y:y+11,'text-anchor':'end',class:'axl'}); n.textContent=d.n;
+      if(low) n.setAttribute('fill','var(--dev)'); g.appendChild(n);
+      const bw=Math.max(3,x(d.v)-ML);
+      g.appendChild(el('rect',{x:ML,y:y,width:bw,height:barH,rx:4,fill: low?'var(--dev)':'var(--ok)',class:'bar'}));
+      const t=el('text',{x:ML+bw+7,y:y+barH-2,class:'vv',fill: low?'var(--dev)':'var(--ink2)'});
+      t.textContent=d.v.toFixed(1); g.appendChild(t);
+      const hit=el('rect',{x:0,y:y-5,width:W,height:rowH,class:'hit'});
+      bind(hit,'<b>'+esc(d.n)+' — <em>'+d.v.toFixed(1)+' de 4</em>'+(low?' · zona de desarrollo':'')+'</b>'+
+        esc(d.q)+'<span class="pl">'+esc(d.t)+'</span>');
+      g.appendChild(hit); svg.appendChild(g); y+=rowH;
+    });
+    y+=8;
+  });
+  host.appendChild(svg);
+}
+function compTable(){
+  document.getElementById('compTable').innerHTML=
+   '<table><thead><tr><th style="width:20%">Grupo</th><th style="width:20%">Competencia</th><th style="width:7%">Nivel</th><th>Qué dice tu reporte</th></tr></thead><tbody>'+
+   D.comp.map(r=>'<tr><td style="color:var(--ink3)">'+esc(r.g)+'</td><td><strong>'+esc(r.n)+'</strong></td>'+
+     '<td><span class="chip '+(r.v<1.8?'c-dev':'c-ok')+'">'+r.v.toFixed(1)+'</span></td>'+
+     '<td style="color:var(--ink2)">'+esc(r.t)+'</td></tr>').join('')+'</tbody></table>';
+}
+(function(){
+  const box=document.getElementById('ctrls'), tbl=document.getElementById('compTable');
+  box.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+    const f=b.dataset.f;
+    if(f==='tbl'){const on=b.getAttribute('aria-pressed')==='true';
+      b.setAttribute('aria-pressed',String(!on)); tbl.style.display=on?'none':'block'; return}
+    box.querySelectorAll('button:not([data-f="tbl"])').forEach(o=>o.setAttribute('aria-pressed',String(o===b)));
+    drawComp(f);
+  }));
+  drawComp('all'); compTable();
+})();
+(function(){
+  const srt=[...D.comp].sort((a,b)=>b.v-a.v);
+  const rowH=(r,cls)=>'<div style="display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px">'+
+    '<span class="vv" style="width:32px;flex-shrink:0;color:var(--'+cls+')">'+r.v.toFixed(1)+'</span>'+
+    '<span><strong>'+esc(r.n)+'</strong><br><span style="color:var(--ink3);font-size:12.5px">'+esc(r.q)+'</span></span></div>';
+  document.getElementById('topC').innerHTML=srt.slice(0,5).map(r=>rowH(r,'ok')).join('');
+  document.getElementById('botC').innerHTML=srt.slice(-5).reverse().map(r=>rowH(r,'dev')).join('');
+})();
+
+/* ── TABS ── */
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected','false'));
+  document.querySelectorAll('.panel').forEach(p=>p.hidden=true);
+  b.setAttribute('aria-selected','true');
+  document.getElementById(b.dataset.p).hidden=false;
+  hideTip(); window.scrollTo({top:0,behavior:'smooth'});
+}));
+
+</script>
+</body></html>
