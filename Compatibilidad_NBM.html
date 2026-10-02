@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compatibilidad NBM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: banda navy de encabezado, tarjetas resumen, gráficas, matriz de criterios, filtros de exclusión y ficha por candidato */
+:root{
+  --bg:#f5f6f9; --surface:#ffffff; --surface-2:#eef1f6; --line:#dde2ea;
+  --ink:#1F2A44; --ink-2:#4a5570; --muted:#7a8399;
+  --brand:#1F2A44; --brand-red:#DA291C; --brand-blue:#77C5D5; --on-brand:#ffffff;
+  --c1:#3B5BA9; --c2:#2A9BB5; --c3:#B9822A;
+  --ok:#1E7F4F; --ok-bg:#e3f3ea; --mid:#a8670f; --mid-bg:#fbefd9; --bad:#C8261A; --bad-bg:#fbe4e1; --na:#6b7489; --na-bg:#e9ecf2;
+  --f-display:"Libre Franklin", "Helvetica Neue", Arial, sans-serif;
+  --f-body:"Source Sans 3", "Segoe UI", Arial, sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f141f; --surface:#161d2b; --surface-2:#1d2636; --line:#2a3447;
+  --ink:#e8ecf4; --ink-2:#b4bccd; --muted:#8891a6;
+  --brand:#1a2338; --on-brand:#ffffff;
+  --c1:#6878E0; --c2:#16958C; --c3:#B87A1E;
+  --ok:#5cc58f; --ok-bg:#16301f; --mid:#e0a64a; --mid-bg:#33270f; --bad:#f07264; --bad-bg:#3a1714; --na:#9aa3b8; --na-bg:#252d3d;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f141f; --surface:#161d2b; --surface-2:#1d2636; --line:#2a3447;
+  --ink:#e8ecf4; --ink-2:#b4bccd; --muted:#8891a6;
+  --brand:#1a2338; --on-brand:#ffffff;
+  --c1:#6878E0; --c2:#16958C; --c3:#B87A1E;
+  --ok:#5cc58f; --ok-bg:#16301f; --mid:#e0a64a; --mid-bg:#33270f; --bad:#f07264; --bad-bg:#3a1714; --na:#9aa3b8; --na-bg:#252d3d;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px}
+header.top{background:var(--brand);color:var(--on-brand);border-bottom:4px solid var(--brand-red)}
+header.top .wrap{padding-block:28px 24px;display:flex;flex-wrap:wrap;gap:16px 32px;align-items:flex-end;justify-content:space-between}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--brand-blue);font-weight:600}
+header.top h1{font-size:clamp(24px,3.4vw,34px);font-weight:800;margin-top:4px}
+header.top p{margin:6px 0 0;color:#c9d2e3;max-width:62ch}
+.legend-status{display:flex;flex-wrap:wrap;gap:8px}
+nav.sec{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+nav.sec .wrap{display:flex;gap:4px;overflow-x:auto;padding-block:8px}
+nav.sec a{color:var(--ink-2);text-decoration:none;font-weight:600;font-size:14px;padding:6px 12px;border-radius:999px;white-space:nowrap}
+nav.sec a:hover,nav.sec a:focus-visible{background:var(--surface-2);color:var(--ink);outline:none}
+main .wrap{display:grid;gap:36px;padding-block:28px 56px}
+section{display:grid;gap:16px;scroll-margin-top:64px}
+.sec-h{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 16px}
+.sec-h h2{font-size:21px;font-weight:700}
+.sec-h p{margin:0;color:var(--muted);font-size:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+
+/* chips */
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;line-height:1.4}
+.chip i{font-style:normal;font-size:12px}
+.s-C{color:var(--ok);background:var(--ok-bg)}
+.s-P{color:var(--mid);background:var(--mid-bg)}
+.s-N{color:var(--bad);background:var(--bad-bg)}
+.s-S{color:var(--na);background:var(--na-bg)}
+header.top .chip{background:rgba(255,255,255,.1);color:#fff}
+header.top .chip i{color:var(--brand-blue)}
+
+/* resumen */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:grid;gap:14px;align-content:start;border-top:4px solid var(--cc)}
+.card .who{display:flex;gap:14px;align-items:center}
+.card h3{font-size:18px;font-weight:700}
+.card .role{color:var(--muted);font-size:13.5px;line-height:1.35}
+.ring{flex:none;width:92px;height:92px;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .v{position:absolute;inset:0;display:grid;place-content:center;text-align:center;font-family:var(--f-display);font-weight:800;font-size:23px;font-variant-numeric:tabular-nums}
+.ring .v small{display:block;font-family:var(--f-body);font-size:10.5px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.status{font-weight:700;font-size:14px;padding:8px 12px;border-radius:8px;display:flex;gap:8px;align-items:center}
+.status.go{background:var(--mid-bg);color:var(--mid)}
+.status.stop{background:var(--bad-bg);color:var(--bad)}
+.stack{display:flex;height:12px;border-radius:6px;overflow:hidden;gap:2px;background:var(--surface)}
+.stack span{display:block;height:100%}
+.counts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.counts div{font-size:11.5px;color:var(--muted);line-height:1.2}
+.counts b{display:block;font-family:var(--f-display);font-size:19px;color:var(--ink);font-variant-numeric:tabular-nums}
+.keyline{display:grid;gap:6px;font-size:14px}
+.keyline div{display:flex;gap:10px;justify-content:space-between;border-bottom:1px dashed var(--line);padding-bottom:5px}
+.keyline span{color:var(--muted)}
+.keyline b{text-align:right;font-weight:600}
+.alerts{display:grid;gap:6px;margin:0;padding:0;list-style:none;font-size:13.5px}
+.alerts li{display:flex;gap:8px;align-items:flex-start}
+.alerts li::before{content:"!";flex:none;width:18px;height:18px;border-radius:50%;background:var(--bad-bg);color:var(--bad);font-weight:800;font-size:12px;display:grid;place-content:center;margin-top:1px}
+
+/* gráficas */
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+.charts .panel{display:grid;gap:14px;align-content:start}
+.charts h3{font-size:16px;font-weight:700}
+.charts .sub{color:var(--muted);font-size:13px;margin:-8px 0 0}
+.bars{display:grid;gap:14px}
+.bar-g{display:grid;gap:5px}
+.bar-g .gl{font-weight:700;font-size:13.5px}
+.bar-r{display:grid;grid-template-columns:92px 1fr 44px;gap:8px;align-items:center;font-size:13px;cursor:default}
+.bar-r .nm{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track{height:14px;background:var(--surface-2);border-radius:0 4px 4px 0;position:relative}
+.track .fill{height:100%;border-radius:0 4px 4px 0}
+.bar-r .pc{font-variant-numeric:tabular-nums;font-weight:700;text-align:right}
+.bar-r:hover .fill,.bar-r:focus-visible .fill{filter:brightness(1.12)}
+.dumb{width:100%;height:auto;display:block}
+.dumb text{fill:var(--ink-2);font-family:var(--f-body)}
+.dumb .lab{fill:var(--ink);font-weight:700;font-size:13px}
+.dumb .ax{fill:var(--muted);font-size:11px}
+.dumb .grid{stroke:var(--line)}
+.mini-leg{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--ink-2)}
+.mini-leg span{display:inline-flex;gap:6px;align-items:center}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+/* matriz */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:999px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;color:var(--ink-2);font:600 13.5px var(--f-body);padding:6px 14px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.seg button:focus-visible{outline:2px solid var(--c2);outline-offset:1px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:860px}
+th,td{text-align:left;vertical-align:top;padding:12px 14px;border-bottom:1px solid var(--line);font-size:13.5px}
+thead th{font-family:var(--f-display);font-size:13px;font-weight:700;background:var(--surface-2);position:sticky;top:0}
+thead th .cdot{margin-right:6px}
+tbody tr.grp td{background:var(--surface-2);font-family:var(--f-display);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);padding-block:8px}
+td.crit{width:24%;font-weight:600;color:var(--ink)}
+td.crit small{display:block;color:var(--muted);font-weight:400;margin-top:2px}
+td.cell{width:25.3%}
+td.cell .chip{margin-bottom:6px}
+td.cell p{margin:0;color:var(--ink-2)}
+tr[hidden]{display:none}
+
+/* exclusión */
+.excl td.cell .chip.alert{color:var(--bad);background:var(--bad-bg)}
+.excl td.cell .chip.val{color:var(--mid);background:var(--mid-bg)}
+.excl td.cell .chip.clear{color:var(--ok);background:var(--ok-bg)}
+
+/* ficha */
+.picker{display:flex;flex-wrap:wrap;gap:8px}
+.picker button{border:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 14px var(--f-display);padding:9px 16px;border-radius:999px;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+.picker button[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.picker button:focus-visible{outline:2px solid var(--c2);outline-offset:2px}
+.ficha{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.col{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:10px;align-content:start;min-width:0}
+.col h3{font-size:15px;display:flex;gap:8px;align-items:center}
+.col ul{margin:0;padding-left:18px;display:grid;gap:7px;font-size:14px;color:var(--ink-2)}
+.col.ok h3{color:var(--ok)} .col.bad h3{color:var(--bad)} .col.mid h3{color:var(--mid)} .col.na h3{color:var(--na)}
+.col .n{font-variant-numeric:tabular-nums;font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--surface-2);color:var(--ink-2)}
+
+/* comparativo */
+.cmp td.k{font-weight:600;color:var(--ink);width:22%}
+.cmp td{font-variant-numeric:tabular-nums}
+.foot{color:var(--muted);font-size:13px;display:grid;gap:4px}
+.foot p{margin:0}
+
+@media (max-width:560px){
+  .wrap{padding-inline:16px}
+  .bar-r{grid-template-columns:78px 1fr 40px}
+  .ring{width:80px;height:80px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .track .fill{transition:width .6s ease}
+}
+</style>
+</head><body style="margin:0">
+
+<header class="top">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">Búsqueda · New Business Manager</div>
+      <h1>Compatibilidad de candidatos con el primer scan</h1>
+      <p>Tres perfiles comparados contra 17 criterios del perfil buscado y 5 filtros de exclusión. Basado en CV, reporte de evaluación y video de presentación de cada candidato.</p>
+    </div>
+    <div class="legend-status" aria-label="Escala">
+      <span class="chip"><i>✓</i>Cumple</span>
+      <span class="chip"><i>~</i>Parcial</span>
+      <span class="chip"><i>✕</i>No cumple</span>
+      <span class="chip"><i>?</i>Sin información</span>
+    </div>
+  </div>
+</header>
+
+<nav class="sec" aria-label="Secciones">
+  <div class="wrap">
+    <a href="#resumen">Resumen</a>
+    <a href="#graficas">Gráficas</a>
+    <a href="#exclusion">Filtros de exclusión</a>
+    <a href="#matriz">Criterios</a>
+    <a href="#ficha">Por candidato</a>
+    <a href="#datos">Datos clave</a>
+  </div>
+</nav>
+
+<main>
+<div class="wrap">
+
+  <section id="resumen">
+    <div class="sec-h"><h2>Resumen</h2><p>Compatibilidad = puntos obtenidos sobre el máximo posible.</p></div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <section id="graficas">
+    <div class="sec-h"><h2>Gráficas</h2><p>Pasa el cursor sobre cada barra para ver el detalle.</p></div>
+    <div class="charts">
+      <div class="panel">
+        <h3>Compatibilidad por bloque del perfil</h3>
+        <p class="sub">Experiencia (8 criterios), habilidades (5) y cultura (4).</p>
+        <div class="bars" id="bars"></div>
+      </div>
+      <div class="panel">
+        <h3>Calificación recibida vs. compatibilidad con el scan</h3>
+        <p class="sub">La calificación del reporte recibido no descuenta las discrepancias detectadas.</p>
+        <svg class="dumb" id="dumb" viewBox="0 0 440 230" role="img" aria-label="Comparación entre calificación recibida y compatibilidad calculada"></svg>
+        <div class="mini-leg">
+          <span><span class="dot" style="background:var(--muted)"></span>Calificación recibida</span>
+          <span><span class="dot" style="background:var(--ink)"></span>Compatibilidad con el scan</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="exclusion">
+    <div class="sec-h"><h2>Filtros de exclusión</h2><p>Perfiles que no se buscan y razones de rechazo inmediato definidas en el scan.</p></div>
+    <div class="tbl-wrap">
+      <table class="excl">
+        <thead><tr><th>Filtro</th><th id="eh0"></th><th id="eh1"></th><th id="eh2"></th></tr></thead>
+        <tbody id="excl"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="matriz">
+    <div class="sec-h"><h2>Criterios del perfil</h2><p>Evidencia tomada del CV, reporte de evaluación y video.</p></div>
+    <div class="toolbar">
+      <div class="seg" role="group" aria-label="Filtrar criterios">
+        <button type="button" data-f="all" aria-pressed="true">Todos</button>
+        <button type="button" data-f="gap" aria-pressed="false">Con discrepancias</button>
+        <button type="button" data-f="na" aria-pressed="false">Sin información</button>
+      </div>
+      <div class="seg" role="group" aria-label="Filtrar bloque">
+        <button type="button" data-g="all" aria-pressed="true">Todos los bloques</button>
+        <button type="button" data-g="Experiencia" aria-pressed="false">Experiencia</button>
+        <button type="button" data-g="Habilidades" aria-pressed="false">Habilidades</button>
+        <button type="button" data-g="Cultura" aria-pressed="false">Cultura</button>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Criterio del scan</th><th id="mh0"></th><th id="mh1"></th><th id="mh2"></th></tr></thead>
+        <tbody id="matrix"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="ficha">
+    <div class="sec-h"><h2>Por candidato</h2><p>Coincidencias, discrepancias, información inconsistente y lo que falta validar.</p></div>
+    <div class="picker" id="picker" role="group" aria-label="Elegir candidato"></div>
+    <div class="ficha" id="fichaBody"></div>
+  </section>
+
+  <section id="datos">
+    <div class="sec-h"><h2>Datos clave</h2><p>Cifras tal como aparecen en las fuentes.</p></div>
+    <div class="tbl-wrap">
+      <table class="cmp">
+        <thead><tr><th>Dato</th><th id="dh0"></th><th id="dh1"></th><th id="dh2"></th></tr></thead>
+        <tbody id="cmp"></tbody>
+      </table>
+    </div>
+    <div class="foot">
+      <p>Puntuación: Cumple = 2, Parcial = 1, No cumple o Sin información = 0. Máximo 34 puntos.</p>
+      <p>No se recibió la evaluación cognitiva, la evaluación de comportamiento ni la verificación de referencias de ningún candidato.</p>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<script>
+const C = [
+  {id:"r", name:"Rubén Guerrero", short:"Rubén", role:"Senior Sales Manager · IDS Comercial", color:"--c1", received:97.5},
+  {id:"t", name:"Tatiana Beltrán", short:"Tatiana", role:"Gerente Comercial / Account Manager · TSOFT", color:"--c2", received:92.5},
+  {id:"x", name:"Laura Xóchitl Morgado", short:"Xóchitl", role:"Gerente Comercial · Digital Challengers IT", color:"--c3", received:95}
+];
+
+const CRIT = [
+ {g:"Experiencia", name:"8 a 10 años vendiendo servicios o tecnología a empresas", key:true,
+  r:["C","Cerca de 30 años en ventas de tecnología; unos 20 vendiendo software y desarrollos a la medida."],
+  t:["C","12 años en venta consultiva de tecnología, en Colombia y México."],
+  x:["N","Cerca de 5 años en ventas de tecnología (desde 2021). Antes, 7 años como Gerente de RH en Softtek."]},
+ {g:"Experiencia", name:"Cuota individual demostrable y cumplimiento histórico", d:"Cuota del puesto: $20 M MXN anuales",
+  r:["C","Cuota 2026 de $39.8 M MXN con 88.1% a septiembre. Antes: 81% (2015) y 83% (1er semestre 2016) como director de unidad; 107% en 2011 en Perú."],
+  t:["P","Cuota actual de USD 2 M con 60% a septiembre. No da porcentajes de cumplimiento de empleos anteriores. Reporta USD 4.5 M vendidos en 2023."],
+  x:["P","Cuota de $8 M MXN, superada a septiembre, sin monto ni porcentaje exacto. Equivale a 40% de la cuota del puesto."]},
+ {g:"Experiencia", name:"Clientes nuevos abiertos por cuenta propia (no heredados)",
+  r:["P","Nombra clientes nuevos en HITSS entre 2013 y 2016: Interjet, Walmart, Banco Interacciones y AON. No dice cuántas cuentas ha abierto en IDS."],
+  t:["P","Afirma haber abierto nuevos logos en finanzas y seguros en su puesto actual, sin nombres ni número."],
+  x:["P","2 cuentas nuevas en Digital Challengers; una es una Afore, ganada por RFP en menos de 6 meses."]},
+ {g:"Experiencia", name:"Venta a dirección general, operaciones o finanzas",
+  r:["P","Se relaciona con áreas de TI, negocio y compras. No menciona dirección general ni finanzas."],
+  t:["P","Negocia con CTO, CEO y VP de tecnología. Su interlocutor principal es el área de TI."],
+  x:["P","Relación con altos mandos de banca, CIOs y áreas de compras."]},
+ {g:"Experiencia", name:"Procedencia: tecnología, integradoras de software, consultoras digitales o de IA",
+  r:["C","IDS Comercial, CompuEducación y HITSS."],
+  t:["C","TSOFT, Iron Mountain, Sophos (GFT), NA-AT, Choucair y Stefanini."],
+  x:["C","Digital Challengers, IDS Comercial y Capgemini."]},
+ {g:"Experiencia", name:"Experiencia en movilidad, transporte, hospitalidad o manufactura",
+  r:["C","Aerotransporte: 9 años en SITA (aerolíneas), Aeroméxico e Interjet. Manufactura: Nestlé y VW/Audi."],
+  t:["P","Menciona automotriz y empresas de perfil similar a Toyota y BMW, sin clientes cerrados. Su base es financiero, seguros y retail."],
+  x:["N","Solo sector financiero (Afore, HSBC, bancos). En el video dice atender otros sectores, sin nombrarlos."]},
+ {g:"Experiencia", name:"Ticket de entrada cercano a $1 M y ciclo de venta de máximo 3 meses",
+  r:["P","Da un ejemplo de proyecto que pasó de $1.2 M a $1.9 M. No informa la duración de sus ciclos."],
+  t:["S","No da datos de ticket ni de ciclo de venta."],
+  x:["P","RFP ganado en menos de 6 meses. No da el monto."]},
+ {g:"Experiencia", name:"Venta por resultados (deseable)",
+  r:["S","No se menciona."], t:["S","No se menciona."], x:["S","No se menciona."]},
+ {g:"Habilidades", name:"Prospección en frío multicanal y mapeo de rutas de compra",
+  r:["P","Su estrategia principal es su red de contactos. Usa Apollo para identificar contactos. No describe cómo prospecta en frío."],
+  t:["C","Mapea cuentas y tomadores de decisión, lanza campañas outbound con Apollo, Sales QR e IA y lleva el ciclo hasta el cierre."],
+  x:["P","Usa LinkedIn (más de 300 contactos activos), Apollo, networking y eventos. El énfasis está en su red."]},
+ {g:"Habilidades", name:"Herramientas: HubSpot, Apollo, Sales Navigator, Microsoft 365, Confluence e IA",
+  r:["P","Microsoft Dynamics, Salesforce, Apollo y MS Office. No menciona HubSpot, Sales Navigator ni herramientas de IA."],
+  t:["P","Apollo, Sales QR e IA para redactar mensajes. No menciona HubSpot, Sales Navigator ni Confluence."],
+  x:["P","Apollo, LinkedIn, Claude y Gemini. No menciona HubSpot, Sales Navigator ni Confluence."]},
+ {g:"Habilidades", name:"Traduce problemas de negocio en soluciones tecnológicas",
+  r:["C","Entiende desarrollo, datos, cloud, RPA y ERP. Ajusta el discurso según hable con negocio o con TI."],
+  t:["C","Ingeniera de sistemas con experiencia en desarrollo y testing. Levanta requerimientos con CTOs sin apoyo de preventa."],
+  x:["P","Ella misma reconoce que su conocimiento técnico es básico; se apoya en el equipo de delivery desde la primera etapa."]},
+ {g:"Habilidades", name:"Ciclo completo y entrega ordenada a operaciones",
+  r:["C","Cuida contrato, orden de compra, facturación y cobranza. Coordina con delivery."],
+  t:["C","Es el enlace entre cliente y delivery; da seguimiento a tiempos de servicio y entregables."],
+  x:["C","Participa en el arranque del proyecto, seguimiento, contratos y facturación."]},
+ {g:"Habilidades", name:"Construir proceso comercial, playbooks y desarrollar personas",
+  r:["C","Rediseñó los procesos de ventas en CompuEducación, mantuvo el proceso ISO 9000 de desarrollo de negocio en HITSS y dirigió 7 ejecutivos."],
+  t:["P","Creó ofertas comerciales y nuevos servicios (Choucair). No menciona haber documentado procesos o playbooks."],
+  x:["S","No se menciona."]},
+ {g:"Cultura", name:"Experiencia con CEO o dueño exigente",
+  r:["S","No se aborda. Hoy reporta a un director de unidad."],
+  t:["S","No se aborda. Hoy reporta a un Country Manager."],
+  x:["C","Reporta directo al CEO y dueño de Digital Challengers desde agosto de 2025."]},
+ {g:"Cultura", name:"Reconoce errores con un ejemplo concreto",
+  r:["C","Propuesta que subió de $1.2 M a $1.9 M: aceptó su error ante Compras, justificó el precio y cerró el proyecto."],
+  t:["N","Dice no haber tenido un error relevante."],
+  x:["N","No dio un ejemplo; solo mencionó errores menores de formato."]},
+ {g:"Cultura", name:"Resuelve con otras áreas sin esperar instrucciones",
+  r:["C","Busca conciliar, da seguimiento y escala si no obtiene respuesta."],
+  t:["C","Identifica la causa del bloqueo y coordina preventa, delivery y postventa."],
+  x:["C","Media entre el cliente y el equipo; no compromete tiempos ni costos sin validarlos."]},
+ {g:"Cultura", name:"30% del tiempo en campo, base en CDMX y viajes a Morelia",
+  r:["S","No se aborda."], t:["S","No se aborda."], x:["S","No se aborda."]}
+];
+
+// A = alerta, V = validar, L = sin alerta
+const EXCL = [
+ {name:"Vendedor de horas, staffing o licenciamiento", d:"Perfil que no se busca",
+  r:["A","Su cuota permite que 60–70% venga de staffing especializado; solo 30–40% debe ser proyectos y servicios de valor."],
+  t:["A","Su cuota incluye staffing y licenciamiento, sin desglose por línea de negocio."],
+  x:["A","Habla de tabuladores tarifarios, aumentos de tarifa y asignaciones de personal."]},
+ {name:"Farmer o gestor de cuentas sin hunting", d:"Rechazo inmediato",
+  r:["V","Combina apertura y crecimiento de cuentas. Su KPI actual incluye metas de crecimiento por cuenta."],
+  t:["V","Hoy trabaja 100% como hunter, pero sus dos empleos previos fueron de gestión de cuentas (≈50 cuentas en Iron; Citi y Banamex)."],
+  x:["A","Sus principales logros son de crecimiento de cuentas: +70% en cuentas activas y +30% en HSBC."]},
+ {name:"No articula prospección en frío ni ciclo consultivo", d:"Rechazo inmediato",
+  r:["V","Describe bien el ciclo consultivo, pero no su método de prospección en frío."],
+  t:["L","Explica su prospección en frío paso a paso."],
+  x:["V","Describe red de contactos y eventos más que prospección en frío."]},
+ {name:"Venta transaccional de ticket bajo y ciclo corto", d:"Perfil que no se busca",
+  r:["L","Vende proyectos llave en mano y servicios administrados."],
+  t:["L","Vende desarrollo a la medida y proyectos de transformación digital."],
+  x:["L","Vende desarrollo a la medida y modernización de sistemas por RFP."]},
+ {name:"Solo corporativos o globales, sin trato con C-level", d:"Rechazo inmediato",
+  r:["L","Fue socio director en una empresa mexicana y director de unidad."],
+  t:["V","Su trayectoria es en empresas con matriz extranjera; no se aborda trabajo con un CEO fundador."],
+  x:["L","Hoy reporta al dueño de una empresa mexicana."]}
+];
+
+const FICHA = {
+ r:{
+  ok:["Cuota individual actual de $39.8 M MXN, casi el doble de la del puesto, con 88.1% a septiembre.","Experiencia en aerotransporte y manufactura, dos de las verticales objetivo.","Experiencia construyendo proceso comercial y dirigiendo equipos de venta.","Fuerte en ciclo completo: contrato, orden de compra, facturación y cobranza.","Dio un ejemplo concreto de error y cómo lo resolvió."],
+  bad:["Su cuota permite que la mayor parte venga de staffing, modelo que el puesto busca dejar atrás.","Su estrategia de apertura se apoya en su red de contactos; no describe prospección en frío.","No usa HubSpot ni menciona herramientas de IA en su trabajo.","Condiciona los resultados a 6 meses al respaldo y agilidad interna de la empresa.","Clientes nuevos documentados son de 2013 a 2016."],
+  inc:["La calificación recibida marca cumplimiento total en todos los rubros, incluida la parte de staffing.","El reporte indica que no vive en la misma ubicación ni trabaja en la misma industria, sin explicación; su CV indica Naucalpan y una empresa de TI."],
+  miss:["Cuántas cuentas ha abierto por cuenta propia en IDS y cuáles.","Mezcla real de su venta 2025–2026: proyectos contra staffing.","Duración de sus ciclos de venta.","Experiencia en venta por resultados.","Experiencia con un CEO fundador exigente.","Disposición a 30% en campo y viajes a Morelia.","Expectativa salarial (solo se sabe que su salario actual está por debajo del rango)."]
+ },
+ t:{
+  ok:["Hoy trabaja 100% como hunter, sin cartera asignada.","Explica con claridad su prospección en frío y usa IA para personalizar mensajes.","Base técnica sólida: puede llevar conversaciones con CTOs sin preventa.","Experiencia en ciclo completo y coordinación con delivery."],
+  bad:["Su cuota incluye staffing y licenciamiento, sin desglose.","Sus dos empleos previos fueron de gestión de cuentas existentes.","Avance de 60% a septiembre y sin historial de cumplimiento en empleos anteriores.","Sin experiencia comprobada en las verticales objetivo.","No dio un ejemplo de error propio."],
+  inc:["Menciona IDS (cuentas Citi y Banamex) en la entrevista y en el video, pero IDS no aparece en su CV.","Fechas encimadas en el CV: Lagash (jun 2016–feb 2019), Silice (ene 2017–feb 2019) y GIGAS (feb 2018–mar 2019); GMEDIA (ene 2012–ene 2015) y Stefanini (feb 2013–ene 2015).","Su puesto en TSOFT no tiene fecha de inicio; por el CV empezaría después de marzo de 2026, y reporta USD 1.2 M acumulados a septiembre.","Sus tres últimos empleos duraron de 6 a 18 meses; el reporte indica un promedio de 3 años.","El reporte le asigna \"necesita capacitación\" en conocimientos técnicos y en información requerida, pero la calificación total es 92.5.","Su último salario conocido (Iron Mountain) fue de unos $30 mil MXN mensuales, frente a un rango de $140 a $155 mil."],
+  miss:["Nombres y número de clientes nuevos abiertos.","Historial de cumplimiento de cuota por año.","Qué parte de su cuota es staffing y licenciamiento.","Ticket promedio y duración de ciclos.","Experiencia con un CEO fundador exigente.","Disposición a 30% en campo y viajes a Morelia.","Expectativa salarial."]
+ },
+ x:{
+  ok:["Abrió 2 cuentas nuevas en su puesto actual, una por RFP en menos de 6 meses.","Reporta directo al dueño de la empresa y trabaja sin supervisión.","Lleva el ciclo completo, incluidos contratos y facturación.","Usa Claude y Gemini en su trabajo comercial."],
+  bad:["Cerca de 5 años de experiencia comercial; el puesto pide 8 a 10.","Su cuota de $8 M MXN es 40% de la del puesto.","Solo tiene experiencia en sector financiero.","Sus principales logros son de crecimiento de cuentas existentes (farming).","Su discurso se centra en tarifas y asignación de personal.","Reconoce un conocimiento técnico básico.","No dio un ejemplo de error propio."],
+  inc:["El reporte indica que cumple los 8 a 10 años de experiencia y le da 5 estrellas en experiencia; su trayectoria comercial es de cerca de 5 años.","Periodo sin empleo de enero a julio de 2025.","Atiende un negocio propio los fines de semana; validar su dedicación al puesto.","Dice haber superado su cuota sin dar monto ni porcentaje."],
+  miss:["Monto exacto vendido contra su cuota.","Sectores atendidos fuera del financiero, con nombres de clientes.","Qué parte de su venta es por tarifa o asignación de personal.","Ticket promedio.","Experiencia en venta por resultados y en construir procesos o playbooks.","Disposición a 30% en campo y viajes a Morelia.","Expectativa salarial."]
+ }
+};
+
+const DATA = [
+ ["Puesto actual","Senior Sales Manager, IDS Comercial (desde feb 2023)","Gerente Comercial / Account Manager, TSOFT (sin fecha de inicio)","Gerente Comercial, Digital Challengers IT (desde ago 2025)"],
+ ["Experiencia comercial en tecnología","≈30 años","12 años","≈5 años"],
+ ["Cuota anual actual","$39.8 M MXN","USD 2 M","$8 M MXN"],
+ ["Avance a septiembre 2026","88.1%","60%","Más de 100% (sin cifra)"],
+ ["Clientes nuevos con nombre","4 (2013–2016)","Ninguno","2 (2025–2026)"],
+ ["Sectores","Retail, aerotransporte, manufactura, financiero","Financiero, seguros, retail, automotriz","Financiero"],
+ ["Personal a cargo hoy","Ninguno (antes dirigió 7 ejecutivos)","Ninguno","Ninguno"],
+ ["Reporta a","Director de unidad de negocio","Country Manager","CEO y dueño"],
+ ["CRM y prospección","Dynamics, Salesforce, Apollo","Apollo, Sales QR, IA","Apollo, LinkedIn, Claude, Gemini"],
+ ["Salario actual","Debajo del rango ($140–155 mil)","Debajo del rango; último conocido ≈$30 mil","Debajo del rango"],
+ ["Calificación recibida","97.5 / 100","92.5 / 100","95 / 100"]
+];
+
+const PTS = {C:2,P:1,N:0,S:0};
+const LBL = {C:["✓","Cumple"],P:["~","Parcial"],N:["✕","No cumple"],S:["?","Sin información"]};
+const EX = {A:["alert","✕","Alerta"],V:["val","~","Validar"],L:["clear","✓","Sin alerta"]};
+const chip = s => `<span class="chip s-${s}"><i>${LBL[s][0]}</i>${LBL[s][1]}</span>`;
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+
+function score(cid, group){
+  const list = CRIT.filter(c => !group || c.g===group);
+  const got = list.reduce((a,c)=>a+PTS[c[cid][0]],0);
+  return {got, max:list.length*2, pct:Math.round(got/(list.length*2)*100)};
+}
+function counts(cid){
+  const o={C:0,P:0,N:0,S:0}; CRIT.forEach(c=>o[c[cid][0]]++); return o;
+}
+
+// encabezados de tablas
+C.forEach((c,i)=>{
+  ["eh","mh","dh"].forEach(p=>{document.getElementById(p+i).innerHTML=`<span class="dot cdot" style="background:var(${c.color})"></span>${c.name}`});
+});
+
+// tarjetas
+document.getElementById("cards").innerHTML = C.map(c=>{
+  const s=score(c.id), k=counts(c.id);
+  const alerts = EXCL.filter(e=>e[c.id][0]==="A").map(e=>e.name);
+  const failKey = CRIT.some(cr=>cr.key && cr[c.id][0]==="N");
+  const R=40, L=2*Math.PI*R;
+  const st = failKey
+    ? `<div class="status stop">✕ No cumple el requisito de años de experiencia</div>`
+    : `<div class="status go">~ Perfil potencial sujeto a validaciones</div>`;
+  const tot = CRIT.length;
+  const seg = ["C","P","N","S"].map(x=>`<span title="${LBL[x][1]}: ${k[x]}" style="width:${k[x]/tot*100}%;background:var(--${{C:"ok",P:"mid",N:"bad",S:"na"}[x]})"></span>`).join("");
+  return `<article class="card" style="--cc:var(${c.color})">
+    <div class="who">
+      <div class="ring" aria-label="Compatibilidad ${s.pct}%">
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="${R}" fill="none" stroke="var(--surface-2)" stroke-width="10"/>
+        <circle cx="50" cy="50" r="${R}" fill="none" stroke="var(${c.color})" stroke-width="10" stroke-linecap="round" stroke-dasharray="${L*s.pct/100} ${L}"/></svg>
+        <div class="v">${s.pct}%<small>scan</small></div>
+      </div>
+      <div><h3>${c.name}</h3><div class="role">${c.role}</div></div>
+    </div>
+    ${st}
+    <div class="stack" aria-hidden="true">${seg}</div>
+    <div class="counts">
+      <div><b>${k.C}</b>Cumple</div><div><b>${k.P}</b>Parcial</div><div><b>${k.N}</b>No cumple</div><div><b>${k.S}</b>Sin info.</div>
+    </div>
+    <div class="keyline">
+      <div><span>Puntos</span><b>${s.got} de ${s.max}</b></div>
+      <div><span>Calificación recibida</span><b>${c.received} / 100</b></div>
+      <div><span>Alertas de exclusión</span><b>${alerts.length} de ${EXCL.length}</b></div>
+    </div>
+    <ul class="alerts">${alerts.map(a=>`<li>${a}</li>`).join("")}</ul>
+  </article>`;
+}).join("");
+
+// barras por bloque
+document.getElementById("bars").innerHTML = ["Experiencia","Habilidades","Cultura"].map(g=>`
+  <div class="bar-g"><div class="gl">${g}</div>
+  ${C.map(c=>{const s=score(c.id,g);return `<div class="bar-r" tabindex="0" title="${c.name} · ${g}: ${s.got} de ${s.max} puntos (${s.pct}%)">
+    <span class="nm">${c.short}</span><span class="track"><span class="fill" style="display:block;width:${s.pct}%;background:var(${c.color})"></span></span><span class="pc">${s.pct}%</span></div>`}).join("")}
+  </div>`).join("");
+
+// dumbbell
+(function(){
+  const svg=document.getElementById("dumb"), x0=96, x1=420, sx=v=>x0+(x1-x0)*v/100;
+  let h="";
+  [0,25,50,75,100].forEach(v=>{h+=`<line class="grid" x1="${sx(v)}" x2="${sx(v)}" y1="14" y2="196" stroke-width="1"/><text class="ax" x="${sx(v)}" y="214" text-anchor="middle">${v}</text>`});
+  C.forEach((c,i)=>{
+    const y=46+i*62, s=score(c.id).pct;
+    h+=`<g><title>${c.name}: calificación recibida ${c.received}; compatibilidad con el scan ${s}%; diferencia ${Math.round(c.received-s)} puntos</title>
+      <text class="lab" x="0" y="${y+4}">${c.short}</text>
+      <line x1="${sx(s)}" x2="${sx(c.received)}" y1="${y}" y2="${y}" stroke="var(${c.color})" stroke-width="4" stroke-linecap="round" opacity=".55"/>
+      <circle cx="${sx(c.received)}" cy="${y}" r="7" fill="var(--muted)" stroke="var(--surface)" stroke-width="2"/>
+      <circle cx="${sx(s)}" cy="${y}" r="8" fill="var(--ink)" stroke="var(--surface)" stroke-width="2"/>
+      <text x="${sx(s)}" y="${y-14}" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--ink)">${s}%</text>
+      <text x="${sx(c.received)}" y="${y+24}" text-anchor="middle" font-size="12">${c.received}</text>
+      <text x="${(sx(s)+sx(c.received))/2}" y="${y+24}" text-anchor="middle" font-size="11" style="fill:var(--bad);font-weight:700">−${Math.round(c.received-s)}</text></g>`;
+  });
+  svg.innerHTML=h;
+})();
+
+// exclusión
+document.getElementById("excl").innerHTML = EXCL.map(e=>`<tr>
+  <td class="crit">${e.name}<small>${e.d}</small></td>
+  ${C.map(c=>{const [s,txt]=e[c.id],m=EX[s];return `<td class="cell"><span class="chip ${m[0]}"><i>${m[1]}</i>${m[2]}</span><p>${esc(txt)}</p></td>`}).join("")}
+</tr>`).join("");
+
+// matriz
+function renderMatrix(f,g){
+  let html="", last="";
+  CRIT.forEach(cr=>{
+    const st=C.map(c=>cr[c.id][0]);
+    let show = f==="all" || (f==="gap" && st.some(s=>s==="N"||s==="P")) || (f==="na" && st.includes("S"));
+    if(g!=="all" && cr.g!==g) show=false;
+    if(!show) return;
+    if(cr.g!==last){html+=`<tr class="grp"><td colspan="4">${cr.g}</td></tr>`; last=cr.g;}
+    html+=`<tr><td class="crit">${cr.name}${cr.d?`<small>${cr.d}</small>`:""}</td>${C.map(c=>`<td class="cell">${chip(cr[c.id][0])}<p>${esc(cr[c.id][1])}</p></td>`).join("")}</tr>`;
+  });
+  document.getElementById("matrix").innerHTML = html || `<tr><td colspan="4">No hay criterios con este filtro.</td></tr>`;
+}
+let F="all", G="all";
+document.querySelectorAll("[data-f]").forEach(b=>b.addEventListener("click",()=>{F=b.dataset.f;document.querySelectorAll("[data-f]").forEach(x=>x.setAttribute("aria-pressed",x===b));renderMatrix(F,G)}));
+document.querySelectorAll("[data-g]").forEach(b=>b.addEventListener("click",()=>{G=b.dataset.g;document.querySelectorAll("[data-g]").forEach(x=>x.setAttribute("aria-pressed",x===b));renderMatrix(F,G)}));
+renderMatrix(F,G);
+
+// ficha
+const picker=document.getElementById("picker");
+picker.innerHTML=C.map((c,i)=>`<button type="button" data-c="${c.id}" aria-pressed="${i===0}"><span class="dot" style="background:var(${c.color})"></span>${c.name}</button>`).join("");
+function renderFicha(id){
+  const f=FICHA[id];
+  const col=(cls,ic,t,arr)=>`<div class="col ${cls}"><h3>${ic} ${t} <span class="n">${arr.length}</span></h3><ul>${arr.map(a=>`<li>${esc(a)}</li>`).join("")}</ul></div>`;
+  document.getElementById("fichaBody").innerHTML =
+    col("ok","✓","Coincide con el perfil",f.ok)+col("bad","✕","Discrepancias",f.bad)+col("mid","~","Información inconsistente",f.inc)+col("na","?","Falta para considerarlo potencial",f.miss);
+}
+picker.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{picker.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));renderFicha(b.dataset.c)}));
+renderFicha("r");
+
+// datos
+document.getElementById("cmp").innerHTML = DATA.map(r=>`<tr><td class="k">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("");
+</script>
+</body></html>
